@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, Clock, Trophy, Lightbulb, RotateCcw } from 'lucide-react';
+import { ArrowLeft, Clock, Trophy, Film, RotateCcw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 interface GameHeaderProps {
@@ -67,8 +67,8 @@ const GameHeader: React.FC<GameHeaderProps> = ({
         <div className="text-xs font-semibold px-2 py-1 rounded-lg bg-primary/10 text-primary">
           {wordsFound}/{totalWords}
         </div>
-        <Button variant="ghost" size="icon" onClick={onHint} className="rounded-xl" title="Get a hint">
-          <Lightbulb className="h-4 w-4" />
+        <Button variant="ghost" size="icon" onClick={onHint} className="rounded-xl" title="Watch ad for hint">
+          <Film className="h-4 w-4" />
         </Button>
         <Button variant="ghost" size="icon" onClick={onNewPuzzle} className="rounded-xl" title="New puzzle">
           <RotateCcw className="h-4 w-4" />

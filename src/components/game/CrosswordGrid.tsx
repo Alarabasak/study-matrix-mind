@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect, useRef } from 'react';
+import React, { useState, useCallback, useRef } from 'react';
 import { Cell, LetterCell, ClueCell, PlacedWord, Direction } from '@/types/crossword';
 import { cn } from '@/lib/utils';
 
@@ -8,12 +8,6 @@ interface CrosswordGridProps {
   onCellChange: (row: number, col: number, letter: string) => void;
   onWordComplete: (wordIndex: number, correct: boolean) => void;
 }
-
-const ArrowIcon: React.FC<{ direction: Direction }> = ({ direction }) => (
-  <span className="text-primary font-bold text-[8px] sm:text-[10px] leading-none">
-    {direction === 'right' ? '→' : '↓'}
-  </span>
-);
 
 const CrosswordGrid: React.FC<CrosswordGridProps> = ({
   grid,
@@ -32,7 +26,6 @@ const CrosswordGrid: React.FC<CrosswordGridProps> = ({
     if (activeWordIndex === null) return new Set();
     const word = placedWords.find(w => w.index === activeWordIndex);
     if (!word) return new Set();
-
     const cells = new Set<string>();
     const dr = word.direction === 'down' ? 1 : 0;
     const dc = word.direction === 'right' ? 1 : 0;
@@ -49,8 +42,7 @@ const CrosswordGrid: React.FC<CrosswordGridProps> = ({
     if (cell.type !== 'letter') return;
 
     const letterCell = cell as LetterCell;
-    
-    // If clicking same cell, toggle direction if multiple words
+
     if (selectedCell?.row === row && selectedCell?.col === col && letterCell.wordIndices.length > 1) {
       const currentIdx = letterCell.wordIndices.indexOf(activeWordIndex!);
       const nextIdx = (currentIdx + 1) % letterCell.wordIndices.length;
@@ -70,6 +62,18 @@ const CrosswordGrid: React.FC<CrosswordGridProps> = ({
     }
 
     setTimeout(() => inputRef.current?.focus(), 10);
+  };
+
+  const handleClueClick = (clue: ClueCell) => {
+    if (clue.clues.length === 0) return;
+    const entry = clue.clues[0];
+    const word = placedWords.find(w => w.index === entry.wordIndex);
+    if (word) {
+      setSelectedCell({ row: word.startRow, col: word.startCol });
+      setActiveWordIndex(word.index);
+      setActiveDirection(word.direction);
+      setTimeout(() => inputRef.current?.focus(), 10);
+    }
   };
 
   const moveToNextCell = useCallback((row: number, col: number, dir: Direction) => {
@@ -118,7 +122,6 @@ const CrosswordGrid: React.FC<CrosswordGridProps> = ({
       onCellChange(row, col, letter);
       moveToNextCell(row, col, activeDirection);
 
-      // Check if word is complete
       if (activeWordIndex !== null) {
         const word = placedWords.find(w => w.index === activeWordIndex);
         if (word) {
@@ -150,7 +153,6 @@ const CrosswordGrid: React.FC<CrosswordGridProps> = ({
     return '';
   };
 
-  // Calculate cell size based on grid dimensions
   const cellSize = Math.min(
     Math.floor(Math.min(window.innerWidth - 32, 600) / cols),
     Math.floor(Math.min(window.innerHeight - 200, 500) / rows),
@@ -174,6 +176,65 @@ const CrosswordGrid: React.FC<CrosswordGridProps> = ({
       >
         {grid.map((row, ri) =>
           row.map((cell, ci) => {
+            if (cell.type === 'clue') {
+              const clue = cell as ClueCell;
+              const hasClues = clue.clues.length > 0;
+              return (
+                <div
+                  key={`${ri}-${ci}`}
+                  className={cn(
+                    'cell-clue flex flex-col items-center justify-center overflow-hidden border border-border/50 relative',
+                    hasClues && 'cursor-pointer'
+                  )}
+                  style={{ width: cellSize, height: cellSize }}
+                  onClick={() => hasClues && handleClueClick(clue)}
+                  title={clue.clues.map(c => c.text).join(' | ')}
+                >
+                  {clue.clues.length === 2 ? (
+                    // Dual clue: split diagonally
+                    <>
+                      <div className="absolute inset-0">
+                        <div className="absolute top-0 right-0 w-full h-1/2 flex flex-col items-center justify-center px-0.5">
+                          <span className="text-center leading-none text-foreground/80 line-clamp-2 text-[5px] sm:text-[6px]">
+                            {clue.clues[0].text}
+                          </span>
+                          <span className="text-primary font-bold text-[7px] sm:text-[8px]">
+                            {clue.clues[0].direction === 'right' ? '→' : '↓'}
+                          </span>
+                        </div>
+                        <div className="absolute bottom-0 left-0 w-full h-1/2 flex flex-col items-center justify-center px-0.5 border-t border-border/30">
+                          <span className="text-center leading-none text-foreground/80 line-clamp-2 text-[5px] sm:text-[6px]">
+                            {clue.clues[1].text}
+                          </span>
+                          <span className="text-primary font-bold text-[7px] sm:text-[8px]">
+                            {clue.clues[1].direction === 'right' ? '→' : '↓'}
+                          </span>
+                        </div>
+                      </div>
+                      {/* Diagonal separator */}
+                      <div className="absolute inset-0 pointer-events-none">
+                        <svg className="w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
+                          <line x1="0" y1="100" x2="100" y2="0" stroke="hsl(var(--border))" strokeWidth="1" />
+                        </svg>
+                      </div>
+                    </>
+                  ) : clue.clues.length === 1 ? (
+                    <>
+                      <span className="text-center leading-none text-foreground/80 line-clamp-3 text-[5px] sm:text-[6px]">
+                        {clue.clues[0].text}
+                      </span>
+                      <span className="text-primary font-bold text-[8px] sm:text-[10px] leading-none">
+                        {clue.clues[0].direction === 'right' ? '→' : '↓'}
+                      </span>
+                    </>
+                  ) : (
+                    // Empty clue cell (filler)
+                    <div className="w-full h-full bg-secondary/30" />
+                  )}
+                </div>
+              );
+            }
+
             if (cell.type === 'block') {
               return (
                 <div
@@ -181,33 +242,6 @@ const CrosswordGrid: React.FC<CrosswordGridProps> = ({
                   className="bg-secondary/50 border border-border/50"
                   style={{ width: cellSize, height: cellSize }}
                 />
-              );
-            }
-
-            if (cell.type === 'clue') {
-              const clue = cell as ClueCell;
-              return (
-                <div
-                  key={`${ri}-${ci}`}
-                  className="cell-clue flex flex-col items-center justify-center overflow-hidden border border-border/50 relative"
-                  style={{ width: cellSize, height: cellSize }}
-                  onClick={() => {
-                    // Click clue to select first letter of that word
-                    const word = placedWords.find(w => w.index === clue.wordIndex);
-                    if (word) {
-                      setSelectedCell({ row: word.startRow, col: word.startCol });
-                      setActiveWordIndex(word.index);
-                      setActiveDirection(word.direction);
-                      setTimeout(() => inputRef.current?.focus(), 10);
-                    }
-                  }}
-                  title={clue.clueText}
-                >
-                  <span className="text-center leading-none text-foreground/80 line-clamp-3">
-                    {clue.clueText}
-                  </span>
-                  <ArrowIcon direction={clue.direction} />
-                </div>
               );
             }
 

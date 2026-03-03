@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { categories } from '@/data/questions';
 import { Button } from '@/components/ui/button';
-import { Sparkles, BookOpen, Gamepad2 } from 'lucide-react';
+import { Sparkles, BookOpen, Gamepad2, BarChart3 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const gridSizes = [
@@ -34,6 +34,14 @@ const Index: React.FC = () => {
         <p className="text-muted-foreground max-w-md mx-auto text-sm sm:text-base">
           Master your subjects with fun arrow crossword puzzles. Pick a topic, choose your grid, and start solving!
         </p>
+        <Button
+          variant="ghost"
+          className="mt-3 gap-2 font-display"
+          onClick={() => navigate('/dashboard')}
+        >
+          <BarChart3 className="h-4 w-4" />
+          View Statistics
+        </Button>
       </div>
 
       {/* Category Selection */}

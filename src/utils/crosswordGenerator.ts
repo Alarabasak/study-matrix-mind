@@ -1,4 +1,4 @@
-import { Cell, ClueCell, LetterCell, BlockCell, PlacedWord, QuestionItem, Direction } from '@/types/crossword';
+import { Cell, ClueCell, LetterCell, PlacedWord, QuestionItem, Direction, ClueEntry } from '@/types/crossword';
 
 function shuffleArray<T>(arr: T[]): T[] {
   const shuffled = [...arr];
@@ -26,15 +26,21 @@ function canPlaceWord(
   const dr = direction === 'down' ? 1 : 0;
   const dc = direction === 'right' ? 1 : 0;
 
-  // Check clue cell position (one before the word)
+  // Clue cell position (one before the word)
   const clueRow = startRow - dr;
   const clueCol = startCol - dc;
   if (clueRow < 0 || clueCol < 0 || clueRow >= rows || clueCol >= cols) return false;
 
   const clueCell = grid[clueRow][clueCol];
-  if (clueCell.type !== 'block') return false;
+  // Clue cell must be a block (empty) or an existing clue without this direction
+  if (clueCell.type === 'letter') return false;
+  if (clueCell.type === 'clue') {
+    const cc = clueCell as ClueCell;
+    if (cc.clues.some(c => c.direction === direction)) return false;
+    if (cc.clues.length >= 2) return false;
+  }
 
-  // Check word fits
+  // Check word fits in grid
   const endRow = startRow + dr * (word.length - 1);
   const endCol = startCol + dc * (word.length - 1);
   if (endRow >= rows || endCol >= cols) return false;
@@ -54,6 +60,15 @@ function canPlaceWord(
   return true;
 }
 
+function addClueToCell(grid: Cell[][], row: number, col: number, clue: ClueEntry): void {
+  const cell = grid[row][col];
+  if (cell.type === 'clue') {
+    (cell as ClueCell).clues.push(clue);
+  } else {
+    grid[row][col] = { type: 'clue', clues: [clue] };
+  }
+}
+
 export function generateCrossword(
   questions: QuestionItem[],
   gridSize: string
@@ -62,69 +77,53 @@ export function generateCrossword(
 
   // Initialize grid with block cells
   const grid: Cell[][] = Array.from({ length: rows }, () =>
-    Array.from({ length: cols }, (): BlockCell => ({ type: 'block' }))
+    Array.from({ length: cols }, (): Cell => ({ type: 'block' }))
   );
 
   const placedWords: PlacedWord[] = [];
   const shuffled = shuffleArray(questions);
 
-  // Filter words that can fit (answer length + 1 for clue cell must fit)
-  const validQuestions = shuffled.filter(q => {
-    const len = q.answer.length;
-    return len + 1 <= Math.max(rows, cols) && len >= 2;
-  });
-
-  // Remove duplicate answers
+  // Filter valid, unique answers
   const seen = new Set<string>();
-  const uniqueQuestions = validQuestions.filter(q => {
-    if (seen.has(q.answer)) return false;
-    seen.add(q.answer);
+  const uniqueQuestions = shuffled.filter(q => {
+    const answer = q.answer.toUpperCase();
+    if (seen.has(answer)) return false;
+    if (answer.length + 1 > Math.max(rows, cols) || answer.length < 2) return false;
+    seen.add(answer);
     return true;
   });
 
-  // Try to place words
   let wordIndex = 0;
 
   for (const q of uniqueQuestions) {
     const word = q.answer.toUpperCase();
     let placed = false;
 
-    // If first word, place it near top-left
+    // First word: place near top-left
     if (placedWords.length === 0) {
-      // Try horizontal first
       const startRow = 1;
       const startCol = 1;
       if (startCol + word.length <= cols && startRow < rows) {
-        // Place clue cell
-        const clueCell: ClueCell = {
-          type: 'clue',
-          clueText: q.question,
+        addClueToCell(grid, startRow, 0, {
+          text: q.question,
           direction: 'right',
           wordIndex,
-        };
-        grid[startRow][0] = clueCell;
+        });
 
-        // Place letters
         for (let i = 0; i < word.length; i++) {
-          const letterCell: LetterCell = {
+          grid[startRow][startCol + i] = {
             type: 'letter',
             expectedLetter: word[i],
             userLetter: '',
             wordIndices: [wordIndex],
             isRevealed: false,
           };
-          grid[startRow][startCol + i] = letterCell;
         }
 
         placedWords.push({
-          question: q.question,
-          answer: word,
-          startRow,
-          startCol,
-          clueRow: startRow,
-          clueCol: 0,
-          direction: 'right',
-          index: wordIndex,
+          question: q.question, answer: word,
+          startRow, startCol, clueRow: startRow, clueCol: 0,
+          direction: 'right', index: wordIndex,
         });
         wordIndex++;
         placed = true;
@@ -135,23 +134,19 @@ export function generateCrossword(
     // Try to intersect with existing words
     for (const pw of shuffleArray([...placedWords])) {
       if (placed) break;
-
       for (let pi = 0; pi < pw.answer.length; pi++) {
         if (placed) break;
         const existingLetter = pw.answer[pi];
-        
-        // Find matching letter in new word
+
         for (let ni = 0; ni < word.length; ni++) {
           if (placed) break;
           if (word[ni] !== existingLetter) continue;
 
-          // Calculate intersection
           const dr = pw.direction === 'down' ? 1 : 0;
           const dc = pw.direction === 'right' ? 1 : 0;
           const intersectRow = pw.startRow + dr * pi;
           const intersectCol = pw.startCol + dc * pi;
 
-          // New word goes perpendicular
           const newDir: Direction = pw.direction === 'right' ? 'down' : 'right';
           const ndr = newDir === 'down' ? 1 : 0;
           const ndc = newDir === 'right' ? 1 : 0;
@@ -163,42 +158,30 @@ export function generateCrossword(
             const clueRow = newStartRow - ndr;
             const clueCol = newStartCol - ndc;
 
-            // Place clue
-            grid[clueRow][clueCol] = {
-              type: 'clue',
-              clueText: q.question,
+            addClueToCell(grid, clueRow, clueCol, {
+              text: q.question,
               direction: newDir,
               wordIndex,
-            };
+            });
 
-            // Place letters
             for (let i = 0; i < word.length; i++) {
               const r = newStartRow + ndr * i;
               const c = newStartCol + ndc * i;
               const existing = grid[r][c];
-
               if (existing.type === 'letter') {
                 (existing as LetterCell).wordIndices.push(wordIndex);
               } else {
                 grid[r][c] = {
-                  type: 'letter',
-                  expectedLetter: word[i],
-                  userLetter: '',
-                  wordIndices: [wordIndex],
-                  isRevealed: false,
+                  type: 'letter', expectedLetter: word[i],
+                  userLetter: '', wordIndices: [wordIndex], isRevealed: false,
                 };
               }
             }
 
             placedWords.push({
-              question: q.question,
-              answer: word,
-              startRow: newStartRow,
-              startCol: newStartCol,
-              clueRow,
-              clueCol,
-              direction: newDir,
-              index: wordIndex,
+              question: q.question, answer: word,
+              startRow: newStartRow, startCol: newStartCol,
+              clueRow, clueCol, direction: newDir, index: wordIndex,
             });
             wordIndex++;
             placed = true;
@@ -207,7 +190,7 @@ export function generateCrossword(
       }
     }
 
-    // Try random placement if no intersection found
+    // Random placement fallback
     if (!placed && placedWords.length < 20) {
       const directions: Direction[] = shuffleArray(['right', 'down'] as Direction[]);
       for (const dir of directions) {
@@ -223,12 +206,9 @@ export function generateCrossword(
             const clueRow = sr - dr;
             const clueCol = sc - dc;
 
-            grid[clueRow][clueCol] = {
-              type: 'clue',
-              clueText: q.question,
-              direction: dir,
-              wordIndex,
-            };
+            addClueToCell(grid, clueRow, clueCol, {
+              text: q.question, direction: dir, wordIndex,
+            });
 
             for (let i = 0; i < word.length; i++) {
               const r = sr + dr * i;
@@ -238,24 +218,16 @@ export function generateCrossword(
                 (existing as LetterCell).wordIndices.push(wordIndex);
               } else {
                 grid[r][c] = {
-                  type: 'letter',
-                  expectedLetter: word[i],
-                  userLetter: '',
-                  wordIndices: [wordIndex],
-                  isRevealed: false,
+                  type: 'letter', expectedLetter: word[i],
+                  userLetter: '', wordIndices: [wordIndex], isRevealed: false,
                 };
               }
             }
 
             placedWords.push({
-              question: q.question,
-              answer: word,
-              startRow: sr,
-              startCol: sc,
-              clueRow,
-              clueCol,
-              direction: dir,
-              index: wordIndex,
+              question: q.question, answer: word,
+              startRow: sr, startCol: sc,
+              clueRow, clueCol, direction: dir, index: wordIndex,
             });
             wordIndex++;
             placed = true;
@@ -266,6 +238,15 @@ export function generateCrossword(
     }
 
     if (placedWords.length >= 15) break;
+  }
+
+  // Convert remaining block cells to empty clue cells (no black squares)
+  for (let r = 0; r < rows; r++) {
+    for (let c = 0; c < cols; c++) {
+      if (grid[r][c].type === 'block') {
+        grid[r][c] = { type: 'clue', clues: [] } as ClueCell;
+      }
+    }
   }
 
   return { grid, placedWords };

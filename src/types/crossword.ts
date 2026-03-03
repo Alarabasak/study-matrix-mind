@@ -8,11 +8,15 @@ export interface QuestionItem {
   category: string;
 }
 
-export interface ClueCell {
-  type: 'clue';
-  clueText: string;
+export interface ClueEntry {
+  text: string;
   direction: Direction;
   wordIndex: number;
+}
+
+export interface ClueCell {
+  type: 'clue';
+  clues: ClueEntry[];
 }
 
 export interface LetterCell {
@@ -59,4 +63,25 @@ export interface Category {
   icon: string;
   description: string;
   color: string;
+}
+
+export interface AdHintRecord {
+  word: string;
+  question: string;
+  category: string;
+  categoryName: string;
+  timestamp: number;
+}
+
+export interface GameSessionRecord {
+  id: string;
+  category: string;
+  categoryName: string;
+  gridSize: string;
+  score: number;
+  wordsFound: number;
+  totalWords: number;
+  duration: number;
+  timestamp: number;
+  adHintsUsed: number;
 }
