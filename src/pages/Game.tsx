@@ -1,13 +1,14 @@
-import React, { useState, useCallback, useMemo } from 'react';
+import React, { useState, useCallback, useMemo, useRef } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { LetterCell, PlacedWord } from '@/types/crossword';
 import { generateCrossword } from '@/utils/crosswordGenerator';
 import { questionBank, categories } from '@/data/questions';
+import { addAdHint, saveGameSession } from '@/utils/gameStats';
 import CrosswordGrid from '@/components/game/CrosswordGrid';
 import GameHeader from '@/components/game/GameHeader';
 import ClueList from '@/components/game/ClueList';
+import AdHintDialog from '@/components/game/AdHintDialog';
 import { toast } from 'sonner';
-import { PartyPopper } from 'lucide-react';
 
 const Game: React.FC = () => {
   const navigate = useNavigate();
@@ -30,12 +31,15 @@ const Game: React.FC = () => {
   const [completedWords, setCompletedWords] = useState<Set<number>>(new Set());
   const [startTime] = useState(Date.now());
   const [activeWordIndex, setActiveWordIndex] = useState<number | null>(null);
+  const [adDialogOpen, setAdDialogOpen] = useState(false);
+  const [adHintCount, setAdHintCount] = useState(0);
+  const adTargetWord = useRef<PlacedWord | null>(null);
 
-  // Reset when puzzle changes
   React.useEffect(() => {
     setGrid(initialGrid);
     setScore(0);
     setCompletedWords(new Set());
+    setAdHintCount(0);
   }, [initialGrid]);
 
   const handleCellChange = useCallback((row: number, col: number, letter: string) => {
@@ -55,8 +59,7 @@ const Game: React.FC = () => {
     if (correct) {
       setCompletedWords(prev => new Set([...prev, wordIndex]));
       setScore(prev => prev + 10);
-      
-      // Mark cells as revealed
+
       const word = placedWords.find(w => w.index === wordIndex);
       if (word) {
         setGrid(prev => {
@@ -73,8 +76,20 @@ const Game: React.FC = () => {
 
       toast.success('Correct! +10 points 🎉', { duration: 1500 });
 
-      // Check if all words found
       if (completedWords.size + 1 === placedWords.length) {
+        const duration = Math.floor((Date.now() - startTime) / 1000);
+        saveGameSession({
+          id: `${Date.now()}`,
+          category: categoryId,
+          categoryName: category.name,
+          gridSize,
+          score: score + 10,
+          wordsFound: completedWords.size + 1,
+          totalWords: placedWords.length,
+          duration,
+          timestamp: Date.now(),
+          adHintsUsed: adHintCount,
+        });
         toast('🎊 Puzzle Complete!', {
           description: `Score: ${score + 10} | Words: ${placedWords.length}`,
           duration: 5000,
@@ -83,35 +98,84 @@ const Game: React.FC = () => {
     } else {
       toast.error('Not quite right, keep trying!', { duration: 1500 });
     }
-  }, [completedWords, placedWords, score]);
+  }, [completedWords, placedWords, score, startTime, categoryId, category.name, gridSize, adHintCount]);
 
-  const handleHint = useCallback(() => {
-    // Find first incomplete word and reveal a letter
+  const handleAdHintRequest = useCallback(() => {
+    // Find first incomplete word with an unrevealed letter
     for (const word of placedWords) {
       if (completedWords.has(word.index)) continue;
       const dr = word.direction === 'down' ? 1 : 0;
       const dc = word.direction === 'right' ? 1 : 0;
-      
       for (let i = 0; i < word.answer.length; i++) {
         const r = word.startRow + dr * i;
         const c = word.startCol + dc * i;
         const cell = grid[r][c] as LetterCell;
         if (!cell.userLetter) {
-          handleCellChange(r, c, word.answer[i]);
-          setGrid(prev => {
-            const ng = prev.map(r => r.map(c => ({ ...c })));
-            const cl = ng[r][c] as LetterCell;
-            cl.userLetter = word.answer[i];
-            cl.isRevealed = true;
-            return ng;
-          });
-          setScore(prev => Math.max(0, prev - 3));
-          toast('💡 Hint used (-3 pts)', { duration: 1500 });
+          adTargetWord.current = word;
+          setAdDialogOpen(true);
           return;
         }
       }
     }
-  }, [grid, placedWords, completedWords, handleCellChange]);
+    toast('All letters are filled!', { duration: 1500 });
+  }, [grid, placedWords, completedWords]);
+
+  const handleAdConfirm = useCallback(() => {
+    const word = adTargetWord.current;
+    if (!word) return;
+
+    const dr = word.direction === 'down' ? 1 : 0;
+    const dc = word.direction === 'right' ? 1 : 0;
+
+    for (let i = 0; i < word.answer.length; i++) {
+      const r = word.startRow + dr * i;
+      const c = word.startCol + dc * i;
+      const cell = grid[r][c] as LetterCell;
+      if (!cell.userLetter) {
+        setGrid(prev => {
+          const ng = prev.map(r => r.map(c => ({ ...c })));
+          const cl = ng[r][c] as LetterCell;
+          cl.userLetter = word.answer[i];
+          cl.isRevealed = true;
+          return ng;
+        });
+        setScore(prev => Math.max(0, prev - 3));
+        setAdHintCount(prev => prev + 1);
+
+        // Record the ad hint
+        addAdHint({
+          word: word.answer,
+          question: word.question,
+          category: categoryId,
+          categoryName: category.name,
+          timestamp: Date.now(),
+        });
+
+        toast('💡 Letter revealed! (-3 pts)', { duration: 1500 });
+        return;
+      }
+    }
+  }, [grid, categoryId, category.name]);
+
+  const handleNewPuzzle = useCallback(() => {
+    // Save current session before starting new
+    if (completedWords.size > 0) {
+      const duration = Math.floor((Date.now() - startTime) / 1000);
+      saveGameSession({
+        id: `${Date.now()}`,
+        category: categoryId,
+        categoryName: category.name,
+        gridSize,
+        score,
+        wordsFound: completedWords.size,
+        totalWords: placedWords.length,
+        duration,
+        timestamp: Date.now(),
+        adHintsUsed: adHintCount,
+      });
+    }
+    setPuzzleKey(k => k + 1);
+  }, [completedWords, startTime, categoryId, category.name, gridSize, score, placedWords.length, adHintCount]);
 
   return (
     <div className="min-h-screen bg-background">
@@ -124,8 +188,8 @@ const Game: React.FC = () => {
           wordsFound={completedWords.size}
           totalWords={placedWords.length}
           onBack={() => navigate('/')}
-          onHint={handleHint}
-          onNewPuzzle={() => setPuzzleKey(k => k + 1)}
+          onHint={handleAdHintRequest}
+          onNewPuzzle={handleNewPuzzle}
           startTime={startTime}
         />
 
@@ -145,6 +209,13 @@ const Game: React.FC = () => {
           />
         </div>
       </div>
+
+      <AdHintDialog
+        open={adDialogOpen}
+        onClose={() => setAdDialogOpen(false)}
+        onConfirm={handleAdConfirm}
+        wordQuestion={adTargetWord.current?.question || ''}
+      />
     </div>
   );
 };
