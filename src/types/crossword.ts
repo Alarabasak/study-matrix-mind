@@ -2,10 +2,14 @@ export type Direction = 'right' | 'down';
 
 export type GridSize = '12x12' | '16x12' | '12x16';
 
-export interface QuestionItem {
-  question: string;
-  answer: string;
+export interface WordItem {
+  word: string;
+  clue: string;
   category: string;
+  difficulty: number;
+  grade: 'TYT' | 'AYT';
+  lang: 'tr';
+  frequency_score: number;
 }
 
 export interface ClueEntry {
@@ -34,14 +38,16 @@ export interface BlockCell {
 export type Cell = ClueCell | LetterCell | BlockCell;
 
 export interface PlacedWord {
-  question: string;
-  answer: string;
+  word: string;
+  clue: string;
   startRow: number;
   startCol: number;
   clueRow: number;
   clueCol: number;
   direction: Direction;
   index: number;
+  category: string;
+  difficulty: number;
 }
 
 export interface GameState {
@@ -63,11 +69,12 @@ export interface Category {
   icon: string;
   description: string;
   color: string;
+  grade: 'TYT' | 'AYT';
 }
 
 export interface AdHintRecord {
   word: string;
-  question: string;
+  clue: string;
   category: string;
   categoryName: string;
   timestamp: number;
@@ -84,4 +91,25 @@ export interface GameSessionRecord {
   duration: number;
   timestamp: number;
   adHintsUsed: number;
+  seed: number;
+}
+
+export interface UnknownWordRecord {
+  word: string;
+  clue: string;
+  category: string;
+  categoryName: string;
+  timestamp: number;
+  learned: boolean;
+}
+
+export interface PuzzleAnalytics {
+  generation_time_ms: number;
+  slot_count: number;
+  avg_word_length: number;
+  avg_intersection_count: number;
+  backtrack_count: number;
+  puzzle_score: number;
+  seed: number;
+  gridSize: string;
 }

@@ -2,29 +2,32 @@ import React, { useState, useCallback, useMemo, useRef } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { LetterCell, PlacedWord } from '@/types/crossword';
 import { generateCrossword } from '@/utils/crosswordGenerator';
-import { questionBank, categories } from '@/data/questions';
-import { addAdHint, saveGameSession } from '@/utils/gameStats';
+import { wordBank, categories } from '@/data/questions';
+import { addAdHint, saveGameSession, addUnknownWord } from '@/utils/gameStats';
 import CrosswordGrid from '@/components/game/CrosswordGrid';
 import GameHeader from '@/components/game/GameHeader';
 import ClueList from '@/components/game/ClueList';
 import AdHintDialog from '@/components/game/AdHintDialog';
+import TurkishKeyboard from '@/components/game/TurkishKeyboard';
 import { toast } from 'sonner';
 
 const Game: React.FC = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const categoryId = searchParams.get('category') || 'math';
-  const gridSize = searchParams.get('size') || '12x12';
+  const categoryId = searchParams.get('category') || 'tyt-mat';
+  const seedParam = parseInt(searchParams.get('seed') || `${Date.now()}`, 10);
 
   const category = categories.find(c => c.id === categoryId) || categories[0];
-  const questions = questionBank[categoryId] || questionBank.math;
+  const words = wordBank[categoryId] || wordBank['tyt-mat'];
 
-  const [puzzleKey, setPuzzleKey] = useState(0);
+  const [puzzleSeed, setPuzzleSeed] = useState(seedParam);
 
-  const { grid: initialGrid, placedWords } = useMemo(
-    () => generateCrossword(questions, gridSize),
-    [categoryId, gridSize, puzzleKey]
+  const result = useMemo(
+    () => generateCrossword(words, puzzleSeed),
+    [categoryId, puzzleSeed]
   );
+
+  const { grid: initialGrid, placedWords, gridSize } = result;
 
   const [grid, setGrid] = useState(initialGrid);
   const [score, setScore] = useState(0);
@@ -66,7 +69,7 @@ const Game: React.FC = () => {
           const newGrid = prev.map(r => r.map(c => ({ ...c })));
           const dr = word.direction === 'down' ? 1 : 0;
           const dc = word.direction === 'right' ? 1 : 0;
-          for (let i = 0; i < word.answer.length; i++) {
+          for (let i = 0; i < word.word.length; i++) {
             const cell = newGrid[word.startRow + dr * i][word.startCol + dc * i];
             if (cell.type === 'letter') (cell as LetterCell).isRevealed = true;
           }
@@ -74,7 +77,7 @@ const Game: React.FC = () => {
         });
       }
 
-      toast.success('Correct! +10 points 🎉', { duration: 1500 });
+      toast.success('Doğru! +10 puan 🎉', { duration: 1500 });
 
       if (completedWords.size + 1 === placedWords.length) {
         const duration = Math.floor((Date.now() - startTime) / 1000);
@@ -89,24 +92,36 @@ const Game: React.FC = () => {
           duration,
           timestamp: Date.now(),
           adHintsUsed: adHintCount,
+          seed: puzzleSeed,
         });
-        toast('🎊 Puzzle Complete!', {
-          description: `Score: ${score + 10} | Words: ${placedWords.length}`,
+        toast('🎊 Bulmaca Tamamlandı!', {
+          description: `Puan: ${score + 10} | Kelime: ${placedWords.length}`,
           duration: 5000,
         });
       }
     } else {
-      toast.error('Not quite right, keep trying!', { duration: 1500 });
+      // Track as unknown word
+      const word = placedWords.find(w => w.index === wordIndex);
+      if (word) {
+        addUnknownWord({
+          word: word.word,
+          clue: word.clue,
+          category: categoryId,
+          categoryName: category.name,
+          timestamp: Date.now(),
+          learned: false,
+        });
+      }
+      toast.error('Yanlış, tekrar dene!', { duration: 1500 });
     }
-  }, [completedWords, placedWords, score, startTime, categoryId, category.name, gridSize, adHintCount]);
+  }, [completedWords, placedWords, score, startTime, categoryId, category.name, gridSize, adHintCount, puzzleSeed]);
 
   const handleAdHintRequest = useCallback(() => {
-    // Find first incomplete word with an unrevealed letter
     for (const word of placedWords) {
       if (completedWords.has(word.index)) continue;
       const dr = word.direction === 'down' ? 1 : 0;
       const dc = word.direction === 'right' ? 1 : 0;
-      for (let i = 0; i < word.answer.length; i++) {
+      for (let i = 0; i < word.word.length; i++) {
         const r = word.startRow + dr * i;
         const c = word.startCol + dc * i;
         const cell = grid[r][c] as LetterCell;
@@ -117,7 +132,7 @@ const Game: React.FC = () => {
         }
       }
     }
-    toast('All letters are filled!', { duration: 1500 });
+    toast('Tüm harfler dolu!', { duration: 1500 });
   }, [grid, placedWords, completedWords]);
 
   const handleAdConfirm = useCallback(() => {
@@ -127,7 +142,7 @@ const Game: React.FC = () => {
     const dr = word.direction === 'down' ? 1 : 0;
     const dc = word.direction === 'right' ? 1 : 0;
 
-    for (let i = 0; i < word.answer.length; i++) {
+    for (let i = 0; i < word.word.length; i++) {
       const r = word.startRow + dr * i;
       const c = word.startCol + dc * i;
       const cell = grid[r][c] as LetterCell;
@@ -135,30 +150,28 @@ const Game: React.FC = () => {
         setGrid(prev => {
           const ng = prev.map(r => r.map(c => ({ ...c })));
           const cl = ng[r][c] as LetterCell;
-          cl.userLetter = word.answer[i];
+          cl.userLetter = word.word[i];
           cl.isRevealed = true;
           return ng;
         });
         setScore(prev => Math.max(0, prev - 3));
         setAdHintCount(prev => prev + 1);
 
-        // Record the ad hint
         addAdHint({
-          word: word.answer,
-          question: word.question,
+          word: word.word,
+          clue: word.clue,
           category: categoryId,
           categoryName: category.name,
           timestamp: Date.now(),
         });
 
-        toast('💡 Letter revealed! (-3 pts)', { duration: 1500 });
+        toast('💡 Harf açıldı! (-3 puan)', { duration: 1500 });
         return;
       }
     }
   }, [grid, categoryId, category.name]);
 
   const handleNewPuzzle = useCallback(() => {
-    // Save current session before starting new
     if (completedWords.size > 0) {
       const duration = Math.floor((Date.now() - startTime) / 1000);
       saveGameSession({
@@ -172,18 +185,26 @@ const Game: React.FC = () => {
         duration,
         timestamp: Date.now(),
         adHintsUsed: adHintCount,
+        seed: puzzleSeed,
       });
     }
-    setPuzzleKey(k => k + 1);
-  }, [completedWords, startTime, categoryId, category.name, gridSize, score, placedWords.length, adHintCount]);
+    setPuzzleSeed(Date.now());
+  }, [completedWords, startTime, categoryId, category.name, gridSize, score, placedWords.length, adHintCount, puzzleSeed]);
+
+  const handleKeyboardKey = (letter: string) => {
+    window.dispatchEvent(new CustomEvent('crossword-key', { detail: { type: 'letter', value: letter } }));
+  };
+
+  const handleKeyboardBackspace = () => {
+    window.dispatchEvent(new CustomEvent('crossword-key', { detail: { type: 'backspace' } }));
+  };
 
   return (
-    <div className="min-h-screen bg-background">
-      <div className="game-container">
+    <div className="min-h-screen bg-background flex flex-col">
+      <div className="game-container flex-1">
         <GameHeader
           category={category.name}
           categoryIcon={category.icon}
-          gridSize={gridSize}
           score={score}
           wordsFound={completedWords.size}
           totalWords={placedWords.length}
@@ -193,7 +214,7 @@ const Game: React.FC = () => {
           startTime={startTime}
         />
 
-        <div className="flex flex-col items-center gap-4 pb-8">
+        <div className="flex flex-col items-center gap-3 pb-2">
           <CrosswordGrid
             grid={grid}
             placedWords={placedWords}
@@ -210,11 +231,16 @@ const Game: React.FC = () => {
         </div>
       </div>
 
+      {/* Turkish on-screen keyboard */}
+      <div className="sticky bottom-0 bg-background/95 backdrop-blur border-t border-border">
+        <TurkishKeyboard onKey={handleKeyboardKey} onBackspace={handleKeyboardBackspace} />
+      </div>
+
       <AdHintDialog
         open={adDialogOpen}
         onClose={() => setAdDialogOpen(false)}
         onConfirm={handleAdConfirm}
-        wordQuestion={adTargetWord.current?.question || ''}
+        wordClue={adTargetWord.current?.clue || ''}
       />
     </div>
   );
