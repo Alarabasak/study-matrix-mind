@@ -30,23 +30,23 @@ const ClueList: React.FC<ClueListProps> = ({
       onClick={() => onClueClick(word.index)}
     >
       <span className="text-muted-foreground mr-1 font-mono text-[10px]">
-        {word.answer.length}
+        {word.word.length}
       </span>
-      {word.question}
+      {word.clue}
     </div>
   );
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
+    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4 w-full max-w-lg">
       <div>
         <h3 className="font-display font-bold text-sm mb-2 text-primary flex items-center gap-1">
-          → Across
+          → Yatay
         </h3>
         <div className="space-y-0.5">{acrossWords.map(renderClue)}</div>
       </div>
       <div>
         <h3 className="font-display font-bold text-sm mb-2 text-primary flex items-center gap-1">
-          ↓ Down
+          ↓ Dikey
         </h3>
         <div className="space-y-0.5">{downWords.map(renderClue)}</div>
       </div>

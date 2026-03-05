@@ -5,7 +5,6 @@ import { Button } from '@/components/ui/button';
 interface GameHeaderProps {
   category: string;
   categoryIcon: string;
-  gridSize: string;
   score: number;
   wordsFound: number;
   totalWords: number;
@@ -18,7 +17,6 @@ interface GameHeaderProps {
 const GameHeader: React.FC<GameHeaderProps> = ({
   category,
   categoryIcon,
-  gridSize,
   score,
   wordsFound,
   totalWords,
@@ -50,8 +48,7 @@ const GameHeader: React.FC<GameHeaderProps> = ({
         </Button>
         <div className="flex items-center gap-1.5">
           <span className="text-xl">{categoryIcon}</span>
-          <span className="font-display font-bold text-sm sm:text-base">{category}</span>
-          <span className="text-muted-foreground text-xs">({gridSize})</span>
+          <span className="font-display font-bold text-sm">{category}</span>
         </div>
       </div>
 
@@ -67,10 +64,10 @@ const GameHeader: React.FC<GameHeaderProps> = ({
         <div className="text-xs font-semibold px-2 py-1 rounded-lg bg-primary/10 text-primary">
           {wordsFound}/{totalWords}
         </div>
-        <Button variant="ghost" size="icon" onClick={onHint} className="rounded-xl" title="Watch ad for hint">
+        <Button variant="ghost" size="icon" onClick={onHint} className="rounded-xl" title="Reklam izle, ipucu al">
           <Film className="h-4 w-4" />
         </Button>
-        <Button variant="ghost" size="icon" onClick={onNewPuzzle} className="rounded-xl" title="New puzzle">
+        <Button variant="ghost" size="icon" onClick={onNewPuzzle} className="rounded-xl" title="Yeni bulmaca">
           <RotateCcw className="h-4 w-4" />
         </Button>
       </div>
