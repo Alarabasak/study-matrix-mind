@@ -12,13 +12,26 @@ export async function fetchWordDatabase(): Promise<Record<string, WordItem[]>> {
     return wordCache;
   }
 
-  const { data, error } = await supabase
-    .from('words')
-    .select('word, clue, category, topic, difficulty, grade, lang, frequency_score');
+  // Fetch all words with pagination (Supabase returns max 1000 per query)
+  const allData: any[] = [];
+  const PAGE_SIZE = 1000;
+  let from = 0;
+  let hasMore = true;
 
-  if (error || !data) {
-    console.error('Error fetching words:', error);
-    return wordCache || {};
+  while (hasMore) {
+    const { data, error } = await supabase
+      .from('words')
+      .select('word, clue, category, topic, difficulty, grade, lang, frequency_score')
+      .range(from, from + PAGE_SIZE - 1);
+
+    if (error || !data) {
+      console.error('Error fetching words:', error);
+      return wordCache || {};
+    }
+
+    allData.push(...data);
+    hasMore = data.length === PAGE_SIZE;
+    from += PAGE_SIZE;
   }
 
   const db: Record<string, WordItem[]> = {};
