@@ -35,7 +35,7 @@ export async function fetchWordDatabase(): Promise<Record<string, WordItem[]>> {
   }
 
   const db: Record<string, WordItem[]> = {};
-  for (const row of data) {
+  for (const row of allData) {
     const item: WordItem = {
       word: row.word,
       clue: row.clue,
