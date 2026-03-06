@@ -325,41 +325,80 @@ export function generateCrossword(
     }
   }
 
+  // Crop grid to content bounding box (eliminate empty outer cells)
+  const cropped = cropGrid(grid, placedWords);
+
   // Calculate analytics
   const genTime = performance.now() - startTime;
-  const totalIntersections = placedWords.reduce((sum, pw) => {
+  const totalIntersections = cropped.placedWords.reduce((sum, pw) => {
     let count = 0;
     const dr = pw.direction === 'down' ? 1 : 0;
     const dc = pw.direction === 'right' ? 1 : 0;
     for (let i = 0; i < pw.word.length; i++) {
-      const cell = grid[pw.startRow + dr * i][pw.startCol + dc * i] as LetterCell;
+      const cell = cropped.grid[pw.startRow + dr * i][pw.startCol + dc * i] as LetterCell;
       if (cell.wordIndices.length > 1) count++;
     }
     return sum + count;
   }, 0);
 
-  const avgWordLength = placedWords.length > 0
-    ? placedWords.reduce((s, w) => s + w.word.length, 0) / placedWords.length
+  const avgWordLength = cropped.placedWords.length > 0
+    ? cropped.placedWords.reduce((s, w) => s + w.word.length, 0) / cropped.placedWords.length
     : 0;
 
-  const avgIntersections = placedWords.length > 0
-    ? totalIntersections / placedWords.length
+  const avgIntersections = cropped.placedWords.length > 0
+    ? totalIntersections / cropped.placedWords.length
     : 0;
 
-  const avgDifficulty = placedWords.length > 0
-    ? placedWords.reduce((s, w) => s + w.difficulty, 0) / placedWords.length
+  const avgDifficulty = cropped.placedWords.length > 0
+    ? cropped.placedWords.reduce((s, w) => s + w.difficulty, 0) / cropped.placedWords.length
     : 0;
+
+  const croppedGridSize = `${cropped.grid[0]?.length || 0}x${cropped.grid.length}`;
 
   const analytics: PuzzleAnalytics = {
     generation_time_ms: Math.round(genTime),
-    slot_count: placedWords.length,
+    slot_count: cropped.placedWords.length,
     avg_word_length: Math.round(avgWordLength * 10) / 10,
     avg_intersection_count: Math.round(avgIntersections * 10) / 10,
     backtrack_count: backtrackCount,
     puzzle_score: Math.round((avgWordLength + avgIntersections + avgDifficulty) * 10) / 10,
     seed,
-    gridSize,
+    gridSize: croppedGridSize,
   };
 
-  return { grid, placedWords, gridSize, analytics, seed };
+  return { grid: cropped.grid, placedWords: cropped.placedWords, gridSize: croppedGridSize, analytics, seed };
+}
+
+function cropGrid(grid: Cell[][], placedWords: PlacedWord[]): { grid: Cell[][], placedWords: PlacedWord[], rows: number, cols: number } {
+  if (placedWords.length === 0) return { grid, placedWords, rows: grid.length, cols: grid[0]?.length || 0 };
+
+  let minRow = Infinity, maxRow = -Infinity, minCol = Infinity, maxCol = -Infinity;
+
+  for (const pw of placedWords) {
+    minRow = Math.min(minRow, pw.clueRow);
+    minCol = Math.min(minCol, pw.clueCol);
+    const dr = pw.direction === 'down' ? 1 : 0;
+    const dc = pw.direction === 'right' ? 1 : 0;
+    maxRow = Math.max(maxRow, pw.startRow + dr * (pw.word.length - 1));
+    maxCol = Math.max(maxCol, pw.startCol + dc * (pw.word.length - 1));
+  }
+
+  const newGrid: Cell[][] = [];
+  for (let r = minRow; r <= maxRow; r++) {
+    const row: Cell[] = [];
+    for (let c = minCol; c <= maxCol; c++) {
+      row.push(grid[r][c]);
+    }
+    newGrid.push(row);
+  }
+
+  const adjustedWords = placedWords.map(pw => ({
+    ...pw,
+    startRow: pw.startRow - minRow,
+    startCol: pw.startCol - minCol,
+    clueRow: pw.clueRow - minRow,
+    clueCol: pw.clueCol - minCol,
+  }));
+
+  return { grid: newGrid, placedWords: adjustedWords, rows: maxRow - minRow + 1, cols: maxCol - minCol + 1 };
 }
