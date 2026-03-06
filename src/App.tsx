@@ -8,6 +8,7 @@ import Game from "./pages/Game";
 import Dashboard from "./pages/Dashboard";
 import UnknownWords from "./pages/UnknownWords";
 import Settings from "./pages/Settings";
+import WordManager from "./pages/WordManager";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -24,6 +25,7 @@ const App = () => (
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/unknown-words" element={<UnknownWords />} />
           <Route path="/settings" element={<Settings />} />
+          <Route path="/word-manager" element={<WordManager />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>

@@ -1,8 +1,9 @@
 import React, { useState, useCallback, useMemo, useRef } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { LetterCell, PlacedWord } from '@/types/crossword';
+import { LetterCell, PlacedWord, DifficultyLevel } from '@/types/crossword';
 import { generateCrossword } from '@/utils/crosswordGenerator';
-import { wordBank, categories } from '@/data/questions';
+import { categories } from '@/data/questions';
+import { getWordsForDifficulty } from '@/utils/wordDatabase';
 import { addAdHint, saveGameSession, addUnknownWord } from '@/utils/gameStats';
 import CrosswordGrid from '@/components/game/CrosswordGrid';
 import GameHeader from '@/components/game/GameHeader';
@@ -16,15 +17,22 @@ const Game: React.FC = () => {
   const [searchParams] = useSearchParams();
   const categoryId = searchParams.get('category') || 'tyt-mat';
   const seedParam = parseInt(searchParams.get('seed') || `${Date.now()}`, 10);
+  const difficulty = (searchParams.get('difficulty') || 'all') as DifficultyLevel;
 
-  const category = categories.find(c => c.id === categoryId) || categories[0];
-  const words = wordBank[categoryId] || wordBank['tyt-mat'];
+  const category = categoryId === 'shuffle'
+    ? { id: 'shuffle', name: 'Karıştır', icon: '🔀', description: 'Tüm dersler', color: 'hsl(0,0%,50%)', grade: 'TYT' as const }
+    : (categories.find(c => c.id === categoryId) || categories[0]);
 
   const [puzzleSeed, setPuzzleSeed] = useState(seedParam);
 
+  const words = useMemo(
+    () => getWordsForDifficulty(categoryId, difficulty, puzzleSeed),
+    [categoryId, difficulty, puzzleSeed]
+  );
+
   const result = useMemo(
     () => generateCrossword(words, puzzleSeed),
-    [categoryId, puzzleSeed]
+    [words, puzzleSeed]
   );
 
   const { grid: initialGrid, placedWords, gridSize } = result;
@@ -100,7 +108,6 @@ const Game: React.FC = () => {
         });
       }
     } else {
-      // Track as unknown word
       const word = placedWords.find(w => w.index === wordIndex);
       if (word) {
         addUnknownWord({
@@ -231,7 +238,6 @@ const Game: React.FC = () => {
         </div>
       </div>
 
-      {/* Turkish on-screen keyboard */}
       <div className="sticky bottom-0 bg-background/95 backdrop-blur border-t border-border">
         <TurkishKeyboard onKey={handleKeyboardKey} onBackspace={handleKeyboardBackspace} />
       </div>
