@@ -6,10 +6,21 @@ export interface WordItem {
   word: string;
   clue: string;
   category: string;
+  topic: string;
   difficulty: number;
   grade: 'TYT' | 'AYT';
   lang: 'tr';
   frequency_score: number;
+}
+
+export type DifficultyLevel = 'easy' | 'medium' | 'hard' | 'super-hard' | 'all';
+
+export interface DifficultyOption {
+  id: DifficultyLevel;
+  name: string;
+  icon: string;
+  description: string;
+  topicCount: string;
 }
 
 export interface ClueEntry {
