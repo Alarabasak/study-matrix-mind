@@ -8,12 +8,12 @@ import { toast } from 'sonner';
 
 const AdminLogin: React.FC = () => {
   const navigate = useNavigate();
-  const { signIn, isAdmin, user } = useAuth();
+  const { signIn, signUp, isAdmin, user } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
+  const [mode, setMode] = useState<'login' | 'register'>('login');
 
-  // If already admin, redirect
   React.useEffect(() => {
     if (user && isAdmin) {
       navigate('/word-manager');
@@ -23,13 +23,25 @@ const AdminLogin: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    const { error } = await signIn(email, password);
-    setLoading(false);
-    if (error) {
-      toast.error('Giriş başarısız: ' + error.message);
+
+    if (mode === 'register') {
+      const { error, isFirstAdmin } = await signUp(email, password);
+      setLoading(false);
+      if (error) {
+        toast.error('Kayıt başarısız: ' + error.message);
+      } else if (isFirstAdmin) {
+        toast.success('Admin hesabı oluşturuldu!');
+      } else {
+        toast.info('Hesap oluşturuldu ancak admin yetkisi atanamadı (zaten bir admin mevcut).');
+      }
     } else {
-      // Auth state change will trigger admin check and redirect
-      toast.success('Giriş başarılı');
+      const { error } = await signIn(email, password);
+      setLoading(false);
+      if (error) {
+        toast.error('Giriş başarısız: ' + error.message);
+      } else {
+        toast.success('Giriş başarılı');
+      }
     }
   };
 
@@ -48,6 +60,21 @@ const AdminLogin: React.FC = () => {
             <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
               <Lock className="h-6 w-6 text-primary" />
             </div>
+          </div>
+
+          <div className="flex gap-2 mb-4">
+            <button
+              className={`flex-1 py-1.5 rounded-lg text-sm font-display font-bold transition-all ${mode === 'login' ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'}`}
+              onClick={() => setMode('login')}
+            >
+              Giriş Yap
+            </button>
+            <button
+              className={`flex-1 py-1.5 rounded-lg text-sm font-display font-bold transition-all ${mode === 'register' ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'}`}
+              onClick={() => setMode('register')}
+            >
+              Kayıt Ol
+            </button>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
@@ -69,10 +96,11 @@ const AdminLogin: React.FC = () => {
                 onChange={e => setPassword(e.target.value)}
                 placeholder="••••••••"
                 required
+                minLength={6}
               />
             </div>
             <Button type="submit" className="w-full font-display" disabled={loading}>
-              {loading ? 'Giriş yapılıyor...' : 'Giriş Yap'}
+              {loading ? 'İşleniyor...' : mode === 'login' ? 'Giriş Yap' : 'Kayıt Ol'}
             </Button>
           </form>
 
