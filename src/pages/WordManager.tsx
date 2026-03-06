@@ -24,6 +24,7 @@ const WordManager: React.FC = () => {
   const [selectedCategory, setSelectedCategory] = useState(categories[0].id);
   const [searchQuery, setSearchQuery] = useState('');
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [csvDialogOpen, setCsvDialogOpen] = useState(false);
   const [editingWord, setEditingWord] = useState<string | null>(null);
   const [db, setDb] = useState<Record<string, WordItem[]>>({});
   const [topics, setTopics] = useState<string[]>([]);
