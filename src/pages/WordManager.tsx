@@ -162,6 +162,7 @@ const WordManager: React.FC = () => {
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input placeholder="Kelime, ipucu veya konu ara..." value={searchQuery} onChange={e => setSearchQuery(e.target.value)} className="pl-9" />
           </div>
+          <Button variant="outline" onClick={() => setCsvDialogOpen(true)} className="gap-1.5 font-display"><Upload className="h-4 w-4" /> CSV</Button>
           <Button onClick={openAddDialog} className="gap-1.5 font-display"><Plus className="h-4 w-4" /> Ekle</Button>
         </div>
 
