@@ -102,26 +102,44 @@ const CrosswordGrid: React.FC<CrosswordGridProps> = ({
   const moveToNextCell = useCallback((row: number, col: number, dir: Direction) => {
     const dr = dir === 'down' ? 1 : 0;
     const dc = dir === 'right' ? 1 : 0;
-    const nr = row + dr;
-    const nc = col + dc;
-    if (nr < rows && nc < cols && grid[nr][nc].type === 'letter') {
-      setSelectedCell({ row: nr, col: nc });
+    let nr = row + dr;
+    let nc = col + dc;
+    // Skip revealed (completed) cells
+    while (nr < rows && nc < cols && grid[nr][nc].type === 'letter') {
+      if (!(grid[nr][nc] as LetterCell).isRevealed) {
+        setSelectedCell({ row: nr, col: nc });
+        return;
+      }
+      nr += dr;
+      nc += dc;
     }
   }, [grid, rows, cols]);
 
   const moveToPrevCell = useCallback((row: number, col: number, dir: Direction) => {
     const dr = dir === 'down' ? 1 : 0;
     const dc = dir === 'right' ? 1 : 0;
-    const nr = row - dr;
-    const nc = col - dc;
-    if (nr >= 0 && nc >= 0 && grid[nr][nc].type === 'letter') {
-      setSelectedCell({ row: nr, col: nc });
+    let nr = row - dr;
+    let nc = col - dc;
+    // Skip revealed (completed) cells
+    while (nr >= 0 && nc >= 0 && grid[nr][nc].type === 'letter') {
+      if (!(grid[nr][nc] as LetterCell).isRevealed) {
+        setSelectedCell({ row: nr, col: nc });
+        return;
+      }
+      nr -= dr;
+      nc -= dc;
     }
   }, [grid]);
 
   const processLetter = useCallback((letter: string) => {
     if (!selectedCell) return;
     const { row, col } = selectedCell;
+    const cell = grid[row][col];
+    // Don't allow typing into revealed (completed word) cells
+    if (cell.type === 'letter' && (cell as LetterCell).isRevealed) {
+      moveToNextCell(row, col, activeDirection);
+      return;
+    }
     const upperLetter = letter.toUpperCase();
 
     onCellChange(row, col, upperLetter);
@@ -152,8 +170,13 @@ const CrosswordGrid: React.FC<CrosswordGridProps> = ({
   const processBackspace = useCallback(() => {
     if (!selectedCell) return;
     const { row, col } = selectedCell;
-    const cell = grid[row][col] as LetterCell;
-    if (cell.userLetter) {
+    const cell = grid[row][col];
+    // Don't allow deleting revealed (completed word) cells
+    if (cell.type === 'letter' && (cell as LetterCell).isRevealed) {
+      moveToPrevCell(row, col, activeDirection);
+      return;
+    }
+    if (cell.type === 'letter' && (cell as LetterCell).userLetter) {
       onCellChange(row, col, '');
     } else {
       moveToPrevCell(row, col, activeDirection);
@@ -283,7 +306,7 @@ const CrosswordGrid: React.FC<CrosswordGridProps> = ({
               return (
                 <div
                   key={`${ri}-${ci}`}
-                  className="bg-secondary/50 border border-border/50"
+                  className="bg-muted/20 border border-border/30"
                   style={{ width: cellSize, height: cellSize }}
                 />
               );
