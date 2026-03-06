@@ -1,6 +1,6 @@
-import React, { useState, useCallback, useMemo, useRef } from 'react';
+import React, { useState, useCallback, useRef, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { LetterCell, PlacedWord, DifficultyLevel } from '@/types/crossword';
+import { LetterCell, PlacedWord, DifficultyLevel, WordItem } from '@/types/crossword';
 import { generateCrossword } from '@/utils/crosswordGenerator';
 import { categories } from '@/data/questions';
 import { getWordsForDifficulty } from '@/utils/wordDatabase';
@@ -24,18 +24,30 @@ const Game: React.FC = () => {
     : (categories.find(c => c.id === categoryId) || categories[0]);
 
   const [puzzleSeed, setPuzzleSeed] = useState(seedParam);
+  const [loading, setLoading] = useState(true);
+  const [words, setWords] = useState<WordItem[]>([]);
 
-  const words = useMemo(
-    () => getWordsForDifficulty(categoryId, difficulty, puzzleSeed),
-    [categoryId, difficulty, puzzleSeed]
-  );
+  // Fetch words async
+  useEffect(() => {
+    let cancelled = false;
+    setLoading(true);
+    getWordsForDifficulty(categoryId, difficulty, puzzleSeed).then(w => {
+      if (!cancelled) {
+        setWords(w);
+        setLoading(false);
+      }
+    });
+    return () => { cancelled = true; };
+  }, [categoryId, difficulty, puzzleSeed]);
 
-  const result = useMemo(
-    () => generateCrossword(words, puzzleSeed),
+  const result = React.useMemo(
+    () => words.length > 0 ? generateCrossword(words, puzzleSeed) : null,
     [words, puzzleSeed]
   );
 
-  const { grid: initialGrid, placedWords, gridSize } = result;
+  const placedWords = result?.placedWords || [];
+  const gridSize = result?.gridSize || '12x12';
+  const initialGrid = result?.grid || [];
 
   const [grid, setGrid] = useState(initialGrid);
   const [score, setScore] = useState(0);
@@ -46,11 +58,13 @@ const Game: React.FC = () => {
   const [adHintCount, setAdHintCount] = useState(0);
   const adTargetWord = useRef<PlacedWord | null>(null);
 
-  React.useEffect(() => {
-    setGrid(initialGrid);
-    setScore(0);
-    setCompletedWords(new Set());
-    setAdHintCount(0);
+  useEffect(() => {
+    if (initialGrid.length > 0) {
+      setGrid(initialGrid);
+      setScore(0);
+      setCompletedWords(new Set());
+      setAdHintCount(0);
+    }
   }, [initialGrid]);
 
   const handleCellChange = useCallback((row: number, col: number, letter: string) => {
@@ -66,11 +80,9 @@ const Game: React.FC = () => {
 
   const handleWordComplete = useCallback((wordIndex: number, correct: boolean) => {
     if (completedWords.has(wordIndex)) return;
-
     if (correct) {
       setCompletedWords(prev => new Set([...prev, wordIndex]));
       setScore(prev => prev + 10);
-
       const word = placedWords.find(w => w.index === wordIndex);
       if (word) {
         setGrid(prev => {
@@ -84,39 +96,25 @@ const Game: React.FC = () => {
           return newGrid;
         });
       }
-
       toast.success('Doğru! +10 puan 🎉', { duration: 1500 });
-
       if (completedWords.size + 1 === placedWords.length) {
         const duration = Math.floor((Date.now() - startTime) / 1000);
         saveGameSession({
-          id: `${Date.now()}`,
-          category: categoryId,
-          categoryName: category.name,
-          gridSize,
-          score: score + 10,
-          wordsFound: completedWords.size + 1,
-          totalWords: placedWords.length,
-          duration,
-          timestamp: Date.now(),
-          adHintsUsed: adHintCount,
-          seed: puzzleSeed,
+          id: `${Date.now()}`, category: categoryId, categoryName: category.name,
+          gridSize, score: score + 10, wordsFound: completedWords.size + 1,
+          totalWords: placedWords.length, duration, timestamp: Date.now(),
+          adHintsUsed: adHintCount, seed: puzzleSeed,
         });
         toast('🎊 Bulmaca Tamamlandı!', {
-          description: `Puan: ${score + 10} | Kelime: ${placedWords.length}`,
-          duration: 5000,
+          description: `Puan: ${score + 10} | Kelime: ${placedWords.length}`, duration: 5000,
         });
       }
     } else {
       const word = placedWords.find(w => w.index === wordIndex);
       if (word) {
         addUnknownWord({
-          word: word.word,
-          clue: word.clue,
-          category: categoryId,
-          categoryName: category.name,
-          timestamp: Date.now(),
-          learned: false,
+          word: word.word, clue: word.clue, category: categoryId,
+          categoryName: category.name, timestamp: Date.now(), learned: false,
         });
       }
       toast.error('Yanlış, tekrar dene!', { duration: 1500 });
@@ -145,10 +143,8 @@ const Game: React.FC = () => {
   const handleAdConfirm = useCallback(() => {
     const word = adTargetWord.current;
     if (!word) return;
-
     const dr = word.direction === 'down' ? 1 : 0;
     const dc = word.direction === 'right' ? 1 : 0;
-
     for (let i = 0; i < word.word.length; i++) {
       const r = word.startRow + dr * i;
       const c = word.startCol + dc * i;
@@ -163,15 +159,10 @@ const Game: React.FC = () => {
         });
         setScore(prev => Math.max(0, prev - 3));
         setAdHintCount(prev => prev + 1);
-
         addAdHint({
-          word: word.word,
-          clue: word.clue,
-          category: categoryId,
-          categoryName: category.name,
-          timestamp: Date.now(),
+          word: word.word, clue: word.clue, category: categoryId,
+          categoryName: category.name, timestamp: Date.now(),
         });
-
         toast('💡 Harf açıldı! (-3 puan)', { duration: 1500 });
         return;
       }
@@ -182,17 +173,9 @@ const Game: React.FC = () => {
     if (completedWords.size > 0) {
       const duration = Math.floor((Date.now() - startTime) / 1000);
       saveGameSession({
-        id: `${Date.now()}`,
-        category: categoryId,
-        categoryName: category.name,
-        gridSize,
-        score,
-        wordsFound: completedWords.size,
-        totalWords: placedWords.length,
-        duration,
-        timestamp: Date.now(),
-        adHintsUsed: adHintCount,
-        seed: puzzleSeed,
+        id: `${Date.now()}`, category: categoryId, categoryName: category.name,
+        gridSize, score, wordsFound: completedWords.size, totalWords: placedWords.length,
+        duration, timestamp: Date.now(), adHintsUsed: adHintCount, seed: puzzleSeed,
       });
     }
     setPuzzleSeed(Date.now());
@@ -206,47 +189,43 @@ const Game: React.FC = () => {
     window.dispatchEvent(new CustomEvent('crossword-key', { detail: { type: 'backspace' } }));
   };
 
+  if (loading || !result) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center">
+          <div className="text-4xl mb-2 animate-bounce">📚</div>
+          <p className="font-display text-muted-foreground">Kelimeler yükleniyor...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-background flex flex-col">
       <div className="game-container flex-1">
         <GameHeader
-          category={category.name}
-          categoryIcon={category.icon}
-          score={score}
-          wordsFound={completedWords.size}
-          totalWords={placedWords.length}
-          onBack={() => navigate('/')}
-          onHint={handleAdHintRequest}
-          onNewPuzzle={handleNewPuzzle}
-          startTime={startTime}
+          category={category.name} categoryIcon={category.icon} score={score}
+          wordsFound={completedWords.size} totalWords={placedWords.length}
+          onBack={() => navigate('/')} onHint={handleAdHintRequest}
+          onNewPuzzle={handleNewPuzzle} startTime={startTime}
         />
-
         <div className="flex flex-col items-center gap-3 pb-2">
           <CrosswordGrid
-            grid={grid}
-            placedWords={placedWords}
-            onCellChange={handleCellChange}
-            onWordComplete={handleWordComplete}
+            grid={grid} placedWords={placedWords}
+            onCellChange={handleCellChange} onWordComplete={handleWordComplete}
           />
-
           <ClueList
-            placedWords={placedWords}
-            completedWords={completedWords}
-            activeWordIndex={activeWordIndex}
-            onClueClick={(idx) => setActiveWordIndex(idx)}
+            placedWords={placedWords} completedWords={completedWords}
+            activeWordIndex={activeWordIndex} onClueClick={(idx) => setActiveWordIndex(idx)}
           />
         </div>
       </div>
-
       <div className="sticky bottom-0 bg-background/95 backdrop-blur border-t border-border">
         <TurkishKeyboard onKey={handleKeyboardKey} onBackspace={handleKeyboardBackspace} />
       </div>
-
       <AdHintDialog
-        open={adDialogOpen}
-        onClose={() => setAdDialogOpen(false)}
-        onConfirm={handleAdConfirm}
-        wordClue={adTargetWord.current?.clue || ''}
+        open={adDialogOpen} onClose={() => setAdDialogOpen(false)}
+        onConfirm={handleAdConfirm} wordClue={adTargetWord.current?.clue || ''}
       />
     </div>
   );

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import { BarChart3, BookOpen, Settings, Database, X } from 'lucide-react';
+import { BarChart3, BookOpen, Settings, X } from 'lucide-react';
 import { getStats } from '@/utils/gameStats';
 
 interface ProfileModalProps {
@@ -16,7 +16,6 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ open, onClose }) => {
   const menuItems = [
     { icon: BarChart3, label: 'İstatistikler', emoji: '📊', path: '/dashboard' },
     { icon: BookOpen, label: 'Bilinmeyen Kelimeler', emoji: '📖', path: '/unknown-words' },
-    { icon: Database, label: 'Kelime Yönetimi', emoji: '🗂️', path: '/word-manager' },
     { icon: Settings, label: 'Ayarlar', emoji: '⚙️', path: '/settings' },
   ];
 
@@ -29,7 +28,6 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ open, onClose }) => {
     <AnimatePresence>
       {open && (
         <>
-          {/* Backdrop */}
           <motion.div
             className="fixed inset-0 bg-foreground/30 backdrop-blur-sm z-40"
             initial={{ opacity: 0 }}
@@ -37,8 +35,6 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ open, onClose }) => {
             exit={{ opacity: 0 }}
             onClick={onClose}
           />
-
-          {/* Notebook modal */}
           <motion.div
             className="fixed inset-0 z-50 flex items-center justify-center p-4"
             initial={{ opacity: 0 }}
@@ -53,12 +49,8 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ open, onClose }) => {
               transition={{ duration: 0.5, ease: [0.25, 0.46, 0.45, 0.94] }}
               style={{ perspective: 1000 }}
             >
-              {/* Notebook spine */}
               <div className="absolute left-0 top-0 bottom-0 w-3 bg-primary/60 rounded-l-xl z-10" />
-
-              {/* Notebook body */}
               <div className="bg-card rounded-xl shadow-2xl border border-border ml-1.5 notebook-bg overflow-hidden">
-                {/* Header with tape effect */}
                 <div className="relative px-6 pt-6 pb-3">
                   <div className="tape top-2 right-4 z-10" />
                   <button
@@ -67,8 +59,6 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ open, onClose }) => {
                   >
                     <X className="h-4 w-4 text-muted-foreground" />
                   </button>
-
-                  {/* Profile emoji */}
                   <div className="text-center mb-2">
                     <div className="text-5xl mb-1">📓</div>
                     <h2 className="handwriting text-3xl font-bold text-foreground">Benim Defterim</h2>
@@ -77,8 +67,6 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ open, onClose }) => {
                     </p>
                   </div>
                 </div>
-
-                {/* Menu items */}
                 <div className="px-5 pb-5 space-y-2">
                   {menuItems.map((item, i) => (
                     <motion.button
@@ -97,8 +85,6 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ open, onClose }) => {
                     </motion.button>
                   ))}
                 </div>
-
-                {/* Bottom doodle */}
                 <div className="px-5 pb-4 text-center">
                   <p className="handwriting text-sm text-muted-foreground">~ çalışmaya devam! ✏️ ~</p>
                 </div>

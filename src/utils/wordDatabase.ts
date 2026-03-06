@@ -1,66 +1,65 @@
 import { WordItem } from '@/types/crossword';
-import { wordBank as defaultWordBank } from '@/data/questions';
+import { supabase } from '@/integrations/supabase/client';
 
-const STORAGE_KEY = 'crossprep-word-database';
+// Cache for word data fetched from the database
+let wordCache: Record<string, WordItem[]> | null = null;
+let cacheTimestamp = 0;
+const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
 
-export function getWordDatabase(): Record<string, WordItem[]> {
-  const stored = localStorage.getItem(STORAGE_KEY);
-  if (stored) {
-    try {
-      return JSON.parse(stored);
-    } catch {
-      return { ...defaultWordBank };
-    }
+export async function fetchWordDatabase(): Promise<Record<string, WordItem[]>> {
+  const now = Date.now();
+  if (wordCache && (now - cacheTimestamp) < CACHE_TTL) {
+    return wordCache;
   }
-  return { ...defaultWordBank };
+
+  const { data, error } = await supabase
+    .from('words')
+    .select('word, clue, category, topic, difficulty, grade, lang, frequency_score');
+
+  if (error || !data) {
+    console.error('Error fetching words:', error);
+    return wordCache || {};
+  }
+
+  const db: Record<string, WordItem[]> = {};
+  for (const row of data) {
+    const item: WordItem = {
+      word: row.word,
+      clue: row.clue,
+      category: row.category,
+      topic: row.topic,
+      difficulty: row.difficulty,
+      grade: row.grade as 'TYT' | 'AYT',
+      lang: row.lang as 'tr',
+      frequency_score: Number(row.frequency_score),
+    };
+    if (!db[row.category]) db[row.category] = [];
+    db[row.category].push(item);
+  }
+
+  wordCache = db;
+  cacheTimestamp = now;
+  return db;
 }
 
-export function saveWordDatabase(db: Record<string, WordItem[]>): void {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(db));
+// Synchronous getter for cached data (used during game after initial fetch)
+export function getWordDatabaseSync(): Record<string, WordItem[]> {
+  return wordCache || {};
 }
 
-export function addWord(categoryId: string, word: WordItem): void {
-  const db = getWordDatabase();
-  if (!db[categoryId]) db[categoryId] = [];
-  db[categoryId].push(word);
-  saveWordDatabase(db);
+export function invalidateCache(): void {
+  wordCache = null;
+  cacheTimestamp = 0;
 }
 
-export function removeWord(categoryId: string, wordText: string): void {
-  const db = getWordDatabase();
-  if (!db[categoryId]) return;
-  db[categoryId] = db[categoryId].filter(w => w.word !== wordText);
-  saveWordDatabase(db);
-}
-
-export function updateWord(categoryId: string, oldWordText: string, updated: WordItem): void {
-  const db = getWordDatabase();
-  if (!db[categoryId]) return;
-  const idx = db[categoryId].findIndex(w => w.word === oldWordText);
-  if (idx !== -1) db[categoryId][idx] = updated;
-  saveWordDatabase(db);
-}
-
-export function resetToDefaults(): void {
-  localStorage.removeItem(STORAGE_KEY);
-}
-
-export function getTopicsForCategory(categoryId: string): string[] {
-  const db = getWordDatabase();
-  const words = db[categoryId] || [];
-  const topics = new Set(words.map(w => w.topic));
-  return Array.from(topics).sort();
-}
-
-export function getWordsForDifficulty(
+export async function getWordsForDifficulty(
   categoryId: string,
   difficulty: 'easy' | 'medium' | 'hard' | 'super-hard' | 'all',
   seed: number
-): WordItem[] {
-  const db = getWordDatabase();
+): Promise<WordItem[]> {
+  const db = await fetchWordDatabase();
 
   if (categoryId === 'shuffle') {
-    // Combine all categories
     const allWords: WordItem[] = [];
     for (const key in db) {
       allWords.push(...db[key]);
@@ -79,10 +78,7 @@ function filterByDifficulty(
 ): WordItem[] {
   if (difficulty === 'all') return words;
 
-  // Get unique topics
   const topics = Array.from(new Set(words.map(w => w.topic)));
-
-  // Seeded shuffle for topics
   const shuffled = [...topics];
   let s = seed;
   for (let i = shuffled.length - 1; i > 0; i--) {
@@ -104,16 +100,16 @@ function filterByDifficulty(
   return words.filter(w => selectedTopics.has(w.topic));
 }
 
-export function getWordCount(categoryId: string): number {
-  const db = getWordDatabase();
+export async function getWordCount(categoryId: string): Promise<number> {
+  const db = await fetchWordDatabase();
   if (categoryId === 'shuffle') {
     return Object.values(db).reduce((sum, words) => sum + words.length, 0);
   }
   return (db[categoryId] || []).length;
 }
 
-export function getTopicCount(categoryId: string): number {
-  const db = getWordDatabase();
+export async function getTopicCount(categoryId: string): Promise<number> {
+  const db = await fetchWordDatabase();
   let words: WordItem[];
   if (categoryId === 'shuffle') {
     words = Object.values(db).flat();
@@ -121,4 +117,53 @@ export function getTopicCount(categoryId: string): number {
     words = db[categoryId] || [];
   }
   return new Set(words.map(w => w.topic)).size;
+}
+
+export async function getTopicsForCategory(categoryId: string): Promise<string[]> {
+  const db = await fetchWordDatabase();
+  const words = db[categoryId] || [];
+  const topics = new Set(words.map(w => w.topic));
+  return Array.from(topics).sort();
+}
+
+// Admin functions
+export async function addWord(categoryId: string, word: WordItem): Promise<void> {
+  const { error } = await supabase.from('words').insert({
+    word: word.word,
+    clue: word.clue,
+    category: categoryId,
+    topic: word.topic,
+    difficulty: word.difficulty,
+    grade: word.grade,
+    lang: word.lang,
+    frequency_score: word.frequency_score,
+  });
+  if (error) throw error;
+  invalidateCache();
+}
+
+export async function removeWord(categoryId: string, wordText: string): Promise<void> {
+  const { error } = await supabase
+    .from('words')
+    .delete()
+    .eq('category', categoryId)
+    .eq('word', wordText);
+  if (error) throw error;
+  invalidateCache();
+}
+
+export async function updateWord(categoryId: string, oldWordText: string, updated: WordItem): Promise<void> {
+  const { error } = await supabase
+    .from('words')
+    .update({
+      word: updated.word,
+      clue: updated.clue,
+      topic: updated.topic,
+      difficulty: updated.difficulty,
+      frequency_score: updated.frequency_score,
+    })
+    .eq('category', categoryId)
+    .eq('word', oldWordText);
+  if (error) throw error;
+  invalidateCache();
 }
