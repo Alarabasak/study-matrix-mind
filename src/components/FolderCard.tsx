@@ -33,17 +33,17 @@ const FolderCard: React.FC<FolderCardProps> = ({ index, icon, title, subtitle, m
     >
       {/* Tab */}
       <div
-        className="folder-tab"
-        style={{ background: `hsl(${colorVar})`, color: 'hsl(var(--foreground))' }}
+        className="folder-tab-glass"
+        style={{ background: `hsl(${colorVar} / 0.6)` }}
       >
         {icon}
       </div>
       {/* Body */}
       <div
-        className="folder-body"
+        className="folder-body-glass"
         style={{
-          background: `hsl(${colorVar} / 0.35)`,
-          borderColor: selected ? 'hsl(var(--foreground))' : 'transparent',
+          background: `hsl(${colorVar} / 0.12)`,
+          borderColor: selected ? `hsl(${colorVar} / 0.8)` : `hsl(${colorVar} / 0.3)`,
         }}
       >
         <div className="handwriting text-xl font-bold leading-tight mb-0.5">{title}</div>
