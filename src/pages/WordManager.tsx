@@ -232,6 +232,7 @@ const WordManager: React.FC = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+      <CsvImportDialog open={csvDialogOpen} onOpenChange={setCsvDialogOpen} onImportComplete={loadData} />
     </div>
   );
 };
