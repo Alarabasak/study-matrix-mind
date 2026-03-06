@@ -2,15 +2,19 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { categories, difficultyOptions } from '@/data/questions';
 import { Button } from '@/components/ui/button';
-import { Gamepad2, BarChart3, BookOpen, Settings, Database, Shuffle } from 'lucide-react';
+import { Shuffle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { DifficultyLevel } from '@/types/crossword';
 import { getTopicCount, getWordCount } from '@/utils/wordDatabase';
+import FolderCard from '@/components/FolderCard';
+import ProfileModal from '@/components/ProfileModal';
+import { motion } from 'framer-motion';
 
 const Index: React.FC = () => {
   const navigate = useNavigate();
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [selectedDifficulty, setSelectedDifficulty] = useState<DifficultyLevel>('all');
+  const [profileOpen, setProfileOpen] = useState(false);
 
   const handleStart = () => {
     if (!selectedCategory) return;
@@ -23,7 +27,6 @@ const Index: React.FC = () => {
 
   const topicCount = selectedCategory ? getTopicCount(selectedCategory) : 0;
 
-  // Filter difficulty options based on available topics
   const availableDifficulties = difficultyOptions.filter(d => {
     if (d.id === 'all') return true;
     if (d.id === 'easy') return topicCount >= 1;
@@ -34,91 +37,128 @@ const Index: React.FC = () => {
   });
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
-      {/* Hero */}
-      <div className="text-center pt-8 pb-4 px-4">
-        <div className="flex items-center justify-center gap-2 mb-1">
-          <Gamepad2 className="h-7 w-7 text-primary" />
-          <h1 className="text-3xl sm:text-4xl font-display font-bold text-foreground tracking-tight">
-            Cross<span className="text-primary">Prep</span>
-          </h1>
-        </div>
-        <p className="text-muted-foreground max-w-sm mx-auto text-sm">
-          Oyun oynarken öğren! TYT & AYT konularını çengel bulmacalarla pekiştir.
-        </p>
+    <div className="min-h-screen bg-background paper-texture flex flex-col">
+      {/* Editorial Header */}
+      <div className="relative text-center pt-8 pb-2 px-4">
+        {/* Profile notebook button */}
+        <motion.button
+          className="absolute top-4 right-4 text-3xl hover:scale-110 transition-transform"
+          onClick={() => setProfileOpen(true)}
+          whileTap={{ scale: 0.9 }}
+          title="Profilim"
+        >
+          📓
+        </motion.button>
+
+        {/* Tape decoration */}
+        <div className="tape mx-auto mb-2" style={{ transform: 'rotate(-2deg)' }} />
+
+        <motion.h1
+          className="handwriting text-5xl sm:text-6xl font-bold text-foreground tracking-tight"
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+        >
+          Cross<span className="text-primary">Prep</span>
+        </motion.h1>
+        <motion.p
+          className="text-muted-foreground max-w-sm mx-auto text-sm mt-1 font-body"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.2 }}
+        >
+          Oyun oynarken öğren! ✏️ TYT & AYT konularını çengel bulmacalarla pekiştir.
+        </motion.p>
+
+        {/* Decorative stickers */}
         <div className="flex justify-center gap-2 mt-3 flex-wrap">
-          <Button variant="ghost" size="sm" className="gap-1.5 font-display text-xs" onClick={() => navigate('/dashboard')}>
-            <BarChart3 className="h-3.5 w-3.5" /> İstatistikler
-          </Button>
-          <Button variant="ghost" size="sm" className="gap-1.5 font-display text-xs" onClick={() => navigate('/unknown-words')}>
-            <BookOpen className="h-3.5 w-3.5" /> Bilinmeyen Kelimeler
-          </Button>
-          <Button variant="ghost" size="sm" className="gap-1.5 font-display text-xs" onClick={() => navigate('/word-manager')}>
-            <Database className="h-3.5 w-3.5" /> Kelime Yönetimi
-          </Button>
-          <Button variant="ghost" size="sm" className="gap-1.5 font-display text-xs" onClick={() => navigate('/settings')}>
-            <Settings className="h-3.5 w-3.5" /> Ayarlar
-          </Button>
+          <span className="sticker bg-primary/15 text-primary">🎒 Okula Dönüş</span>
+          <span className="sticker bg-accent/15 text-accent" style={{ transform: 'rotate(2deg)' }}>📚 Çalış & Oyna</span>
         </div>
       </div>
 
-      {/* TYT Categories */}
-      <div className="max-w-2xl mx-auto w-full px-4 mb-4">
-        <h2 className="font-display font-bold text-base mb-2 flex items-center gap-2">
+      {/* TYT Folders */}
+      <div className="max-w-2xl mx-auto w-full px-4 mb-4 mt-4">
+        <h2 className="handwriting text-2xl font-bold mb-3 flex items-center gap-2">
           🎯 TYT Dersleri
         </h2>
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
-          {tytCategories.map(cat => {
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          {tytCategories.map((cat, i) => {
             const wc = getWordCount(cat.id);
             const tc = getTopicCount(cat.id);
             return (
-              <div
+              <motion.div
                 key={cat.id}
-                className={cn('category-card', selectedCategory === cat.id && 'selected')}
-                onClick={() => { setSelectedCategory(cat.id); setSelectedDifficulty('all'); }}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.1 + i * 0.05 }}
               >
-                <div className="text-2xl mb-1">{cat.icon}</div>
-                <div className="font-display font-bold text-xs">{cat.name.replace('TYT ', '')}</div>
-                <div className="text-[10px] text-muted-foreground mt-0.5 line-clamp-1">{cat.description}</div>
-                <div className="text-[9px] text-muted-foreground mt-1">{wc} kelime · {tc} konu</div>
-              </div>
+                <FolderCard
+                  index={i}
+                  icon={cat.icon}
+                  title={cat.name.replace('TYT ', '')}
+                  subtitle={cat.description}
+                  meta={`${wc} kelime · ${tc} konu`}
+                  selected={selectedCategory === cat.id}
+                  onClick={() => { setSelectedCategory(cat.id); setSelectedDifficulty('all'); }}
+                />
+              </motion.div>
             );
           })}
         </div>
       </div>
 
-      {/* Karıştır Category */}
+      {/* Shuffle - special folder */}
       <div className="max-w-2xl mx-auto w-full px-4 mb-4">
-        <div
-          className={cn('category-card flex items-center gap-3 p-4', selectedCategory === 'shuffle' && 'selected')}
+        <motion.div
+          className={cn(
+            'folder-card flex items-center gap-3',
+            selectedCategory === 'shuffle' && 'selected'
+          )}
           onClick={() => { setSelectedCategory('shuffle'); setSelectedDifficulty('all'); }}
+          whileHover={{ rotate: -1, y: -3 }}
         >
-          <Shuffle className="h-8 w-8 text-accent" />
-          <div>
-            <div className="font-display font-bold text-sm">🔀 Karıştır</div>
-            <div className="text-[10px] text-muted-foreground">Tüm derslerden karışık bulmaca</div>
-            <div className="text-[9px] text-muted-foreground">{getWordCount('shuffle')} kelime · {getTopicCount('shuffle')} konu</div>
+          <div
+            className="folder-body flex items-center gap-3 w-full"
+            style={{
+              background: `hsl(var(--folder-yellow) / 0.4)`,
+              borderColor: selectedCategory === 'shuffle' ? 'hsl(var(--foreground))' : 'transparent',
+            }}
+          >
+            <Shuffle className="h-7 w-7 text-accent" />
+            <div>
+              <div className="handwriting text-xl font-bold">🔀 Karıştır</div>
+              <div className="text-[10px] text-muted-foreground font-body">
+                Tüm derslerden karışık · {getWordCount('shuffle')} kelime · {getTopicCount('shuffle')} konu
+              </div>
+            </div>
           </div>
-        </div>
+        </motion.div>
       </div>
 
-      {/* AYT Categories */}
+      {/* AYT Folders */}
       {aytCategories.length > 0 && (
         <div className="max-w-2xl mx-auto w-full px-4 mb-4">
-          <h2 className="font-display font-bold text-base mb-2 flex items-center gap-2">
+          <h2 className="handwriting text-2xl font-bold mb-3 flex items-center gap-2">
             🚀 AYT Dersleri
           </h2>
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
-            {aytCategories.map(cat => (
-              <div
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            {aytCategories.map((cat, i) => (
+              <motion.div
                 key={cat.id}
-                className={cn('category-card', selectedCategory === cat.id && 'selected')}
-                onClick={() => { setSelectedCategory(cat.id); setSelectedDifficulty('all'); }}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.2 + i * 0.05 }}
               >
-                <div className="text-2xl mb-1">{cat.icon}</div>
-                <div className="font-display font-bold text-xs">{cat.name.replace('AYT ', '')}</div>
-                <div className="text-[10px] text-muted-foreground mt-0.5 line-clamp-1">{cat.description}</div>
-              </div>
+                <FolderCard
+                  index={i + tytCategories.length}
+                  icon={cat.icon}
+                  title={cat.name.replace('AYT ', '')}
+                  subtitle={cat.description}
+                  selected={selectedCategory === cat.id}
+                  onClick={() => { setSelectedCategory(cat.id); setSelectedDifficulty('all'); }}
+                />
+              </motion.div>
             ))}
           </div>
         </div>
@@ -126,8 +166,13 @@ const Index: React.FC = () => {
 
       {/* Difficulty Selection */}
       {selectedCategory && (
-        <div className="max-w-2xl mx-auto w-full px-4 mb-4">
-          <h2 className="font-display font-bold text-base mb-2 flex items-center gap-2">
+        <motion.div
+          className="max-w-2xl mx-auto w-full px-4 mb-4"
+          initial={{ opacity: 0, height: 0 }}
+          animate={{ opacity: 1, height: 'auto' }}
+          transition={{ duration: 0.3 }}
+        >
+          <h2 className="handwriting text-2xl font-bold mb-2 flex items-center gap-2">
             ⚡ Zorluk Seviyesi
           </h2>
           <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
@@ -138,24 +183,30 @@ const Index: React.FC = () => {
                 onClick={() => setSelectedDifficulty(d.id)}
               >
                 <div className="text-lg">{d.icon}</div>
-                <div className="font-display font-bold">{d.name}</div>
+                <div className="font-bold" style={{ fontFamily: 'var(--font-heading)' }}>{d.name}</div>
                 <div className="text-[9px] text-muted-foreground">{d.topicCount}</div>
               </div>
             ))}
           </div>
-        </div>
+        </motion.div>
       )}
 
       {/* Start Button */}
       <div className="max-w-2xl mx-auto w-full px-4 pb-8 mt-auto">
-        <Button
-          className="w-full h-14 text-lg font-display font-bold rounded-2xl shadow-lg transition-all hover:shadow-xl hover:-translate-y-0.5 disabled:opacity-40"
-          disabled={!selectedCategory}
-          onClick={handleStart}
-        >
-          {selectedCategory ? '🎮 Bulmacayı Başlat' : 'Bir ders seçin'}
-        </Button>
+        <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+          <Button
+            className="w-full h-14 text-lg font-bold rounded-2xl shadow-lg transition-all hover:shadow-xl disabled:opacity-40"
+            style={{ fontFamily: 'var(--font-display)', fontSize: '1.4rem' }}
+            disabled={!selectedCategory}
+            onClick={handleStart}
+          >
+            {selectedCategory ? '🎮 Bulmacayı Başlat' : 'Bir ders seçin ✏️'}
+          </Button>
+        </motion.div>
       </div>
+
+      {/* Profile Modal */}
+      <ProfileModal open={profileOpen} onClose={() => setProfileOpen(false)} />
     </div>
   );
 };
