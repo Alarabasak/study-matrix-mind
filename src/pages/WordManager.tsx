@@ -6,7 +6,8 @@ import { WordItem } from '@/types/crossword';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { ArrowLeft, Plus, Trash2, Edit2, Search, LogOut } from 'lucide-react';
+import { ArrowLeft, Plus, Trash2, Edit2, Search, LogOut, Upload } from 'lucide-react';
+import CsvImportDialog from '@/components/admin/CsvImportDialog';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import {
@@ -23,6 +24,7 @@ const WordManager: React.FC = () => {
   const [selectedCategory, setSelectedCategory] = useState(categories[0].id);
   const [searchQuery, setSearchQuery] = useState('');
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [csvDialogOpen, setCsvDialogOpen] = useState(false);
   const [editingWord, setEditingWord] = useState<string | null>(null);
   const [db, setDb] = useState<Record<string, WordItem[]>>({});
   const [topics, setTopics] = useState<string[]>([]);
@@ -160,6 +162,7 @@ const WordManager: React.FC = () => {
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input placeholder="Kelime, ipucu veya konu ara..." value={searchQuery} onChange={e => setSearchQuery(e.target.value)} className="pl-9" />
           </div>
+          <Button variant="outline" onClick={() => setCsvDialogOpen(true)} className="gap-1.5 font-display"><Upload className="h-4 w-4" /> CSV</Button>
           <Button onClick={openAddDialog} className="gap-1.5 font-display"><Plus className="h-4 w-4" /> Ekle</Button>
         </div>
 
@@ -229,6 +232,7 @@ const WordManager: React.FC = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+      <CsvImportDialog open={csvDialogOpen} onOpenChange={setCsvDialogOpen} onImportComplete={loadData} />
     </div>
   );
 };
