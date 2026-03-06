@@ -8,6 +8,7 @@ interface AuthContextType {
   isAdmin: boolean;
   isLoading: boolean;
   signIn: (email: string, password: string) => Promise<{ error: Error | null }>;
+  signUp: (email: string, password: string) => Promise<{ error: Error | null; isFirstAdmin?: boolean }>;
   signOut: () => Promise<void>;
 }
 
@@ -57,6 +58,22 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const signIn = async (email: string, password: string) => {
     const { error } = await supabase.auth.signInWithPassword({ email, password });
     return { error: error ? new Error(error.message) : null };
+  };
+
+  const signUp = async (email: string, password: string) => {
+    const { data, error } = await supabase.auth.signUp({ email, password });
+    if (error) return { error: new Error(error.message) };
+    
+    // Try to assign first admin role
+    let isFirstAdmin = false;
+    if (data.user) {
+      const { data: result } = await supabase.rpc('assign_first_admin', { _user_id: data.user.id });
+      isFirstAdmin = !!result;
+      if (isFirstAdmin) {
+        setIsAdmin(true);
+      }
+    }
+    return { error: null, isFirstAdmin };
   };
 
   const signOut = async () => {
