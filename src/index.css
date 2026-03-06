@@ -4,42 +4,51 @@
 
 @layer base {
   :root {
-    --background: 38 40% 96%;
-    --foreground: 30 25% 18%;
+    --background: 40 33% 95%;
+    --foreground: 220 20% 18%;
 
-    --card: 38 35% 98%;
-    --card-foreground: 30 25% 18%;
+    --card: 0 0% 100%;
+    --card-foreground: 220 20% 18%;
 
-    --popover: 38 35% 98%;
-    --popover-foreground: 30 25% 18%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 220 20% 18%;
 
-    --primary: 152 32% 38%;
-    --primary-foreground: 38 40% 98%;
+    --primary: 350 55% 62%;
+    --primary-foreground: 0 0% 100%;
 
-    --secondary: 38 30% 90%;
-    --secondary-foreground: 30 25% 25%;
+    --secondary: 40 30% 90%;
+    --secondary-foreground: 220 20% 25%;
 
-    --muted: 38 20% 92%;
-    --muted-foreground: 30 12% 50%;
+    --muted: 40 15% 91%;
+    --muted-foreground: 220 10% 48%;
 
-    --accent: 15 75% 58%;
+    --accent: 210 45% 52%;
     --accent-foreground: 0 0% 100%;
 
     --destructive: 0 72% 55%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 35 25% 86%;
-    --input: 35 25% 86%;
-    --ring: 152 32% 38%;
+    --border: 40 18% 84%;
+    --input: 40 18% 84%;
+    --ring: 350 55% 62%;
 
     --radius: 0.75rem;
 
     --cell-bg: 0 0% 100%;
-    --cell-clue: 152 25% 88%;
-    --cell-selected: 15 80% 92%;
+    --cell-clue: 40 40% 92%;
+    --cell-selected: 350 60% 92%;
     --cell-correct: 142 50% 90%;
     --cell-wrong: 0 60% 92%;
     --cell-highlight: 45 80% 90%;
+
+    --folder-pink: 350 60% 82%;
+    --folder-blue: 210 50% 78%;
+    --folder-green: 152 35% 72%;
+    --folder-yellow: 45 70% 78%;
+    --folder-red: 0 55% 72%;
+    --folder-purple: 270 40% 78%;
+    --folder-orange: 25 65% 72%;
+    --folder-teal: 180 35% 72%;
 
     --sidebar-background: 0 0% 98%;
     --sidebar-foreground: 240 5.3% 26.1%;
@@ -50,36 +59,45 @@
     --sidebar-border: 220 13% 91%;
     --sidebar-ring: 217.2 91.2% 59.8%;
 
-    --font-display: 'Fredoka', sans-serif;
+    --font-display: 'Caveat', cursive;
     --font-body: 'Nunito', sans-serif;
+    --font-heading: 'Fredoka', sans-serif;
   }
 
   .dark {
-    --background: 30 15% 12%;
-    --foreground: 38 30% 90%;
-    --card: 30 15% 15%;
-    --card-foreground: 38 30% 90%;
-    --popover: 30 15% 15%;
-    --popover-foreground: 38 30% 90%;
-    --primary: 152 35% 50%;
-    --primary-foreground: 30 15% 10%;
-    --secondary: 30 15% 20%;
-    --secondary-foreground: 38 30% 90%;
-    --muted: 30 10% 22%;
-    --muted-foreground: 38 15% 60%;
-    --accent: 15 70% 55%;
+    --background: 220 15% 10%;
+    --foreground: 40 20% 90%;
+    --card: 220 15% 14%;
+    --card-foreground: 40 20% 90%;
+    --popover: 220 15% 14%;
+    --popover-foreground: 40 20% 90%;
+    --primary: 350 50% 58%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 220 12% 20%;
+    --secondary-foreground: 40 20% 90%;
+    --muted: 220 10% 22%;
+    --muted-foreground: 40 12% 55%;
+    --accent: 210 40% 50%;
     --accent-foreground: 0 0% 100%;
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 0 0% 100%;
-    --border: 30 10% 25%;
-    --input: 30 10% 25%;
-    --ring: 152 35% 50%;
-    --cell-bg: 30 12% 18%;
-    --cell-clue: 152 15% 22%;
-    --cell-selected: 15 40% 25%;
+    --border: 220 10% 22%;
+    --input: 220 10% 22%;
+    --ring: 350 50% 58%;
+    --cell-bg: 220 12% 18%;
+    --cell-clue: 40 15% 20%;
+    --cell-selected: 350 30% 22%;
     --cell-correct: 142 30% 22%;
     --cell-wrong: 0 40% 25%;
     --cell-highlight: 45 40% 25%;
+    --folder-pink: 350 40% 30%;
+    --folder-blue: 210 35% 30%;
+    --folder-green: 152 25% 28%;
+    --folder-yellow: 45 40% 30%;
+    --folder-red: 0 35% 28%;
+    --folder-purple: 270 30% 30%;
+    --folder-orange: 25 40% 28%;
+    --folder-teal: 180 25% 28%;
     --sidebar-background: 240 5.9% 10%;
     --sidebar-foreground: 240 4.8% 95.9%;
     --sidebar-primary: 224.3 76.3% 48%;
@@ -99,8 +117,11 @@
     @apply bg-background text-foreground;
     font-family: var(--font-body);
   }
-  h1, h2, h3, h4, h5, h6 {
+  h1, h2, h3 {
     font-family: var(--font-display);
+  }
+  h4, h5, h6 {
+    font-family: var(--font-heading);
   }
 }
 
@@ -116,7 +137,7 @@
   }
   .cell-selected {
     background: hsl(var(--cell-selected));
-    @apply ring-2 ring-accent;
+    @apply ring-2 ring-primary;
   }
   .cell-highlighted {
     background: hsl(var(--cell-highlight));
@@ -130,18 +151,76 @@
   .game-container {
     @apply max-w-4xl mx-auto px-2 sm:px-4;
   }
-  .category-card {
-    @apply rounded-2xl p-5 sm:p-6 cursor-pointer transition-all duration-200 border-2 border-transparent;
-    background: hsl(var(--card));
-    @apply hover:border-primary hover:shadow-lg hover:-translate-y-1;
+
+  /* Folder card styles */
+  .folder-card {
+    @apply relative cursor-pointer transition-all duration-300;
+    perspective: 600px;
   }
-  .category-card.selected {
-    @apply border-primary shadow-lg -translate-y-1;
-    background: hsl(var(--cell-clue));
+  .folder-card:hover {
+    transform: translateY(-4px) rotate(-1deg);
   }
+  .folder-tab {
+    @apply absolute -top-3 left-3 px-3 py-0.5 rounded-t-lg text-[10px] font-bold;
+    font-family: var(--font-heading);
+  }
+  .folder-body {
+    @apply rounded-xl rounded-tl-none p-4 border-2 border-transparent transition-all shadow-md;
+  }
+  .folder-card.selected .folder-body {
+    @apply border-foreground shadow-lg;
+  }
+
+  /* Notebook texture */
+  .notebook-bg {
+    background-image: 
+      repeating-linear-gradient(
+        transparent,
+        transparent 27px,
+        hsl(var(--border)) 27px,
+        hsl(var(--border)) 28px
+      );
+    background-size: 100% 28px;
+  }
+
+  /* Paper texture overlay */
+  .paper-texture {
+    position: relative;
+  }
+  .paper-texture::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: url('/images/grid-paper.jpg') center/cover;
+    opacity: 0.04;
+    pointer-events: none;
+    border-radius: inherit;
+  }
+
+  /* Handwriting style labels */
+  .handwriting {
+    font-family: var(--font-display);
+    letter-spacing: 0.02em;
+  }
+
+  /* Tape decoration */
+  .tape {
+    @apply absolute bg-yellow-100/70 dark:bg-yellow-900/30;
+    width: 60px;
+    height: 20px;
+    transform: rotate(-3deg);
+  }
+
+  /* Sticker style badge */
+  .sticker {
+    @apply inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold shadow-sm;
+    font-family: var(--font-heading);
+    transform: rotate(-2deg);
+  }
+
   .size-chip {
     @apply px-4 py-2 rounded-xl font-semibold cursor-pointer transition-all duration-200 border-2 border-border;
-    font-family: var(--font-display);
+    font-family: var(--font-heading);
     @apply hover:border-primary;
   }
   .size-chip.selected {
