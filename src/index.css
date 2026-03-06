@@ -1,57 +1,65 @@
-@import url('https://fonts.googleapis.com/css2?family=Caveat:wght@400;500;600;700&family=Nunito:wght@400;600;700;800&family=Fredoka:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Caveat:wght@400;500;600;700&family=Nunito:wght@400;600;700;800&family=Fredoka:wght@400;500;600;700&family=Patrick+Hand&display=swap');
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
+/* ═══════════════════════════════════════════════
+   SCRAPBOOK DESIGN SYSTEM
+   Gen-Z study aesthetic · Pinterest desk vibes
+   ═══════════════════════════════════════════════ */
+
 @layer base {
   :root {
-    --background: 40 33% 95%;
-    --foreground: 220 20% 18%;
-
-    --card: 0 0% 100%;
-    --card-foreground: 220 20% 18%;
-
-    --popover: 0 0% 100%;
-    --popover-foreground: 220 20% 18%;
-
-    --primary: 350 55% 62%;
+    /* ── Core palette ── */
+    --background: 42 38% 94%;
+    --foreground: 225 18% 16%;
+    --card: 40 30% 97%;
+    --card-foreground: 225 18% 16%;
+    --popover: 40 30% 97%;
+    --popover-foreground: 225 18% 16%;
+    --primary: 346 58% 56%;
     --primary-foreground: 0 0% 100%;
-
-    --secondary: 40 30% 90%;
-    --secondary-foreground: 220 20% 25%;
-
-    --muted: 40 15% 91%;
-    --muted-foreground: 220 10% 48%;
-
-    --accent: 210 45% 52%;
+    --secondary: 42 28% 89%;
+    --secondary-foreground: 225 15% 22%;
+    --muted: 40 16% 90%;
+    --muted-foreground: 225 8% 48%;
+    --accent: 205 52% 48%;
     --accent-foreground: 0 0% 100%;
-
-    --destructive: 0 72% 55%;
+    --destructive: 0 68% 52%;
     --destructive-foreground: 0 0% 100%;
-
-    --border: 40 18% 84%;
-    --input: 40 18% 84%;
-    --ring: 350 55% 62%;
-
+    --border: 38 22% 82%;
+    --input: 38 22% 82%;
+    --ring: 346 58% 56%;
     --radius: 0.75rem;
 
+    /* ── Pastel folder palette ── */
+    --folder-pink: 348 62% 84%;
+    --folder-blue: 208 55% 80%;
+    --folder-green: 158 38% 75%;
+    --folder-yellow: 46 72% 80%;
+    --folder-red: 4 58% 75%;
+    --folder-purple: 268 42% 80%;
+    --folder-orange: 28 68% 76%;
+    --folder-teal: 178 38% 74%;
+    --folder-lavender: 240 40% 84%;
+    --folder-mint: 165 42% 78%;
+
+    /* ── Cell palette (crossword) ── */
     --cell-bg: 0 0% 100%;
     --cell-clue: 40 40% 92%;
-    --cell-selected: 350 60% 92%;
+    --cell-selected: 346 60% 92%;
     --cell-correct: 142 50% 90%;
     --cell-wrong: 0 60% 92%;
     --cell-highlight: 45 80% 90%;
 
-    --folder-pink: 350 60% 82%;
-    --folder-blue: 210 50% 78%;
-    --folder-green: 152 35% 72%;
-    --folder-yellow: 45 70% 78%;
-    --folder-red: 0 55% 72%;
-    --folder-purple: 270 40% 78%;
-    --folder-orange: 25 65% 72%;
-    --folder-teal: 180 35% 72%;
+    /* ── Scrapbook textures ── */
+    --paper-cream: 42 42% 95%;
+    --paper-lined: 38 18% 82%;
+    --kraft: 32 28% 72%;
+    --cork: 28 32% 62%;
 
+    /* ── Sidebar ── */
     --sidebar-background: 0 0% 98%;
     --sidebar-foreground: 240 5.3% 26.1%;
     --sidebar-primary: 240 5.9% 10%;
@@ -61,45 +69,53 @@
     --sidebar-border: 220 13% 91%;
     --sidebar-ring: 217.2 91.2% 59.8%;
 
+    /* ── Typography ── */
     --font-display: 'Caveat', cursive;
     --font-body: 'Nunito', sans-serif;
     --font-heading: 'Fredoka', sans-serif;
+    --font-handwriting: 'Patrick Hand', cursive;
   }
 
   .dark {
-    --background: 220 15% 10%;
-    --foreground: 40 20% 90%;
-    --card: 220 15% 14%;
-    --card-foreground: 40 20% 90%;
-    --popover: 220 15% 14%;
-    --popover-foreground: 40 20% 90%;
-    --primary: 350 50% 58%;
+    --background: 225 16% 9%;
+    --foreground: 40 22% 90%;
+    --card: 225 14% 13%;
+    --card-foreground: 40 22% 90%;
+    --popover: 225 14% 13%;
+    --popover-foreground: 40 22% 90%;
+    --primary: 346 52% 54%;
     --primary-foreground: 0 0% 100%;
-    --secondary: 220 12% 20%;
-    --secondary-foreground: 40 20% 90%;
-    --muted: 220 10% 22%;
-    --muted-foreground: 40 12% 55%;
-    --accent: 210 40% 50%;
+    --secondary: 225 12% 18%;
+    --secondary-foreground: 40 22% 90%;
+    --muted: 225 10% 20%;
+    --muted-foreground: 40 14% 52%;
+    --accent: 205 42% 46%;
     --accent-foreground: 0 0% 100%;
-    --destructive: 0 62.8% 30.6%;
+    --destructive: 0 62% 30%;
     --destructive-foreground: 0 0% 100%;
-    --border: 220 10% 22%;
-    --input: 220 10% 22%;
-    --ring: 350 50% 58%;
-    --cell-bg: 220 12% 18%;
-    --cell-clue: 40 15% 20%;
-    --cell-selected: 350 30% 22%;
-    --cell-correct: 142 30% 22%;
-    --cell-wrong: 0 40% 25%;
-    --cell-highlight: 45 40% 25%;
-    --folder-pink: 350 40% 30%;
-    --folder-blue: 210 35% 30%;
-    --folder-green: 152 25% 28%;
-    --folder-yellow: 45 40% 30%;
-    --folder-red: 0 35% 28%;
-    --folder-purple: 270 30% 30%;
-    --folder-orange: 25 40% 28%;
-    --folder-teal: 180 25% 28%;
+    --border: 225 10% 20%;
+    --input: 225 10% 20%;
+    --ring: 346 52% 54%;
+    --cell-bg: 225 12% 16%;
+    --cell-clue: 40 15% 18%;
+    --cell-selected: 346 30% 20%;
+    --cell-correct: 142 30% 20%;
+    --cell-wrong: 0 40% 22%;
+    --cell-highlight: 45 40% 22%;
+    --folder-pink: 348 38% 28%;
+    --folder-blue: 208 35% 28%;
+    --folder-green: 158 25% 26%;
+    --folder-yellow: 46 42% 28%;
+    --folder-red: 4 38% 26%;
+    --folder-purple: 268 30% 28%;
+    --folder-orange: 28 42% 26%;
+    --folder-teal: 178 25% 26%;
+    --folder-lavender: 240 28% 28%;
+    --folder-mint: 165 30% 26%;
+    --paper-cream: 225 12% 14%;
+    --paper-lined: 225 8% 22%;
+    --kraft: 32 18% 22%;
+    --cork: 28 20% 18%;
     --sidebar-background: 240 5.9% 10%;
     --sidebar-foreground: 240 4.8% 95.9%;
     --sidebar-primary: 224.3 76.3% 48%;
@@ -127,6 +143,64 @@
   }
 }
 
+/* ═══════════════════════════════════════════════
+   KEYFRAME ANIMATIONS
+   ═══════════════════════════════════════════════ */
+
+@keyframes float-gentle {
+  0%, 100% { transform: translateY(0) rotate(var(--float-rotate, 0deg)); }
+  50% { transform: translateY(-6px) rotate(var(--float-rotate, 0deg)); }
+}
+
+@keyframes wiggle {
+  0%, 100% { transform: rotate(-2deg); }
+  50% { transform: rotate(2deg); }
+}
+
+@keyframes paper-slide-in {
+  from { transform: translateY(40px) rotate(var(--slide-rotate, 2deg)); opacity: 0; }
+  to { transform: translateY(0) rotate(var(--slide-rotate, 0deg)); opacity: 1; }
+}
+
+@keyframes folder-open {
+  0% { transform: perspective(800px) rotateX(0deg); }
+  100% { transform: perspective(800px) rotateX(-25deg); }
+}
+
+@keyframes sticky-bounce {
+  0%, 100% { transform: scale(1) rotate(var(--note-rotate, -1deg)); }
+  50% { transform: scale(1.06) rotate(var(--note-rotate, -1deg)); }
+}
+
+@keyframes tape-shimmer {
+  0% { opacity: 0.55; }
+  50% { opacity: 0.75; }
+  100% { opacity: 0.55; }
+}
+
+@keyframes sticker-pop {
+  0% { transform: scale(0) rotate(-20deg); }
+  60% { transform: scale(1.15) rotate(5deg); }
+  100% { transform: scale(1) rotate(var(--sticker-rotate, 0deg)); }
+}
+
+@keyframes page-flip-in {
+  from {
+    transform: perspective(1200px) rotateY(-90deg);
+    opacity: 0;
+    transform-origin: left center;
+  }
+  to {
+    transform: perspective(1200px) rotateY(0deg);
+    opacity: 1;
+    transform-origin: left center;
+  }
+}
+
+/* ═══════════════════════════════════════════════
+   COMPONENT STYLES
+   ═══════════════════════════════════════════════ */
+
 @layer components {
   /* ── Crossword cells ── */
   .cell-base {
@@ -142,54 +216,87 @@
     background: hsl(var(--cell-selected));
     @apply ring-2 ring-primary;
   }
-  .cell-highlighted {
-    background: hsl(var(--cell-highlight));
-  }
-  .cell-correct {
-    background: hsl(var(--cell-correct));
-  }
-  .cell-wrong {
-    background: hsl(var(--cell-wrong));
-  }
-  .game-container {
-    @apply max-w-4xl mx-auto px-2 sm:px-4;
-  }
+  .cell-highlighted { background: hsl(var(--cell-highlight)); }
+  .cell-correct { background: hsl(var(--cell-correct)); }
+  .cell-wrong { background: hsl(var(--cell-wrong)); }
+  .game-container { @apply max-w-4xl mx-auto px-2 sm:px-4; }
 
-  /* ── Paper & texture backgrounds ── */
-  .paper-texture {
-    position: relative;
+  /* ── Desk surface ── */
+  .desk-surface {
     background-color: hsl(var(--background));
     background-image:
-      radial-gradient(ellipse at 20% 50%, hsl(var(--folder-pink) / 0.08) 0%, transparent 50%),
-      radial-gradient(ellipse at 80% 20%, hsl(var(--folder-blue) / 0.06) 0%, transparent 50%),
-      radial-gradient(ellipse at 60% 80%, hsl(var(--folder-yellow) / 0.06) 0%, transparent 50%);
+      radial-gradient(ellipse at 15% 30%, hsl(var(--folder-pink) / 0.06) 0%, transparent 50%),
+      radial-gradient(ellipse at 85% 15%, hsl(var(--folder-blue) / 0.05) 0%, transparent 45%),
+      radial-gradient(ellipse at 50% 85%, hsl(var(--folder-yellow) / 0.05) 0%, transparent 50%),
+      radial-gradient(ellipse at 75% 60%, hsl(var(--folder-lavender) / 0.04) 0%, transparent 40%);
+    position: relative;
+  }
+  .desk-surface::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image:
+      url("data:image/svg+xml,%3Csvg width='40' height='40' xmlns='http://www.w3.org/2000/svg'%3E%3Cdefs%3E%3Cpattern id='grid' width='40' height='40' patternUnits='userSpaceOnUse'%3E%3Cpath d='M 40 0 L 0 0 0 40' fill='none' stroke='%23c8bfb0' stroke-width='0.3'/%3E%3C/pattern%3E%3C/defs%3E%3Crect width='100%25' height='100%25' fill='url(%23grid)'/%3E%3C/svg%3E");
+    opacity: 0.12;
+    pointer-events: none;
+  }
+
+  /* ── Paper texture (generic) ── */
+  .paper-texture {
+    position: relative;
+    background-color: hsl(var(--paper-cream));
   }
   .paper-texture::before {
     content: '';
     position: absolute;
     inset: 0;
     background: url('/images/grid-paper.jpg') center/cover;
-    opacity: 0.035;
+    opacity: 0.03;
     pointer-events: none;
     border-radius: inherit;
   }
 
+  /* ── Notebook page ── */
+  .notebook-page {
+    @apply relative rounded-xl overflow-hidden;
+    background: hsl(var(--card));
+    box-shadow:
+      0 1px 3px hsl(0 0% 0% / 0.04),
+      0 6px 20px hsl(0 0% 0% / 0.06),
+      4px 0 0 hsl(var(--primary) / 0.15);
+  }
+  .notebook-page::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 3px;
+    background: hsl(var(--primary) / 0.25);
+    border-radius: 0 2px 2px 0;
+  }
+  .notebook-page::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image:
+      repeating-linear-gradient(
+        transparent, transparent 27px,
+        hsl(var(--paper-lined) / 0.18) 27px,
+        hsl(var(--paper-lined) / 0.18) 28px
+      );
+    pointer-events: none;
+  }
+
+  /* ── Notebook background ── */
   .notebook-bg {
     background-image:
       repeating-linear-gradient(
-        transparent,
-        transparent 27px,
+        transparent, transparent 27px,
         hsl(var(--border)) 27px,
         hsl(var(--border)) 28px
       );
     background-size: 100% 28px;
-  }
-
-  .ruled-paper {
-    background-image:
-      linear-gradient(hsl(350 60% 70% / 0.08) 1px, transparent 1px),
-      linear-gradient(90deg, hsl(210 60% 70% / 0.04) 1px, transparent 1px);
-    background-size: 100% 28px, 28px 100%;
   }
 
   /* ── Handwriting ── */
@@ -197,193 +304,159 @@
     font-family: var(--font-display);
     letter-spacing: 0.02em;
   }
-
-  /* ── Tape decorations ── */
-  .tape {
-    @apply absolute;
-    width: 70px;
-    height: 22px;
-    background: linear-gradient(135deg, hsl(45 80% 85% / 0.7), hsl(45 60% 78% / 0.5));
-    border: 1px solid hsl(45 40% 70% / 0.3);
-    box-shadow: 0 1px 3px hsl(0 0% 0% / 0.06);
-    backdrop-filter: blur(2px);
-  }
-  .tape-pink {
-    background: linear-gradient(135deg, hsl(350 70% 88% / 0.65), hsl(350 50% 82% / 0.45));
-    border-color: hsl(350 40% 75% / 0.3);
-  }
-  .tape-blue {
-    background: linear-gradient(135deg, hsl(210 60% 88% / 0.65), hsl(210 40% 82% / 0.45));
-    border-color: hsl(210 40% 75% / 0.3);
-  }
-  .tape-green {
-    background: linear-gradient(135deg, hsl(152 50% 85% / 0.65), hsl(152 35% 78% / 0.45));
-    border-color: hsl(152 30% 70% / 0.3);
+  .hand-label {
+    font-family: var(--font-handwriting);
+    letter-spacing: 0.01em;
   }
 
-  /* ── Paper clip ── */
-  .paper-clip {
-    @apply absolute;
-    width: 16px;
-    height: 40px;
-    border: 2.5px solid hsl(var(--muted-foreground) / 0.35);
-    border-radius: 8px 8px 0 0;
-    border-bottom: none;
-    z-index: 10;
-  }
-  .paper-clip::after {
-    content: '';
-    position: absolute;
-    bottom: -12px;
-    left: 2px;
-    width: 8px;
-    height: 16px;
-    border: 2.5px solid hsl(var(--muted-foreground) / 0.35);
-    border-radius: 0 0 5px 5px;
-    border-top: none;
-  }
-  .paper-clip-gold {
-    border-color: hsl(40 70% 55% / 0.6);
-  }
-  .paper-clip-gold::after {
-    border-color: hsl(40 70% 55% / 0.6);
-  }
-  .paper-clip-pink {
-    border-color: hsl(350 60% 65% / 0.5);
-  }
-  .paper-clip-pink::after {
-    border-color: hsl(350 60% 65% / 0.5);
-  }
-
-  /* ── Sticker style badge ── */
-  .sticker {
-    @apply inline-flex items-center px-3 py-1.5 rounded-full text-xs font-bold;
-    font-family: var(--font-heading);
-    box-shadow:
-      0 2px 8px hsl(0 0% 0% / 0.06),
-      inset 0 1px 0 hsl(0 0% 100% / 0.5);
-    border: 1.5px solid hsl(0 0% 100% / 0.3);
-  }
-
-  /* ── Folder card – Physical folder aesthetic ── */
-  .folder-card {
+  /* ── Subject Folder ── */
+  .subject-folder {
     @apply relative cursor-pointer select-none;
-    transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s ease;
+    transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), filter 0.3s ease;
   }
-  .folder-card:hover {
-    transform: translateY(-8px) rotate(-1.5deg) scale(1.03);
+  .subject-folder:hover {
+    transform: translateY(-10px) rotate(-1.5deg) scale(1.04);
+    filter: brightness(1.02);
   }
-  .folder-card:active {
-    transform: translateY(-2px) scale(0.98);
+  .subject-folder:active {
+    transform: translateY(-3px) scale(0.97);
   }
 
-  .folder-tab {
-    @apply absolute -top-3.5 left-3 px-3 py-1 rounded-t-xl text-[11px] font-bold text-foreground;
-    font-family: var(--font-heading);
-    border: 1.5px solid hsl(0 0% 100% / 0.25);
+  .folder-tab-shape {
+    @apply absolute -top-3 left-2.5;
+    width: 52%;
+    height: 28px;
+    clip-path: polygon(0% 100%, 8% 15%, 15% 0%, 85% 0%, 92% 15%, 100% 100%);
     border-bottom: none;
-    box-shadow:
-      inset 0 2px 4px hsl(0 0% 100% / 0.4),
-      0 -2px 6px hsl(0 0% 0% / 0.04);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
   }
 
-  .folder-body {
-    @apply rounded-2xl rounded-tl-none p-4 border-2 transition-all duration-300;
-    box-shadow:
-      0 8px 24px hsl(0 0% 0% / 0.07),
-      0 2px 8px hsl(0 0% 0% / 0.04),
-      inset 0 1px 3px hsl(0 0% 100% / 0.5),
-      inset 0 -1px 2px hsl(0 0% 0% / 0.03);
-    position: relative;
+  .folder-body-shape {
+    @apply relative rounded-2xl rounded-tl-none p-4 border-2;
+    min-height: 90px;
     overflow: hidden;
   }
-  .folder-body::before {
+  .folder-body-shape::before {
     content: '';
     position: absolute;
     inset: 0;
-    background:
+    background-image:
       repeating-linear-gradient(
-        0deg,
-        transparent,
-        transparent 23px,
-        hsl(var(--border) / 0.25) 23px,
-        hsl(var(--border) / 0.25) 24px
+        transparent, transparent 22px,
+        hsl(0 0% 50% / 0.04) 22px,
+        hsl(0 0% 50% / 0.04) 23px
       );
     pointer-events: none;
-    opacity: 0.5;
+    border-radius: inherit;
   }
 
-  .folder-card.selected .folder-body {
+  .subject-folder.selected .folder-body-shape {
     box-shadow:
-      0 12px 32px hsl(0 0% 0% / 0.12),
-      0 4px 12px hsl(0 0% 0% / 0.06),
-      inset 0 2px 4px hsl(0 0% 100% / 0.6),
-      0 0 0 2px hsl(var(--primary) / 0.3);
+      0 8px 28px hsl(0 0% 0% / 0.1),
+      0 0 0 2.5px hsl(var(--primary) / 0.35),
+      inset 0 1px 3px hsl(0 0% 100% / 0.5);
   }
 
-  /* Legacy glass variants (keep for compatibility) */
-  .folder-tab-glass { @apply folder-tab; }
-  .folder-body-glass { @apply folder-body; }
-  .folder-card.selected .folder-body-glass {
-    box-shadow:
-      0 12px 32px hsl(0 0% 0% / 0.12),
-      0 4px 12px hsl(0 0% 0% / 0.06),
-      inset 0 2px 4px hsl(0 0% 100% / 0.6),
-      0 0 0 2px hsl(var(--primary) / 0.3);
+  /* ── Paper clip ── */
+  .paper-clip-deco {
+    @apply absolute pointer-events-none;
+    width: 18px;
+    height: 46px;
+  }
+  .paper-clip-deco svg {
+    width: 100%;
+    height: 100%;
+  }
+
+  /* ── Washi tape ── */
+  .washi {
+    @apply absolute pointer-events-none select-none;
+    height: 20px;
+    border-radius: 1px;
+    opacity: 0.7;
+    animation: tape-shimmer 4s ease-in-out infinite;
+  }
+  .washi-striped {
+    background: repeating-linear-gradient(
+      45deg,
+      hsl(var(--folder-pink) / 0.45),
+      hsl(var(--folder-pink) / 0.45) 3px,
+      hsl(var(--folder-pink) / 0.25) 3px,
+      hsl(var(--folder-pink) / 0.25) 6px
+    );
+  }
+  .washi-dotted {
+    background: radial-gradient(circle 2px, hsl(var(--folder-blue) / 0.5) 50%, hsl(var(--folder-blue) / 0.2) 50%);
+    background-size: 8px 8px;
+  }
+  .washi-solid-pink {
+    background: hsl(var(--folder-pink) / 0.4);
+    border-top: 1px solid hsl(0 0% 100% / 0.3);
+    border-bottom: 1px solid hsl(0 0% 0% / 0.04);
+  }
+  .washi-solid-blue {
+    background: hsl(var(--folder-blue) / 0.4);
+    border-top: 1px solid hsl(0 0% 100% / 0.3);
+    border-bottom: 1px solid hsl(0 0% 0% / 0.04);
+  }
+  .washi-solid-yellow {
+    background: hsl(var(--folder-yellow) / 0.5);
+    border-top: 1px solid hsl(0 0% 100% / 0.3);
+    border-bottom: 1px solid hsl(0 0% 0% / 0.04);
   }
 
   /* ── Sticky note ── */
   .sticky-note {
-    @apply relative p-4 rounded-sm;
-    background: hsl(50 90% 88%);
+    @apply relative p-3.5;
+    background: hsl(48 88% 88%);
     box-shadow:
-      2px 3px 8px hsl(0 0% 0% / 0.1),
-      inset 0 -2px 6px hsl(50 60% 75% / 0.3);
-    transform: rotate(-1deg);
+      2px 3px 10px hsl(0 0% 0% / 0.08),
+      inset 0 -3px 8px hsl(48 60% 75% / 0.25);
   }
   .sticky-note::before {
     content: '';
     position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 6px;
-    background: linear-gradient(180deg, hsl(50 80% 80% / 0.5), transparent);
+    top: 0; left: 0; right: 0;
+    height: 5px;
+    background: linear-gradient(180deg, hsl(48 80% 82% / 0.4), transparent);
   }
   .sticky-note-pink {
-    background: hsl(350 70% 92%);
-    box-shadow:
-      2px 3px 8px hsl(0 0% 0% / 0.1),
-      inset 0 -2px 6px hsl(350 50% 80% / 0.3);
+    background: hsl(348 68% 92%);
+    box-shadow: 2px 3px 10px hsl(0 0% 0% / 0.08), inset 0 -3px 8px hsl(348 50% 82% / 0.25);
   }
   .sticky-note-blue {
-    background: hsl(210 60% 92%);
-    box-shadow:
-      2px 3px 8px hsl(0 0% 0% / 0.1),
-      inset 0 -2px 6px hsl(210 40% 80% / 0.3);
+    background: hsl(208 60% 92%);
+    box-shadow: 2px 3px 10px hsl(0 0% 0% / 0.08), inset 0 -3px 8px hsl(208 40% 82% / 0.25);
   }
   .sticky-note-green {
-    background: hsl(152 45% 90%);
-    box-shadow:
-      2px 3px 8px hsl(0 0% 0% / 0.1),
-      inset 0 -2px 6px hsl(152 30% 78% / 0.3);
+    background: hsl(148 48% 90%);
+    box-shadow: 2px 3px 10px hsl(0 0% 0% / 0.08), inset 0 -3px 8px hsl(148 35% 78% / 0.25);
+  }
+  .sticky-note-purple {
+    background: hsl(268 50% 93%);
+    box-shadow: 2px 3px 10px hsl(0 0% 0% / 0.08), inset 0 -3px 8px hsl(268 35% 82% / 0.25);
   }
 
-  /* ── Washi tape ── */
-  .washi-tape {
-    @apply absolute;
-    height: 18px;
-    background: repeating-linear-gradient(
-      45deg,
-      hsl(350 60% 85% / 0.5),
-      hsl(350 60% 85% / 0.5) 4px,
-      hsl(350 70% 90% / 0.5) 4px,
-      hsl(350 70% 90% / 0.5) 8px
-    );
-    border-top: 1px solid hsl(0 0% 100% / 0.4);
-    border-bottom: 1px solid hsl(0 0% 0% / 0.05);
+  /* ── Sticker badge ── */
+  .sticker-badge {
+    @apply inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-bold select-none;
+    font-family: var(--font-heading);
+    box-shadow:
+      0 2px 8px hsl(0 0% 0% / 0.06),
+      inset 0 1px 0 hsl(0 0% 100% / 0.45);
+    border: 1.5px solid hsl(0 0% 100% / 0.25);
+  }
+
+  /* ── Size chip ── */
+  .size-chip {
+    @apply px-4 py-2 rounded-xl font-semibold cursor-pointer transition-all duration-200 border-2 border-border;
+    font-family: var(--font-heading);
+    background: hsl(var(--card));
+    box-shadow: 0 2px 6px hsl(0 0% 0% / 0.04);
+  }
+  .size-chip:hover { @apply border-primary; }
+  .size-chip.selected {
+    @apply border-primary bg-primary text-primary-foreground;
+    box-shadow: 0 4px 14px hsl(var(--primary) / 0.3);
   }
 
   /* ── Doodle border ── */
@@ -392,46 +465,12 @@
     border-radius: 1rem;
   }
 
-  /* ── Size chip ── */
-  .size-chip {
-    @apply px-4 py-2 rounded-xl font-semibold cursor-pointer transition-all duration-200 border-2 border-border;
-    font-family: var(--font-heading);
-    @apply hover:border-primary;
-    background: hsl(var(--card));
-    box-shadow: 0 2px 8px hsl(0 0% 0% / 0.04);
-  }
-  .size-chip.selected {
-    @apply border-primary bg-primary text-primary-foreground;
-    box-shadow: 0 4px 12px hsl(var(--primary) / 0.25);
-  }
-
-  /* ── Scrapbook decorative elements ── */
-  .scrapbook-corner {
-    @apply absolute w-6 h-6;
-    background: linear-gradient(135deg, hsl(var(--border)) 50%, transparent 50%);
-    opacity: 0.4;
-  }
-
-  .torn-edge {
-    position: relative;
-  }
-  .torn-edge::after {
+  /* ── Torn paper edge ── */
+  .torn-bottom::after {
     content: '';
     position: absolute;
-    bottom: -4px;
-    left: 0;
-    right: 0;
-    height: 8px;
-    background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 8'%3E%3Cpath d='M0,4 Q5,0 10,4 Q15,8 20,4 Q25,0 30,4 Q35,8 40,4 Q45,0 50,4 Q55,8 60,4 Q65,0 70,4 Q75,8 80,4 Q85,0 90,4 Q95,8 100,4' fill='none' stroke='%23e8e0d4' stroke-width='1'/%3E%3C/svg%3E") repeat-x;
-    opacity: 0.6;
-  }
-
-  /* ── Polaroid card ── */
-  .polaroid {
-    @apply bg-card p-2 pb-8 rounded-sm;
-    box-shadow:
-      0 3px 12px hsl(0 0% 0% / 0.1),
-      0 1px 3px hsl(0 0% 0% / 0.06);
-    transform: rotate(var(--rotate, -2deg));
+    bottom: -5px; left: 0; right: 0; height: 10px;
+    background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 10'%3E%3Cpath d='M0,5 Q5,0 10,5 T20,5 T30,5 T40,5 T50,5 T60,5 T70,5 T80,5 T90,5 T100,5 T110,5 T120,5 T130,5 T140,5 T150,5 T160,5 T170,5 T180,5 T190,5 T200,5' fill='none' stroke='%23d4cdc0' stroke-width='0.8'/%3E%3C/svg%3E") repeat-x;
+    opacity: 0.5;
   }
 }
