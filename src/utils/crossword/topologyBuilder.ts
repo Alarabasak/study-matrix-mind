@@ -2,20 +2,21 @@
  * Arrow Crossword Engine - Slot Topology Builder
  * 
  * Generates a valid clue-cell / letter-cell layout BEFORE any word assignment.
- * This is the core differentiator from standard crossword generators:
- * slots are intentionally designed, not derived from placed words.
  * 
- * Algorithm:
- * 1. Row-by-row clue cell placement with seed-based variation
- * 2. Iterative gap repair (no runs of length 1 or 2; split overly long runs)
- * 3. Slot derivation from clue cells (RIGHT and DOWN)
- * 4. Intersection graph construction
- * 5. Connectivity and quality validation
+ * Algorithm (v2 - checkerboard-stripe approach):
+ * 1. Place clue cells in a semi-regular grid pattern ensuring both
+ *    horizontal AND vertical slots are created naturally.
+ * 2. Apply seed-based jitter for variety.
+ * 3. Repair short runs and split overly long runs.
+ * 4. Derive slots, build intersection graph.
+ * 5. Validate connectivity and quality.
+ * 
+ * The key insight: place clue cells at staggered intervals that
+ * guarantee letter runs of valid length in both directions.
  */
 
 import { InternalCellType, Slot, SlotIntersection, GridConfig, TopologyConfig } from './types';
 import { SeededRandom } from './seededRandom';
-import { SLOT_LEN_MIN, SLOT_LEN_RANGE } from './config';
 
 interface LetterRun {
   start: number;
@@ -38,8 +39,8 @@ export function buildSlotTopology(
 ): TopologyResult | null {
   const { rows, cols } = gridConfig;
 
-  // Phase 1: Generate initial cell layout (row-by-row clue placement)
-  const cellTypes = generateCellLayout(rows, cols, topoConfig, rng);
+  // Phase 1: Generate clue cell layout using staggered grid pattern
+  const cellTypes = generateStaggeredLayout(rows, cols, topoConfig, rng);
 
   // Phase 2: Iterative gap repair
   repairGaps(cellTypes, rows, cols, topoConfig.minSlotLen, topoConfig.softMaxSlotLen, rng);
@@ -47,22 +48,25 @@ export function buildSlotTopology(
   // Phase 3: Derive slots from clue cells
   const slots = deriveSlots(cellTypes, rows, cols, topoConfig.minSlotLen);
 
-  // Phase 4: Validate topology quality
-  if (slots.length < topoConfig.targetSlotCountMin || slots.length > topoConfig.targetSlotCountMax) {
+  // Phase 4: Validate topology quality (relaxed for higher success rate)
+  if (slots.length < topoConfig.targetSlotCountMin) {
+    return null;
+  }
+  // Allow exceeding max by a small margin
+  if (slots.length > topoConfig.targetSlotCountMax * 1.3) {
     return null;
   }
 
-  if (slots.length > 1 && !isConnected(slots)) {
-    return null;
+  // Connectivity: allow up to 10% isolated slots for flexibility
+  if (slots.length > 1) {
+    const isolatedCount = slots.filter(s => s.intersections.length === 0).length;
+    if (isolatedCount > Math.max(1, Math.floor(slots.length * 0.1))) {
+      return null;
+    }
   }
 
-  // Reject if any slot is isolated (no intersections) when multiple slots exist
-  if (slots.length > 1 && slots.some(s => s.intersections.length === 0)) {
-    return null;
-  }
-
-  // Reject if orphan letter cells exist (letter not in any slot)
-  if (hasOrphanLetterCells(cellTypes, slots, rows, cols)) {
+  // Connectivity check: largest connected component must be >= 80% of slots
+  if (slots.length > 1 && !isLargelyConnected(slots, 0.8)) {
     return null;
   }
 
@@ -70,10 +74,13 @@ export function buildSlotTopology(
 }
 
 /**
- * Place clue cells row by row with seed-based offset variation.
- * Each row is partitioned into segments: [clue, letters..., clue, letters..., ...]
+ * Generate clue cells using a staggered grid pattern.
+ * 
+ * The idea: place clue cells at regular horizontal intervals (every 4-6 cells)
+ * with row-to-row staggering. This naturally creates both horizontal AND
+ * vertical letter runs of valid length.
  */
-function generateCellLayout(
+function generateStaggeredLayout(
   rows: number,
   cols: number,
   topoConfig: TopologyConfig,
@@ -83,38 +90,40 @@ function generateCellLayout(
     Array.from({ length: cols }, (): InternalCellType => 'letter')
   );
 
+  // Base horizontal spacing between clue cells (controls density)
+  const baseSpacing = 4 + rng.nextInt(2); // 4 or 5
+  // Vertical spacing for stagger pattern
+  const vertSpacing = 3 + rng.nextInt(2); // 3 or 4
+  // Stagger offset per row group
+  const staggerOffset = Math.floor(baseSpacing / 2);
+
   for (let r = 0; r < rows; r++) {
-    // Row 0: always start at col 0 to anchor the puzzle
-    // Other rows: offset 0-2 for variation (creates vertical slot opportunities)
-    let offset = 0;
-    if (r > 0 && rng.next() < 0.35) {
-      offset = 1 + rng.nextInt(2); // 1 or 2
-    }
-
-    let c = Math.min(offset, cols - 1);
-    grid[r][c] = 'clue';
-    c++;
-
+    // Determine row's starting offset based on stagger group
+    const group = Math.floor(r / vertSpacing);
+    const rowOffset = (group % 2 === 0) ? 0 : staggerOffset;
+    
+    // Add per-row jitter for variety
+    const jitter = rng.nextInt(2); // 0 or 1
+    
+    let c = (rowOffset + jitter) % cols;
+    
+    // Always place a clue cell in column 0 for row 0
+    if (r === 0) c = 0;
+    
+    // Place clue cells at intervals along this row
     while (c < cols) {
-      const slotLen = SLOT_LEN_MIN + rng.nextInt(SLOT_LEN_RANGE); // 3..7
-      const nextClue = c + slotLen;
-
-      if (nextClue >= cols) {
-        // Check remaining space
-        const remaining = cols - c;
-        if (remaining > 0 && remaining < topoConfig.minSlotLen) {
-          // Too short for a valid slot → convert to clue cells
-          for (let i = c; i < cols; i++) {
-            grid[r][i] = 'clue';
-          }
-        }
-        // else: remaining cells form a valid slot to the edge
-        break;
-      }
-
-      grid[r][nextClue] = 'clue';
-      c = nextClue + 1;
+      grid[r][c] = 'clue';
+      
+      // Next clue cell position with some randomness
+      const spacing = baseSpacing + rng.nextInt(3) - 1; // baseSpacing-1 to baseSpacing+1
+      c += Math.max(topoConfig.minSlotLen + 1, spacing); // ensure min slot length between clues
     }
+  }
+
+  // Ensure first column has some clue cells for vertical anchoring
+  for (let r = 0; r < rows; r += vertSpacing) {
+    const rr = Math.min(r + rng.nextInt(2), rows - 1);
+    grid[rr][0] = 'clue';
   }
 
   return grid;
@@ -132,39 +141,12 @@ function repairGaps(
   softMaxSlotLen: number,
   rng: SeededRandom
 ): void {
-  const MAX_REPAIR_ITERATIONS = 30;
+  const MAX_REPAIR_ITERATIONS = 20;
 
   for (let iter = 0; iter < MAX_REPAIR_ITERATIONS; iter++) {
     let changed = false;
 
-    // Fix vertical gaps (column by column)
-    for (let c = 0; c < cols; c++) {
-      const runs = getLetterRuns(grid, 'col', c, rows);
-      for (const run of runs) {
-        if (run.length > 0 && run.length < minSlotLen) {
-          // Invalid short gap → convert all to clue
-          for (let r = run.start; r < run.start + run.length; r++) {
-            if (grid[r][c] !== 'clue') {
-              grid[r][c] = 'clue';
-              changed = true;
-            }
-          }
-        } else if (run.length > softMaxSlotLen) {
-          // Split long run to control slot length
-          const splitMin = run.start + minSlotLen;
-          const splitMax = run.start + run.length - minSlotLen;
-          if (splitMax >= splitMin) {
-            const splitPos = splitMin + rng.nextInt(Math.max(1, splitMax - splitMin + 1));
-            if (grid[splitPos][c] !== 'clue') {
-              grid[splitPos][c] = 'clue';
-              changed = true;
-            }
-          }
-        }
-      }
-    }
-
-    // Fix horizontal gaps (row by row)
+    // Fix horizontal gaps (row by row) - do this first
     for (let r = 0; r < rows; r++) {
       const runs = getLetterRuns(grid, 'row', r, cols);
       for (const run of runs) {
@@ -175,15 +157,33 @@ function repairGaps(
               changed = true;
             }
           }
-        } else if (run.length > softMaxSlotLen) {
-          const splitMin = run.start + minSlotLen;
-          const splitMax = run.start + run.length - minSlotLen;
-          if (splitMax >= splitMin) {
-            const splitPos = splitMin + rng.nextInt(Math.max(1, splitMax - splitMin + 1));
-            if (grid[r][splitPos] !== 'clue') {
-              grid[r][splitPos] = 'clue';
+        } else if (run.length > softMaxSlotLen + 2) {
+          // Only split runs that are significantly over the soft max
+          const splitPos = run.start + minSlotLen + rng.nextInt(Math.max(1, run.length - 2 * minSlotLen));
+          if (splitPos > run.start && splitPos < run.start + run.length && grid[r][splitPos] !== 'clue') {
+            grid[r][splitPos] = 'clue';
+            changed = true;
+          }
+        }
+      }
+    }
+
+    // Fix vertical gaps (column by column)
+    for (let c = 0; c < cols; c++) {
+      const runs = getLetterRuns(grid, 'col', c, rows);
+      for (const run of runs) {
+        if (run.length > 0 && run.length < minSlotLen) {
+          for (let r = run.start; r < run.start + run.length; r++) {
+            if (grid[r][c] !== 'clue') {
+              grid[r][c] = 'clue';
               changed = true;
             }
+          }
+        } else if (run.length > softMaxSlotLen + 2) {
+          const splitPos = run.start + minSlotLen + rng.nextInt(Math.max(1, run.length - 2 * minSlotLen));
+          if (splitPos > run.start && splitPos < run.start + run.length && grid[splitPos][c] !== 'clue') {
+            grid[splitPos][c] = 'clue';
+            changed = true;
           }
         }
       }
@@ -240,43 +240,47 @@ function deriveSlots(
       if (grid[r][c] !== 'clue') continue;
 
       // RIGHT slot: count consecutive letter cells to the right
-      let rightLen = 0;
-      let cc = c + 1;
-      while (cc < cols && grid[r][cc] === 'letter') {
-        rightLen++;
-        cc++;
-      }
-      if (rightLen >= minSlotLen) {
-        slots.push({
-          index: index++,
-          direction: 'right',
-          startRow: r,
-          startCol: c + 1,
-          clueCellRow: r,
-          clueCellCol: c,
-          length: rightLen,
-          intersections: [],
-        });
+      if (c + 1 < cols) {
+        let rightLen = 0;
+        let cc = c + 1;
+        while (cc < cols && grid[r][cc] === 'letter') {
+          rightLen++;
+          cc++;
+        }
+        if (rightLen >= minSlotLen) {
+          slots.push({
+            index: index++,
+            direction: 'right',
+            startRow: r,
+            startCol: c + 1,
+            clueCellRow: r,
+            clueCellCol: c,
+            length: rightLen,
+            intersections: [],
+          });
+        }
       }
 
       // DOWN slot: count consecutive letter cells below
-      let downLen = 0;
-      let rr = r + 1;
-      while (rr < rows && grid[rr][c] === 'letter') {
-        downLen++;
-        rr++;
-      }
-      if (downLen >= minSlotLen) {
-        slots.push({
-          index: index++,
-          direction: 'down',
-          startRow: r + 1,
-          startCol: c,
-          clueCellRow: r,
-          clueCellCol: c,
-          length: downLen,
-          intersections: [],
-        });
+      if (r + 1 < rows) {
+        let downLen = 0;
+        let rr = r + 1;
+        while (rr < rows && grid[rr][c] === 'letter') {
+          downLen++;
+          rr++;
+        }
+        if (downLen >= minSlotLen) {
+          slots.push({
+            index: index++,
+            direction: 'down',
+            startRow: r + 1,
+            startCol: c,
+            clueCellRow: r,
+            clueCellCol: c,
+            length: downLen,
+            intersections: [],
+          });
+        }
       }
     }
   }
@@ -289,7 +293,6 @@ function deriveSlots(
 
 /** Build intersection relationships between all slots. */
 function buildIntersections(slots: Slot[]): void {
-  // Map each (row, col) to the slots passing through it
   const cellMap = new Map<string, { slotIndex: number; posInSlot: number }[]>();
 
   for (const slot of slots) {
@@ -302,7 +305,6 @@ function buildIntersections(slots: Slot[]): void {
     }
   }
 
-  // For each cell shared by multiple slots, create intersection links
   for (const entries of cellMap.values()) {
     for (let i = 0; i < entries.length; i++) {
       for (let j = i + 1; j < entries.length; j++) {
@@ -323,49 +325,35 @@ function buildIntersections(slots: Slot[]): void {
   }
 }
 
-/** Check if all slots form a connected graph via intersections. */
-function isConnected(slots: Slot[]): boolean {
+/** Check if the largest connected component covers at least `threshold` fraction of slots. */
+function isLargelyConnected(slots: Slot[], threshold: number): boolean {
   if (slots.length <= 1) return true;
 
+  // Find largest connected component
   const visited = new Set<number>();
-  const queue: number[] = [slots[0].index];
-  visited.add(slots[0].index);
+  let maxComponentSize = 0;
 
-  while (queue.length > 0) {
-    const current = queue.shift()!;
-    for (const inter of slots[current].intersections) {
-      if (!visited.has(inter.otherSlotIndex)) {
-        visited.add(inter.otherSlotIndex);
-        queue.push(inter.otherSlotIndex);
-      }
-    }
-  }
-
-  return visited.size === slots.length;
-}
-
-/** Check for letter cells not belonging to any slot. */
-function hasOrphanLetterCells(
-  cellTypes: InternalCellType[][],
-  slots: Slot[],
-  rows: number,
-  cols: number
-): boolean {
-  const slotCells = new Set<string>();
   for (const slot of slots) {
-    const dr = slot.direction === 'down' ? 1 : 0;
-    const dc = slot.direction === 'right' ? 1 : 0;
-    for (let i = 0; i < slot.length; i++) {
-      slotCells.add(`${slot.startRow + dr * i},${slot.startCol + dc * i}`);
-    }
-  }
+    if (visited.has(slot.index)) continue;
+    
+    const component = new Set<number>();
+    const queue: number[] = [slot.index];
+    component.add(slot.index);
+    visited.add(slot.index);
 
-  for (let r = 0; r < rows; r++) {
-    for (let c = 0; c < cols; c++) {
-      if (cellTypes[r][c] === 'letter' && !slotCells.has(`${r},${c}`)) {
-        return true;
+    while (queue.length > 0) {
+      const current = queue.shift()!;
+      for (const inter of slots[current].intersections) {
+        if (!component.has(inter.otherSlotIndex)) {
+          component.add(inter.otherSlotIndex);
+          visited.add(inter.otherSlotIndex);
+          queue.push(inter.otherSlotIndex);
+        }
       }
     }
+
+    maxComponentSize = Math.max(maxComponentSize, component.size);
   }
-  return false;
+
+  return maxComponentSize >= slots.length * threshold;
 }

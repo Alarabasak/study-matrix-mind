@@ -40,10 +40,19 @@ const Game: React.FC = () => {
     return () => { cancelled = true; };
   }, [categoryId, difficulty, puzzleSeed]);
 
-  const result = React.useMemo(
-    () => words.length > 0 ? generateCrossword(words, puzzleSeed) : null,
-    [words, puzzleSeed]
-  );
+  const [generationError, setGenerationError] = useState<string | null>(null);
+
+  const result = React.useMemo(() => {
+    if (words.length === 0) return null;
+    try {
+      setGenerationError(null);
+      return generateCrossword(words, puzzleSeed);
+    } catch (e) {
+      console.error('[CrosswordEngine]', e);
+      setGenerationError(e instanceof Error ? e.message : 'Bulmaca oluşturulamadı');
+      return null;
+    }
+  }, [words, puzzleSeed]);
 
   const placedWords = result?.placedWords || [];
   const gridSize = result?.gridSize || '12x12';
@@ -189,12 +198,40 @@ const Game: React.FC = () => {
     window.dispatchEvent(new CustomEvent('crossword-key', { detail: { type: 'backspace' } }));
   };
 
-  if (loading || !result) {
+  if (loading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">
           <div className="text-4xl mb-2 animate-bounce">📚</div>
           <p className="font-display text-muted-foreground">Kelimeler yükleniyor...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (generationError || !result) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center p-4">
+        <div className="text-center max-w-md">
+          <div className="text-4xl mb-3">😔</div>
+          <p className="font-display text-lg text-foreground mb-2">Bulmaca oluşturulamadı</p>
+          <p className="text-sm text-muted-foreground mb-4">
+            Bu kelime seti ile uygun bir bulmaca oluşturulamadı. Farklı bir kategori veya zorluk deneyin.
+          </p>
+          <div className="flex gap-2 justify-center">
+            <button
+              onClick={() => navigate('/')}
+              className="px-4 py-2 rounded-lg bg-muted text-muted-foreground hover:bg-muted/80 transition"
+            >
+              Ana Sayfa
+            </button>
+            <button
+              onClick={handleNewPuzzle}
+              className="px-4 py-2 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 transition"
+            >
+              Tekrar Dene
+            </button>
+          </div>
         </div>
       </div>
     );
