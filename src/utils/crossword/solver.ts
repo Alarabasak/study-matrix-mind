@@ -61,18 +61,24 @@ export function assignAnswersWithCSP(
   let backtrackCount = 0;
   const solutions: SlotAssignment[][] = [];
 
-  /** Select unassigned slot with smallest domain (MRV heuristic). */
+  /** Select unassigned slot with MRV; tie-break by higher intersection degree. */
   function selectSlotMRV(): number {
     let bestIndex = -1;
     let bestSize = Infinity;
+    let bestDegree = -1;
+
     for (let i = 0; i < slots.length; i++) {
       if (assignment[i] !== null) continue;
       const size = domains[i].length;
-      if (size < bestSize) {
+      const degree = slots[i].intersections.length;
+
+      if (size < bestSize || (size === bestSize && degree > bestDegree)) {
         bestSize = size;
+        bestDegree = degree;
         bestIndex = i;
       }
     }
+
     return bestIndex;
   }
 
@@ -95,7 +101,9 @@ export function assignAnswersWithCSP(
   }
 
   /**
-   * Forward check: after assigning a slot, prune domains of intersecting unassigned slots.
+   * Forward check: after assigning a slot, prune domains of:
+   * - intersecting unassigned slots (letter consistency)
+   * - all unassigned slots (global uniqueness: remove used answer)
    * Returns saved domains for restoration on backtrack, or null if a wipeout occurred.
    */
   function forwardCheck(
@@ -105,27 +113,39 @@ export function assignAnswersWithCSP(
     const saved = new Map<number, AnswerCandidate[]>();
     const slot = slots[slotIndex];
 
+    // 1) Intersections: enforce required letters
     for (const inter of slot.intersections) {
       if (assignment[inter.otherSlotIndex] !== null) continue;
 
       const otherIdx = inter.otherSlotIndex;
-      // Save domain before filtering (only once per slot)
       if (!saved.has(otherIdx)) {
         saved.set(otherIdx, [...domains[otherIdx]]);
       }
 
       const requiredLetter = candidate.normalizedAnswer[inter.posInThis];
       domains[otherIdx] = domains[otherIdx].filter(c =>
-        c.normalizedAnswer[inter.posInOther] === requiredLetter &&
-        !usedAnswers.has(c.normalizedAnswer)
+        c.normalizedAnswer[inter.posInOther] === requiredLetter
       );
 
-      // Wipeout: an intersecting slot has no viable candidates
       if (domains[otherIdx].length === 0) {
-        // Restore all saved domains
-        for (const [idx, d] of saved) {
-          domains[idx] = d;
-        }
+        for (const [idx, d] of saved) domains[idx] = d;
+        return null;
+      }
+    }
+
+    // 2) Global uniqueness: remove newly used answer from all other unassigned domains
+    for (let i = 0; i < slots.length; i++) {
+      if (i === slotIndex || assignment[i] !== null) continue;
+
+      if (!saved.has(i)) {
+        saved.set(i, [...domains[i]]);
+      }
+
+      const beforeLen = domains[i].length;
+      domains[i] = domains[i].filter(c => c.normalizedAnswer !== candidate.normalizedAnswer);
+
+      if (beforeLen > 0 && domains[i].length === 0) {
+        for (const [idx, d] of saved) domains[idx] = d;
         return null;
       }
     }
