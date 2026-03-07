@@ -40,10 +40,19 @@ const Game: React.FC = () => {
     return () => { cancelled = true; };
   }, [categoryId, difficulty, puzzleSeed]);
 
-  const result = React.useMemo(
-    () => words.length > 0 ? generateCrossword(words, puzzleSeed) : null,
-    [words, puzzleSeed]
-  );
+  const [generationError, setGenerationError] = useState<string | null>(null);
+
+  const result = React.useMemo(() => {
+    if (words.length === 0) return null;
+    try {
+      setGenerationError(null);
+      return generateCrossword(words, puzzleSeed);
+    } catch (e) {
+      console.error('[CrosswordEngine]', e);
+      setGenerationError(e instanceof Error ? e.message : 'Bulmaca oluşturulamadı');
+      return null;
+    }
+  }, [words, puzzleSeed]);
 
   const placedWords = result?.placedWords || [];
   const gridSize = result?.gridSize || '12x12';
