@@ -61,18 +61,24 @@ export function assignAnswersWithCSP(
   let backtrackCount = 0;
   const solutions: SlotAssignment[][] = [];
 
-  /** Select unassigned slot with smallest domain (MRV heuristic). */
+  /** Select unassigned slot with MRV; tie-break by higher intersection degree. */
   function selectSlotMRV(): number {
     let bestIndex = -1;
     let bestSize = Infinity;
+    let bestDegree = -1;
+
     for (let i = 0; i < slots.length; i++) {
       if (assignment[i] !== null) continue;
       const size = domains[i].length;
-      if (size < bestSize) {
+      const degree = slots[i].intersections.length;
+
+      if (size < bestSize || (size === bestSize && degree > bestDegree)) {
         bestSize = size;
+        bestDegree = degree;
         bestIndex = i;
       }
     }
+
     return bestIndex;
   }
 
