@@ -24,10 +24,10 @@ export function getTopologyConfig(grid: GridConfig): TopologyConfig {
   const area = grid.rows * grid.cols;
   return {
     minSlotLen: 3,
-    softMaxSlotLen: Math.min(10, Math.max(grid.rows, grid.cols) - 1),
-    // Relaxed targets for higher topology success rate
-    targetSlotCountMin: Math.max(8, Math.floor(area * 0.08)),
-    targetSlotCountMax: Math.floor(area * 0.35),
+    softMaxSlotLen: Math.min(9, Math.max(grid.rows, grid.cols) - 1),
+    // Keep slot counts controlled to avoid combinatorial explosion in CSP.
+    targetSlotCountMin: Math.max(10, Math.floor(area * 0.10)),
+    targetSlotCountMax: Math.max(16, Math.floor(area * 0.22)),
   };
 }
 
