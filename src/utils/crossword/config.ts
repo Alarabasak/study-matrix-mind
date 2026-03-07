@@ -25,20 +25,21 @@ export function getTopologyConfig(grid: GridConfig): TopologyConfig {
   return {
     minSlotLen: 3,
     softMaxSlotLen: Math.min(10, Math.max(grid.rows, grid.cols) - 1),
-    targetSlotCountMin: Math.max(12, Math.floor(area * 0.12)),
-    targetSlotCountMax: Math.floor(area * 0.30),
+    // Relaxed targets for higher topology success rate
+    targetSlotCountMin: Math.max(8, Math.floor(area * 0.08)),
+    targetSlotCountMax: Math.floor(area * 0.35),
   };
 }
 
-/** Solver limits. */
+/** Solver limits — increased for better success rates. */
 export function getSolverConfig(): SolverConfig {
   return {
-    maxBacktracks: 15000,
+    maxBacktracks: 50000,
   };
 }
 
 /** Maximum orchestrator-level attempts (topology + solver combined). */
-export const MAX_GENERATION_ATTEMPTS = 100;
+export const MAX_GENERATION_ATTEMPTS = 200;
 
 /** Horizontal slot length range for initial topology layout. */
 export const SLOT_LEN_MIN = 3;
