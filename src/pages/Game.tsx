@@ -215,7 +215,7 @@ const Game: React.FC = () => {
     );
   }
 
-  if (generationError || !result) {
+  if (generationError) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center p-4">
         <div className="text-center max-w-md">
