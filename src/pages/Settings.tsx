@@ -3,10 +3,13 @@ import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, Trash2, Info } from 'lucide-react';
 import { clearAllData } from '@/utils/gameStats';
+import { useAuth } from '@/contexts/AuthContext';
+import ExamDateManager from '@/components/admin/ExamDateManager';
 import { toast } from 'sonner';
 
 const Settings: React.FC = () => {
   const navigate = useNavigate();
+  const { isAdmin } = useAuth();
 
   const handleClearData = () => {
     if (window.confirm('Tüm verileriniz silinecek. Emin misiniz?')) {
@@ -26,6 +29,9 @@ const Settings: React.FC = () => {
         </div>
 
         <div className="space-y-4">
+          {/* Admin: Exam Date Management */}
+          {isAdmin && <ExamDateManager />}
+
           {/* App Info */}
           <div className="bg-card rounded-2xl border border-border p-4">
             <h2 className="font-display font-bold text-base mb-2 flex items-center gap-2">

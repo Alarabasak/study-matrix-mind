@@ -7,11 +7,11 @@ import { cn } from '@/lib/utils';
 import { DifficultyLevel } from '@/types/crossword';
 import { fetchWordDatabase } from '@/utils/wordDatabase';
 import SubjectFolder from '@/components/scrapbook/SubjectFolder';
-import StickerBadge from '@/components/scrapbook/StickerBadge';
 import WashiTape from '@/components/scrapbook/WashiTape';
 import StickyNote from '@/components/scrapbook/StickyNote';
 import NotebookPage from '@/components/scrapbook/NotebookPage';
 import ProfileModal from '@/components/ProfileModal';
+import ExamCountdown from '@/components/ExamCountdown';
 import { motion, AnimatePresence } from 'framer-motion';
 
 /* Floating doodles scattered over the desk */
@@ -108,10 +108,7 @@ const Index: React.FC = () => {
           Cross<span className="text-primary">Prep</span>
         </motion.h1>
 
-        <div className="flex justify-center gap-3 mt-4 flex-wrap">
-          <StickerBadge color="pink" rotation={-3}>🎒 Okula Dönüş</StickerBadge>
-          <StickerBadge color="blue" rotation={2}>📚 Çalış & Oyna</StickerBadge>
-        </div>
+        <ExamCountdown />
       </header>
 
       {/* ═══ GRADE SELECTOR ═══ */}
