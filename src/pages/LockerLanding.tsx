@@ -291,148 +291,170 @@ const LockerLanding: React.FC = () => {
                     }}
                   />
 
-                  {/* Locker door form */}
+                  {/* Triple-frame auth card */}
                   <motion.div
-                    className="relative w-[280px] sm:w-[320px] overflow-hidden rounded-lg"
+                    className="relative w-[340px] sm:w-[380px]"
                     initial={{ scale: 0.8, opacity: 0, y: 30 }}
                     animate={{ scale: 1, opacity: 1, y: 0 }}
                     exit={{ scale: 0.8, opacity: 0, y: 30 }}
                     transition={{ duration: 0.5, ease: [0.25, 0.46, 0.45, 0.94] }}
                     onClick={(e) => e.stopPropagation()}
                   >
-                    <div className="relative">
-                      <img
-                        src="/images/locker-closed.png"
-                        alt="Closed locker"
-                        className="absolute inset-0 w-full h-full object-cover rounded-lg opacity-25"
-                      />
+                    {/* Frame 1 — Outer: Harlequin pink/red diamond pattern */}
+                    <div
+                      className="p-3 rounded-sm"
+                      style={{
+                        background: `
+                          linear-gradient(135deg, #c41e3a 25%, transparent 25%) -20px 0,
+                          linear-gradient(225deg, #c41e3a 25%, transparent 25%) -20px 0,
+                          linear-gradient(315deg, #c41e3a 25%, transparent 25%),
+                          linear-gradient(45deg, #c41e3a 25%, transparent 25%)
+                        `,
+                        backgroundSize: '40px 40px',
+                        backgroundColor: '#f4a6c0',
+                        boxShadow: '0 20px 60px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.3)',
+                      }}
+                    >
+                      {/* Frame 2 — Middle: Cream with gold stars */}
                       <div
-                        className="relative p-6 sm:p-8"
+                        className="p-3 relative overflow-hidden"
                         style={{
-                          background: `linear-gradient(180deg, ${LOCKER_COLORS[selectedLocker || 0]}ee 0%, #b8a880ee 100%)`,
-                          boxShadow: 'inset 0 2px 0 rgba(255,255,255,0.2), inset 0 -4px 8px rgba(0,0,0,0.15), 0 20px 60px rgba(0,0,0,0.5)',
-                          border: '2px solid rgba(0,0,0,0.15)',
+                          background: '#f5edd6',
+                          boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.1)',
                         }}
                       >
-                        {/* Vents */}
-                        <div className="flex flex-col gap-1 mb-4">
-                          {[0, 1, 2].map(j => (
-                            <div key={j} className="h-[2px] mx-8 rounded-full" style={{ background: 'rgba(0,0,0,0.1)' }} />
+                        {/* Star pattern overlay */}
+                        <div className="absolute inset-0 pointer-events-none" style={{ opacity: 0.5 }}>
+                          {Array.from({ length: 24 }).map((_, i) => (
+                            <span
+                              key={i}
+                              className="absolute text-xs"
+                              style={{
+                                color: '#8b6914',
+                                left: `${(i % 6) * 18 + 5}%`,
+                                top: `${Math.floor(i / 6) * 25 + 5}%`,
+                                fontSize: '14px',
+                              }}
+                            >
+                              ★
+                            </span>
                           ))}
                         </div>
 
-                        {/* Name plate */}
+                        {/* Frame 3 — Inner: Solid pink */}
                         <div
-                          className="mx-auto mb-5 px-4 py-2 rounded-sm text-center"
+                          className="relative p-5 sm:p-6"
                           style={{
-                            background: 'rgba(255,255,255,0.6)',
-                            boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.1)',
-                            border: '1px solid rgba(0,0,0,0.08)',
+                            background: '#f0b4cc',
+                            boxShadow: 'inset 0 2px 6px rgba(0,0,0,0.08)',
                           }}
                         >
-                          <span className="text-lg font-bold" style={{ fontFamily: 'var(--font-display)', color: '#444' }}>
-                            {authMode === 'signup' ? (displayName || 'İsmini Yaz ✍️') : 'Giriş Yap 🔑'}
-                          </span>
-                        </div>
-
-                        {/* Mode toggle */}
-                        <div className="flex gap-1 mb-4 p-1 rounded-lg" style={{ background: 'rgba(0,0,0,0.08)' }}>
-                          <button
-                            className="flex-1 py-1.5 rounded-md text-xs font-bold transition-all"
+                          {/* Name plate */}
+                          <div
+                            className="mx-auto mb-4 px-4 py-2 rounded-sm text-center"
                             style={{
-                              fontFamily: 'var(--font-heading)',
-                              background: authMode === 'signup' ? 'rgba(255,255,255,0.7)' : 'transparent',
-                              color: authMode === 'signup' ? '#333' : '#777',
-                              boxShadow: authMode === 'signup' ? '0 1px 4px rgba(0,0,0,0.1)' : 'none',
+                              background: 'rgba(255,255,255,0.7)',
+                              boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.08)',
+                              border: '1px solid rgba(0,0,0,0.06)',
                             }}
-                            onClick={() => setAuthMode('signup')}
                           >
-                            📝 Kayıt Ol
-                          </button>
-                          <button
-                            className="flex-1 py-1.5 rounded-md text-xs font-bold transition-all"
-                            style={{
-                              fontFamily: 'var(--font-heading)',
-                              background: authMode === 'signin' ? 'rgba(255,255,255,0.7)' : 'transparent',
-                              color: authMode === 'signin' ? '#333' : '#777',
-                              boxShadow: authMode === 'signin' ? '0 1px 4px rgba(0,0,0,0.1)' : 'none',
-                            }}
-                            onClick={() => setAuthMode('signin')}
-                          >
-                            🔑 Giriş
-                          </button>
-                        </div>
+                            <span className="text-lg font-bold" style={{ fontFamily: 'var(--font-display)', color: '#6b3a4a' }}>
+                              {authMode === 'signup' ? (displayName || 'İsmini Yaz ✍️') : 'Giriş Yap 🔑'}
+                            </span>
+                          </div>
 
-                        {/* Form */}
-                        <form onSubmit={handleAuth} className="space-y-3">
-                          {authMode === 'signup' && (
+                          {/* Mode toggle */}
+                          <div className="flex gap-1 mb-4 p-1 rounded-lg" style={{ background: 'rgba(255,255,255,0.35)' }}>
+                            <button
+                              className="flex-1 py-1.5 rounded-md text-xs font-bold transition-all"
+                              style={{
+                                fontFamily: 'var(--font-heading)',
+                                background: authMode === 'signup' ? 'rgba(255,255,255,0.8)' : 'transparent',
+                                color: authMode === 'signup' ? '#6b3a4a' : '#996b7c',
+                                boxShadow: authMode === 'signup' ? '0 1px 4px rgba(0,0,0,0.1)' : 'none',
+                              }}
+                              onClick={() => setAuthMode('signup')}
+                            >
+                              📝 Kayıt Ol
+                            </button>
+                            <button
+                              className="flex-1 py-1.5 rounded-md text-xs font-bold transition-all"
+                              style={{
+                                fontFamily: 'var(--font-heading)',
+                                background: authMode === 'signin' ? 'rgba(255,255,255,0.8)' : 'transparent',
+                                color: authMode === 'signin' ? '#6b3a4a' : '#996b7c',
+                                boxShadow: authMode === 'signin' ? '0 1px 4px rgba(0,0,0,0.1)' : 'none',
+                              }}
+                              onClick={() => setAuthMode('signin')}
+                            >
+                              🔑 Giriş
+                            </button>
+                          </div>
+
+                          {/* Form */}
+                          <form onSubmit={handleAuth} className="space-y-3">
+                            {authMode === 'signup' && (
+                              <input
+                                type="text"
+                                placeholder="İsmin (dolap etiketi)"
+                                value={displayName}
+                                onChange={e => setDisplayName(e.target.value)}
+                                className="w-full px-3 py-2.5 rounded-md text-sm outline-none"
+                                style={{
+                                  background: 'rgba(255,255,255,0.8)',
+                                  border: '1px solid rgba(107,58,74,0.15)',
+                                  fontFamily: 'var(--font-display)',
+                                  fontSize: '16px',
+                                  color: '#4a2535',
+                                }}
+                              />
+                            )}
                             <input
-                              type="text"
-                              placeholder="İsmin (dolap etiketi)"
-                              value={displayName}
-                              onChange={e => setDisplayName(e.target.value)}
+                              type="email"
+                              placeholder="E-posta"
+                              value={email}
+                              onChange={e => setEmail(e.target.value)}
+                              required
                               className="w-full px-3 py-2.5 rounded-md text-sm outline-none"
                               style={{
-                                background: 'rgba(255,255,255,0.75)',
-                                border: '1px solid rgba(0,0,0,0.1)',
-                                fontFamily: 'var(--font-display)',
-                                fontSize: '16px',
-                                color: '#333',
+                                background: 'rgba(255,255,255,0.8)',
+                                border: '1px solid rgba(107,58,74,0.15)',
+                                fontFamily: 'var(--font-body)',
+                                color: '#4a2535',
                               }}
                             />
-                          )}
-                          <input
-                            type="email"
-                            placeholder="E-posta"
-                            value={email}
-                            onChange={e => setEmail(e.target.value)}
-                            required
-                            className="w-full px-3 py-2.5 rounded-md text-sm outline-none"
-                            style={{
-                              background: 'rgba(255,255,255,0.75)',
-                              border: '1px solid rgba(0,0,0,0.1)',
-                              fontFamily: 'var(--font-body)',
-                              color: '#333',
-                            }}
-                          />
-                          <input
-                            type="password"
-                            placeholder="Şifre"
-                            value={password}
-                            onChange={e => setPassword(e.target.value)}
-                            required
-                            minLength={6}
-                            className="w-full px-3 py-2.5 rounded-md text-sm outline-none"
-                            style={{
-                              background: 'rgba(255,255,255,0.75)',
-                              border: '1px solid rgba(0,0,0,0.1)',
-                              fontFamily: 'var(--font-body)',
-                              color: '#333',
-                            }}
-                          />
-                          <motion.button
-                            type="submit"
-                            disabled={loading}
-                            className="w-full py-3 rounded-lg text-sm font-bold tracking-wider uppercase disabled:opacity-50"
-                            style={{
-                              fontFamily: 'var(--font-heading)',
-                              background: 'linear-gradient(135deg, #ff9ed8, #c084fc)',
-                              color: '#fff',
-                              boxShadow: '0 4px 16px rgba(192,132,252,0.3)',
-                              border: 'none',
-                            }}
-                            whileHover={{ scale: 1.02 }}
-                            whileTap={{ scale: 0.97 }}
-                          >
-                            {loading ? '...' : authMode === 'signup' ? '✨ Dolabımı Al' : '🚪 Giriş Yap'}
-                          </motion.button>
-                        </form>
-
-                        {/* Bottom vents */}
-                        <div className="flex flex-col gap-1 mt-5">
-                          {[0, 1, 2].map(j => (
-                            <div key={j} className="h-[2px] mx-8 rounded-full" style={{ background: 'rgba(0,0,0,0.08)' }} />
-                          ))}
+                            <input
+                              type="password"
+                              placeholder="Şifre"
+                              value={password}
+                              onChange={e => setPassword(e.target.value)}
+                              required
+                              minLength={6}
+                              className="w-full px-3 py-2.5 rounded-md text-sm outline-none"
+                              style={{
+                                background: 'rgba(255,255,255,0.8)',
+                                border: '1px solid rgba(107,58,74,0.15)',
+                                fontFamily: 'var(--font-body)',
+                                color: '#4a2535',
+                              }}
+                            />
+                            <motion.button
+                              type="submit"
+                              disabled={loading}
+                              className="w-full py-3 rounded-lg text-sm font-bold tracking-wider uppercase disabled:opacity-50"
+                              style={{
+                                fontFamily: 'var(--font-heading)',
+                                background: 'linear-gradient(135deg, #c41e3a, #8b1a2e)',
+                                color: '#fff',
+                                boxShadow: '0 4px 16px rgba(196,30,58,0.3)',
+                                border: 'none',
+                              }}
+                              whileHover={{ scale: 1.02 }}
+                              whileTap={{ scale: 0.97 }}
+                            >
+                              {loading ? '...' : authMode === 'signup' ? '✨ Dolabımı Al' : '🚪 Giriş Yap'}
+                            </motion.button>
+                          </form>
                         </div>
                       </div>
                     </div>
