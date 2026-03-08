@@ -35,8 +35,9 @@ function weightedLengthPick(
   // Build weighted distribution
   const weights: number[] = validLens.map(l => {
     const count = candidateLenHist.get(l) || 0;
-    // Square root weighting: still favors abundant lengths but not too aggressively
-    return Math.sqrt(count);
+    // Quadratic weighting: strongly favors abundant lengths
+    // len5=32→1024, len7=35→1225, len3=7→49, len9=6→36
+    return count * count;
   });
 
   const totalWeight = weights.reduce((s, w) => s + w, 0);
