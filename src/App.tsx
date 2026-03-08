@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -16,6 +17,7 @@ import NotFound from "./pages/NotFound";
 import Diagnostics from "./pages/Diagnostics";
 import Scene3DBackground from "./components/3d/Scene3DBackground";
 import LockerLanding from "./pages/LockerLanding";
+import LockerReveal from "./pages/LockerReveal";
 
 const queryClient = new QueryClient();
 
@@ -48,6 +50,7 @@ const AnimatedRoutes = () => {
 
 const AuthGate = () => {
   const { user, isLoading } = useAuth();
+  const [showLockerReveal, setShowLockerReveal] = useState(true);
 
   if (isLoading) {
     return (
@@ -65,6 +68,17 @@ const AuthGate = () => {
 
   if (!user) {
     return <LockerLanding />;
+  }
+
+  // Show locker reveal transition after login
+  if (showLockerReveal) {
+    const displayName = user.user_metadata?.display_name || '';
+    return (
+      <LockerReveal
+        displayName={displayName}
+        onComplete={() => setShowLockerReveal(false)}
+      />
+    );
   }
 
   return (
