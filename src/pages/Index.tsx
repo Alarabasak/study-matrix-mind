@@ -6,7 +6,7 @@ import { Shuffle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { DifficultyLevel } from '@/types/crossword';
 import { fetchWordDatabase } from '@/utils/wordDatabase';
-import SubjectFolder from '@/components/scrapbook/SubjectFolder';
+import BookshelfSelector from '@/components/scrapbook/BookshelfSelector';
 import WashiTape from '@/components/scrapbook/WashiTape';
 import StickyNote from '@/components/scrapbook/StickyNote';
 import NotebookPage from '@/components/scrapbook/NotebookPage';
@@ -167,26 +167,17 @@ const Index: React.FC = () => {
                 {selectedGrade === 'TYT' ? '🎯' : '🚀'} {selectedGrade} Dersleri
               </h2>
             </div>
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-5">
-              {filteredCategories.map((cat, i) => (
-                <motion.div
-                  key={cat.id}
-                  initial={{ opacity: 0, y: 30, rotate: i % 2 === 0 ? -3 : 3 }}
-                  animate={{ opacity: 1, y: 0, rotate: 0 }}
-                  transition={{ delay: 0.08 + i * 0.05, type: 'spring', stiffness: 180, damping: 16 }}
-                >
-                  <SubjectFolder
-                    index={i}
-                    icon={cat.icon}
-                    title={cat.name.replace(`${selectedGrade} `, '')}
-                    subtitle={cat.description}
-                    meta={`${wordCounts[cat.id] || 0} kelime · ${topicCounts[cat.id] || 0} konu`}
-                    selected={selectedCategory === cat.id}
-                    onClick={() => { setSelectedCategory(cat.id); setSelectedDifficulty('all'); }}
-                  />
-                </motion.div>
-              ))}
-            </div>
+            <BookshelfSelector
+              items={filteredCategories.map(cat => ({
+                id: cat.id,
+                icon: cat.icon,
+                title: cat.name.replace(`${selectedGrade} `, ''),
+                subtitle: cat.description,
+                meta: `${wordCounts[cat.id] || 0} kelime · ${topicCounts[cat.id] || 0} konu`,
+              }))}
+              selectedId={selectedCategory}
+              onSelect={(id) => { setSelectedCategory(id); setSelectedDifficulty('all'); }}
+            />
 
             {/* Shuffle option */}
             <div className="mt-5">
