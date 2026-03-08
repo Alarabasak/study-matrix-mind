@@ -226,8 +226,8 @@ const Index: React.FC = () => {
                     ? 'linear-gradient(135deg, hsl(348 62% 84% / 0.3), hsl(348 62% 84% / 0.15))'
                     : 'linear-gradient(135deg, hsl(208 55% 80% / 0.3), hsl(208 55% 80% / 0.15))',
                   border: `2px solid ${selectedGrade === grade ? '#c41e3a' : 'hsl(38 22% 82%)'}`,
-                  ringColor: '#c41e3a',
-                }}
+                  '--tw-ring-color': '#c41e3a',
+                } as React.CSSProperties}
                 onClick={() => {
                   setSelectedGrade(grade);
                   setSelectedCategory(null);
