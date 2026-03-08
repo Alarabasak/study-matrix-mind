@@ -4,7 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
-import { AuthProvider } from "@/contexts/AuthContext";
+import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import Index from "./pages/Index";
 import Game from "./pages/Game";
 import Dashboard from "./pages/Dashboard";
@@ -15,6 +15,7 @@ import AdminLogin from "./pages/AdminLogin";
 import NotFound from "./pages/NotFound";
 import Diagnostics from "./pages/Diagnostics";
 import Scene3DBackground from "./components/3d/Scene3DBackground";
+import LockerLanding from "./pages/LockerLanding";
 
 const queryClient = new QueryClient();
 
@@ -45,16 +46,44 @@ const AnimatedRoutes = () => {
   );
 };
 
+const AuthGate = () => {
+  const { user, isLoading } = useAuth();
+
+  if (isLoading) {
+    return (
+      <div className="fixed inset-0 flex items-center justify-center" style={{ background: '#0a0a0f' }}>
+        <motion.div
+          animate={{ opacity: [0.3, 1, 0.3] }}
+          transition={{ duration: 1.5, repeat: Infinity }}
+          style={{ fontFamily: 'var(--font-display)', color: '#ff9ed8', fontSize: '2rem' }}
+        >
+          CrossPrep
+        </motion.div>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return <LockerLanding />;
+  }
+
+  return (
+    <>
+      <Scene3DBackground />
+      <Toaster />
+      <Sonner />
+      <BrowserRouter>
+        <AnimatedRoutes />
+      </BrowserRouter>
+    </>
+  );
+};
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <AuthProvider>
-        <Scene3DBackground />
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
-          <AnimatedRoutes />
-        </BrowserRouter>
+        <AuthGate />
       </AuthProvider>
     </TooltipProvider>
   </QueryClientProvider>
