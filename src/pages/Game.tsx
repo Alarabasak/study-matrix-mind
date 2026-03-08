@@ -276,7 +276,6 @@ const Game: React.FC = () => {
       />
       <ReactionOverlay trigger={reactionTrigger} />
     </div>
-    </div>
   );
 };
 
