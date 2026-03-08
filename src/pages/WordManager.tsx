@@ -1,12 +1,12 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { categories } from '@/data/questions';
-import { fetchWordDatabase, addWord, removeWord, updateWord, getTopicsForCategory } from '@/utils/wordDatabase';
+import { fetchWordDatabase, addWord, removeWord, updateWord, getTopicsForCategory, removeAllWordsInCategory } from '@/utils/wordDatabase';
 import { WordItem } from '@/types/crossword';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { ArrowLeft, Plus, Trash2, Edit2, Search, LogOut, Upload } from 'lucide-react';
+import { ArrowLeft, Plus, Trash2, Edit2, Search, LogOut, Upload, AlertTriangle } from 'lucide-react';
 import CsvImportDialog from '@/components/admin/CsvImportDialog';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
@@ -25,6 +25,7 @@ const WordManager: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [dialogOpen, setDialogOpen] = useState(false);
   const [csvDialogOpen, setCsvDialogOpen] = useState(false);
+  const [deleteAllOpen, setDeleteAllOpen] = useState(false);
   const [editingWord, setEditingWord] = useState<string | null>(null);
   const [db, setDb] = useState<Record<string, WordItem[]>>({});
   const [topics, setTopics] = useState<string[]>([]);
@@ -110,6 +111,17 @@ const WordManager: React.FC = () => {
     }
   };
 
+  const handleDeleteAll = async () => {
+    try {
+      const count = await removeAllWordsInCategory(selectedCategory);
+      toast.success(`${count} kelime silindi`);
+      setDeleteAllOpen(false);
+      loadData();
+    } catch (err: any) {
+      toast.error('Hata: ' + err.message);
+    }
+  };
+
   const wordsByTopic = useMemo(() => {
     const map: Record<string, WordItem[]> = {};
     for (const w of filteredWords) {
@@ -163,6 +175,7 @@ const WordManager: React.FC = () => {
             <Input placeholder="Kelime, ipucu veya konu ara..." value={searchQuery} onChange={e => setSearchQuery(e.target.value)} className="pl-9" />
           </div>
           <Button variant="outline" onClick={() => setCsvDialogOpen(true)} className="gap-1.5 font-display"><Upload className="h-4 w-4" /> CSV</Button>
+          <Button variant="destructive" onClick={() => setDeleteAllOpen(true)} className="gap-1.5 font-display" disabled={words.length === 0}><Trash2 className="h-4 w-4" /> Tümünü Sil</Button>
           <Button onClick={openAddDialog} className="gap-1.5 font-display"><Plus className="h-4 w-4" /> Ekle</Button>
         </div>
 
@@ -233,6 +246,23 @@ const WordManager: React.FC = () => {
         </DialogContent>
       </Dialog>
       <CsvImportDialog open={csvDialogOpen} onOpenChange={setCsvDialogOpen} onImportComplete={loadData} />
+
+      <Dialog open={deleteAllOpen} onOpenChange={setDeleteAllOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="font-display flex items-center gap-2 text-destructive">
+              <AlertTriangle className="h-5 w-5" /> Tüm Kelimeleri Sil
+            </DialogTitle>
+          </DialogHeader>
+          <p className="text-sm text-muted-foreground">
+            <strong>{category.icon} {category.name}</strong> dersindeki <strong>{words.length}</strong> kelime kalıcı olarak silinecek. Bu işlem geri alınamaz.
+          </p>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setDeleteAllOpen(false)}>İptal</Button>
+            <Button variant="destructive" onClick={handleDeleteAll}>Evet, Tümünü Sil</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
