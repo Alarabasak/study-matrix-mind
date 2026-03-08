@@ -77,8 +77,8 @@ export function buildSlotTopology(
   if (candidateLenHist) {
     for (const [len, count] of candidateLenHist) {
       if (len >= topoConfig.minSlotLen) {
-        // Reserve at most 60% of candidates for any length to leave room for solver flexibility
-        lengthBudget.set(len, Math.max(1, Math.floor(count * 0.6)));
+        // Reserve at most 80% of candidates for any length
+        lengthBudget.set(len, Math.max(2, Math.floor(count * 0.8)));
       }
     }
   }
