@@ -13,6 +13,7 @@ import Settings from "./pages/Settings";
 import WordManager from "./pages/WordManager";
 import AdminLogin from "./pages/AdminLogin";
 import NotFound from "./pages/NotFound";
+import Diagnostics from "./pages/Diagnostics";
 
 const queryClient = new QueryClient();
 
@@ -35,6 +36,7 @@ const AnimatedRoutes = () => {
           <Route path="/settings" element={<Settings />} />
           <Route path="/admin-login" element={<AdminLogin />} />
           <Route path="/word-manager" element={<WordManager />} />
+          <Route path="/diagnostics" element={<Diagnostics />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </motion.div>
