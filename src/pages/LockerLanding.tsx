@@ -197,7 +197,7 @@ const LockerLanding: React.FC = () => {
             <motion.div
               className="absolute inset-0 flex items-center justify-center"
               animate={sceneControls}
-              style={{ transformOrigin: '82% 65%' }}
+              style={{ transformOrigin: '68% 60%' }}
             >
               <img
                 src="/images/locker-unit-field.png"
