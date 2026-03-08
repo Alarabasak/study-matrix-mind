@@ -3,15 +3,10 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from '@/hooks/use-toast';
 
-/* ── Locker grid config ── */
-const LOCKER_ROWS = 2;
-const LOCKER_COLS = 4;
+/* ── Locker config ── */
 const LOCKER_COLORS = [
   '#d4c5a0', '#c9bb94', '#d0c19e', '#c5b790',
-  '#cfc09c', '#d2c3a2', '#c8ba92', '#cdbe98',
 ];
-
-const LOCKER_ITEMS = ['🎒', '⚽', '🦋', '📚', '🧪', '🎨', '🏀', '📐'];
 
 const LockerLanding: React.FC = () => {
   const { signIn, signUp } = useAuth();
@@ -174,7 +169,7 @@ const LockerLanding: React.FC = () => {
             <div
               className="absolute inset-0"
               style={{
-                background: 'linear-gradient(180deg, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.3) 100%)',
+                background: 'linear-gradient(180deg, rgba(0,0,0,0.05) 0%, rgba(0,0,0,0.2) 100%)',
               }}
             />
 
@@ -188,103 +183,49 @@ const LockerLanding: React.FC = () => {
               transition={{ duration: 4, repeat: Infinity, ease: 'linear' }}
             />
 
-            {/* Locker Grid */}
+            {/* Main locker unit image */}
             <motion.div
-              className="relative z-10 grid gap-1"
-              style={{
-                gridTemplateColumns: `repeat(${LOCKER_COLS}, 1fr)`,
-                gridTemplateRows: `repeat(${LOCKER_ROWS}, 1fr)`,
-              }}
-              animate={phase === 'zoomed' && selectedLocker !== null ? {
-                scale: 3,
-                x: -((selectedLocker % LOCKER_COLS) - (LOCKER_COLS - 1) / 2) * 95,
-                y: -(Math.floor(selectedLocker / LOCKER_COLS) - (LOCKER_ROWS - 1) / 2) * 130,
-              } : { scale: 1, x: 0, y: 0 }}
-              transition={{ duration: 1, ease: [0.25, 0.46, 0.45, 0.94] }}
+              className="relative z-10"
+              initial={{ opacity: 0, scale: 0.8, y: 40 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              transition={{ duration: 0.8, ease: [0.25, 0.46, 0.45, 0.94] }}
             >
-              {Array.from({ length: LOCKER_ROWS * LOCKER_COLS }).map((_, i) => {
-                const isSelected = selectedLocker === i;
-                const lockerColor = LOCKER_COLORS[i % LOCKER_COLORS.length];
-                const lockerItem = LOCKER_ITEMS[i % LOCKER_ITEMS.length];
+              <img
+                src="/images/locker-unit-field.png"
+                alt="School lockers on football field"
+                className="max-h-[70vh] w-auto object-contain drop-shadow-2xl"
+                style={{
+                  filter: 'drop-shadow(0 10px 30px rgba(0,0,0,0.4))',
+                }}
+              />
 
-                return (
-                  <motion.div
-                    key={i}
-                    className="relative cursor-pointer"
-                    style={{ width: 90, height: 125 }}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      if (phase === 'lockers') handleLockerClick(i);
-                    }}
-                    initial={{ opacity: 0, y: 40, rotateX: -15 }}
-                    animate={{ opacity: 1, y: 0, rotateX: 0 }}
-                    transition={{ delay: 0.1 + i * 0.06, type: 'spring', stiffness: 180, damping: 18 }}
-                    whileHover={phase === 'lockers' ? { scale: 1.08, y: -4 } : undefined}
-                  >
-                    {/* Locker body */}
-                    <div
-                      className="w-full h-full rounded-sm relative overflow-hidden"
-                      style={{
-                        background: `linear-gradient(180deg, ${lockerColor} 0%, ${lockerColor}dd 100%)`,
-                        boxShadow: isSelected
-                          ? `0 0 20px rgba(255,200,100,0.4), inset 0 1px 0 rgba(255,255,255,0.2)`
-                          : `inset 0 1px 0 rgba(255,255,255,0.15), inset 0 -2px 4px rgba(0,0,0,0.1), 2px 2px 8px rgba(0,0,0,0.3)`,
-                        border: '1px solid rgba(0,0,0,0.15)',
-                      }}
-                    >
-                      {/* Vents (top) */}
-                      <div className="absolute top-2 left-3 right-3 flex flex-col gap-[3px]">
-                        {[0, 1, 2].map(j => (
-                          <div key={j} className="h-[2px] rounded-full" style={{ background: 'rgba(0,0,0,0.15)' }} />
-                        ))}
-                      </div>
-
-                      {/* Handle */}
-                      <div
-                        className="absolute left-2 top-1/2 -translate-y-1/2 w-[6px] h-[18px] rounded-sm"
-                        style={{
-                          background: 'linear-gradient(135deg, #e0d0b0, #c0b090)',
-                          boxShadow: '1px 1px 3px rgba(0,0,0,0.2)',
-                        }}
-                      />
-
-                      {/* Lock */}
-                      <div
-                        className="absolute left-2 top-[58%] w-[5px] h-[5px] rounded-full"
-                        style={{
-                          background: '#888',
-                          boxShadow: 'inset 0 1px 2px rgba(0,0,0,0.3)',
-                        }}
-                      />
-
-                      {/* Item peek */}
-                      <div className="absolute bottom-3 right-3 text-xl opacity-40 select-none">
-                        {lockerItem}
-                      </div>
-
-                      {/* Vents (bottom) */}
-                      <div className="absolute bottom-2 left-3 right-3 flex flex-col gap-[3px]">
-                        {[0, 1, 2].map(j => (
-                          <div key={j} className="h-[2px] rounded-full" style={{ background: 'rgba(0,0,0,0.12)' }} />
-                        ))}
-                      </div>
-
-                      {/* Number plate */}
-                      <div
-                        className="absolute top-[22px] left-1/2 -translate-x-1/2 px-2 py-0.5 rounded-sm text-[8px] font-bold"
-                        style={{
-                          background: 'rgba(255,255,255,0.5)',
-                          color: '#555',
-                          fontFamily: 'var(--font-heading)',
-                          boxShadow: 'inset 0 1px 2px rgba(0,0,0,0.1)',
-                        }}
-                      >
-                        {String(i + 1).padStart(2, '0')}
-                      </div>
-                    </div>
-                  </motion.div>
-                );
-              })}
+              {/* Clickable closed locker overlay — positioned over bottom-right locker */}
+              <motion.div
+                className="absolute cursor-pointer z-20"
+                style={{
+                  right: '0%',
+                  bottom: '8%',
+                  width: '18%',
+                  height: '44%',
+                }}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  if (phase === 'lockers') handleLockerClick(0);
+                }}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.97 }}
+              >
+                {/* Glow effect on hover */}
+                <motion.div
+                  className="absolute inset-0 rounded-sm pointer-events-none"
+                  initial={{ opacity: 0 }}
+                  whileHover={{ opacity: 1 }}
+                  style={{
+                    boxShadow: '0 0 25px rgba(255,200,100,0.6), inset 0 0 15px rgba(255,200,100,0.2)',
+                    border: '2px solid rgba(255,200,100,0.4)',
+                  }}
+                />
+              </motion.div>
             </motion.div>
 
             {/* Title overlay on lockers view */}
@@ -307,10 +248,20 @@ const LockerLanding: React.FC = () => {
                 </h2>
                 <p
                   className="text-xs mt-1 tracking-widest"
-                  style={{ color: '#888', fontFamily: 'var(--font-body)' }}
+                  style={{ color: 'rgba(255,255,255,0.7)', fontFamily: 'var(--font-body)', textShadow: '0 1px 4px rgba(0,0,0,0.5)' }}
                 >
                   PICK YOUR LOCKER
                 </p>
+
+                {/* Arrow pointing to the closed locker */}
+                <motion.div
+                  className="absolute bottom-[-80px] right-[10%] sm:right-[20%] text-white text-sm"
+                  style={{ fontFamily: 'var(--font-display)', textShadow: '0 2px 8px rgba(0,0,0,0.6)' }}
+                  animate={{ y: [0, 8, 0] }}
+                  transition={{ duration: 1.5, repeat: Infinity }}
+                >
+                  👆 Bu dolap senin!
+                </motion.div>
               </motion.div>
             )}
 
@@ -332,7 +283,7 @@ const LockerLanding: React.FC = () => {
 
                   {/* Locker door form */}
                   <motion.div
-                    className="relative w-[320px] sm:w-[360px] overflow-hidden rounded-lg"
+                    className="relative w-[280px] sm:w-[320px] overflow-hidden rounded-lg"
                     initial={{ rotateY: -90, opacity: 0 }}
                     animate={{ rotateY: 0, opacity: 1 }}
                     exit={{ rotateY: 90, opacity: 0 }}
@@ -340,11 +291,18 @@ const LockerLanding: React.FC = () => {
                     style={{ perspective: '1000px', transformStyle: 'preserve-3d' }}
                     onClick={(e) => e.stopPropagation()}
                   >
+                    {/* Closed locker image as background */}
+                    <div className="relative">
+                      <img
+                        src="/images/locker-closed.png"
+                        alt="Closed locker"
+                        className="absolute inset-0 w-full h-full object-cover rounded-lg opacity-30"
+                      />
                     {/* Locker surface */}
                     <div
-                      className="p-6 sm:p-8"
+                      className="relative p-6 sm:p-8"
                       style={{
-                        background: `linear-gradient(180deg, ${LOCKER_COLORS[selectedLocker || 0]} 0%, #b8a880 100%)`,
+                        background: `linear-gradient(180deg, ${LOCKER_COLORS[selectedLocker || 0]}ee 0%, #b8a880ee 100%)`,
                         boxShadow: 'inset 0 2px 0 rgba(255,255,255,0.2), inset 0 -4px 8px rgba(0,0,0,0.15), 0 20px 60px rgba(0,0,0,0.5)',
                         border: '2px solid rgba(0,0,0,0.15)',
                       }}
@@ -477,6 +435,7 @@ const LockerLanding: React.FC = () => {
                           <div key={j} className="h-[2px] mx-8 rounded-full" style={{ background: 'rgba(0,0,0,0.08)' }} />
                         ))}
                       </div>
+                    </div>
                     </div>
                   </motion.div>
                 </motion.div>
