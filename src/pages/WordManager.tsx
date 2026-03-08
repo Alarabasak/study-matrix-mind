@@ -6,7 +6,7 @@ import { WordItem } from '@/types/crossword';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { ArrowLeft, Plus, Trash2, Edit2, Search, LogOut, Upload } from 'lucide-react';
+import { ArrowLeft, Plus, Trash2, Edit2, Search, LogOut, Upload, AlertTriangle } from 'lucide-react';
 import CsvImportDialog from '@/components/admin/CsvImportDialog';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
