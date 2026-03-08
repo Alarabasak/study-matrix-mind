@@ -114,6 +114,7 @@ const Game: React.FC = () => {
         });
       }
       toast.success('Doğru! +10 puan 🎉', { duration: 1500 });
+      setReactionTrigger({ correct: true, key: Date.now() });
       if (completedWords.size + 1 === placedWords.length) {
         const duration = Math.floor((Date.now() - startTime) / 1000);
         saveGameSession({
