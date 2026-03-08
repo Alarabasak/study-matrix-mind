@@ -108,10 +108,7 @@ const Index: React.FC = () => {
           Cross<span className="text-primary">Prep</span>
         </motion.h1>
 
-        <div className="flex justify-center gap-3 mt-4 flex-wrap">
-          <StickerBadge color="pink" rotation={-3}>🎒 Okula Dönüş</StickerBadge>
-          <StickerBadge color="blue" rotation={2}>📚 Çalış & Oyna</StickerBadge>
-        </div>
+        <ExamCountdown />
       </header>
 
       {/* ═══ GRADE SELECTOR ═══ */}
