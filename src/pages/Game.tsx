@@ -274,6 +274,8 @@ const Game: React.FC = () => {
         open={adDialogOpen} onClose={() => setAdDialogOpen(false)}
         onConfirm={handleAdConfirm} wordClue={adTargetWord.current?.clue || ''}
       />
+      <ReactionOverlay trigger={reactionTrigger} />
+    </div>
     </div>
   );
 };
