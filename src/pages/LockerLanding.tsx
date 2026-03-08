@@ -305,8 +305,8 @@ const LockerLanding: React.FC = () => {
                     <motion.img
                       src="/images/popcorn-3d.png"
                       alt="Popcorn"
-                      className="absolute z-30 w-20 h-20 object-contain drop-shadow-xl pointer-events-none"
-                      style={{ top: '-32px', right: '-16px', transform: 'rotate(12deg)' }}
+                      className="absolute z-30 w-40 h-40 object-contain drop-shadow-xl pointer-events-none"
+                      style={{ top: '-60px', right: '-30px', transform: 'rotate(12deg)' }}
                       animate={{ y: [0, -4, 0], rotate: [12, 8, 12] }}
                       transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
                     />
