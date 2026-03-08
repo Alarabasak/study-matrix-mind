@@ -36,7 +36,10 @@ const BookshelfSelector: React.FC<BookshelfSelectorProps> = ({ items, selectedId
   return (
     <div className="relative">
       {/* Shelf surface */}
-      <div className="relative flex items-end justify-center gap-1 sm:gap-1.5 px-2 pb-3 pt-4 overflow-x-auto">
+      <div
+        className="relative flex items-end justify-center gap-1 sm:gap-1.5 px-2 pb-3 pt-4 overflow-x-auto"
+        style={{ perspective: '800px' }}
+      >
         {items.map((item, i) => {
           const style = BOOK_STYLES[i % BOOK_STYLES.length];
           const height = BOOK_HEIGHTS[i % BOOK_HEIGHTS.length];
@@ -48,13 +51,17 @@ const BookshelfSelector: React.FC<BookshelfSelectorProps> = ({ items, selectedId
               className={cn(
                 'relative cursor-pointer select-none flex-shrink-0 group',
               )}
-              style={{ width: style.thickness, height }}
+              style={{
+                width: style.thickness,
+                height,
+                transformStyle: 'preserve-3d',
+              }}
               onClick={() => onSelect(item.id)}
-              initial={{ opacity: 0, y: 40, rotateZ: i % 2 === 0 ? -2 : 2 }}
+              initial={{ opacity: 0, y: 40, rotateY: 0 }}
               animate={{
                 opacity: 1,
                 y: isSelected ? -16 : 0,
-                rotateZ: 0,
+                rotateY: isSelected ? -50 : 0,
               }}
               transition={{
                 delay: 0.05 + i * 0.04,
@@ -62,7 +69,11 @@ const BookshelfSelector: React.FC<BookshelfSelectorProps> = ({ items, selectedId
                 stiffness: 200,
                 damping: 18,
               }}
-              whileHover={{ y: -10, transition: { duration: 0.2 } }}
+              whileHover={{
+                y: -10,
+                rotateY: -50,
+                transition: { duration: 0.35, ease: 'easeOut' },
+              }}
               whileTap={{ scale: 0.96 }}
             >
               {/* Book body */}
