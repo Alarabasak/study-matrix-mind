@@ -353,6 +353,13 @@ const LockerLanding: React.FC = () => {
                             boxShadow: 'inset 0 2px 6px rgba(0,0,0,0.08)',
                           }}
                         >
+                          {/* 3D Popcorn */}
+                          <img
+                            src="/images/popcorn-3d.jpg"
+                            alt="Popcorn"
+                            className="absolute -top-10 right--2 w-16 h-16 object-contain z-20 drop-shadow-lg"
+                            style={{ transform: 'rotate(12deg)' }}
+                          />
                           {/* Name plate */}
                           <div
                             className="mx-auto mb-4 px-4 py-2 rounded-sm text-center"
