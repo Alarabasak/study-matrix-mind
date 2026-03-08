@@ -178,14 +178,14 @@ const LockerLanding: React.FC = () => {
               }}
             />
 
-            {/* Fluorescent light flicker */}
+            {/* Sun lens flare */}
             <motion.div
-              className="absolute top-0 left-0 right-0 h-40 pointer-events-none"
+              className="absolute top-0 left-0 w-60 h-60 pointer-events-none"
               style={{
-                background: 'radial-gradient(ellipse at 50% 0%, rgba(255,250,230,0.08) 0%, transparent 70%)',
+                background: 'radial-gradient(ellipse at 30% 20%, rgba(255,250,200,0.3) 0%, transparent 70%)',
               }}
-              animate={{ opacity: [0.6, 1, 0.8, 1, 0.7] }}
-              transition={{ duration: 3, repeat: Infinity, ease: 'linear' }}
+              animate={{ opacity: [0.7, 1, 0.8] }}
+              transition={{ duration: 4, repeat: Infinity, ease: 'linear' }}
             />
 
             {/* Locker Grid */}
