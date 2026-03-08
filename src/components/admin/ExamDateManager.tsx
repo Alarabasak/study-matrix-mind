@@ -39,31 +39,44 @@ const ExamDateManager: React.FC = () => {
   useEffect(() => { load(); }, []);
 
   const save = async (examType: 'TYT' | 'AYT', dateStr: string) => {
-    if (!dateStr) return;
-    const setSaving = examType === 'TYT' ? setSavingTyt : setSavingAyt;
-    setSaving(true);
-    
-    const existing = examDates.find((d) => d.exam_type === examType);
-    const isoDate = new Date(dateStr).toISOString();
-
-    let error;
-    if (existing) {
-      ({ error } = await supabase
-        .from('exam_dates')
-        .update({ exam_date: isoDate, updated_at: new Date().toISOString() })
-        .eq('id', existing.id));
-    } else {
-      ({ error } = await supabase
-        .from('exam_dates')
-        .insert({ exam_type: examType, exam_date: isoDate }));
+    if (!dateStr) {
+      toast.error('Lütfen tarih ve saat seçin');
+      return;
     }
 
-    setSaving(false);
-    if (error) {
-      toast.error(`Hata: ${error.message}`);
-    } else {
-      toast.success(`${examType} sınav tarihi güncellendi`);
-      load();
+    const parsedDate = new Date(dateStr);
+    if (Number.isNaN(parsedDate.getTime())) {
+      toast.error('Geçerli bir tarih/saat girin');
+      return;
+    }
+
+    const setSaving = examType === 'TYT' ? setSavingTyt : setSavingAyt;
+    setSaving(true);
+
+    try {
+      const existing = examDates.find((d) => d.exam_type === examType);
+      const isoDate = parsedDate.toISOString();
+
+      let error;
+      if (existing) {
+        ({ error } = await supabase
+          .from('exam_dates')
+          .update({ exam_date: isoDate, updated_at: new Date().toISOString() })
+          .eq('id', existing.id));
+      } else {
+        ({ error } = await supabase
+          .from('exam_dates')
+          .insert({ exam_type: examType, exam_date: isoDate }));
+      }
+
+      if (error) {
+        toast.error(`Hata: ${error.message}`);
+      } else {
+        toast.success(`${examType} sınav tarihi güncellendi`);
+        load();
+      }
+    } finally {
+      setSaving(false);
     }
   };
 
