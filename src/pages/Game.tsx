@@ -10,6 +10,7 @@ import GameHeader from '@/components/game/GameHeader';
 import ClueList from '@/components/game/ClueList';
 import AdHintDialog from '@/components/game/AdHintDialog';
 import TurkishKeyboard from '@/components/game/TurkishKeyboard';
+import ReactionOverlay from '@/components/game/ReactionOverlay';
 import { toast } from 'sonner';
 
 const Game: React.FC = () => {
@@ -72,6 +73,7 @@ const Game: React.FC = () => {
   const [adDialogOpen, setAdDialogOpen] = useState(false);
   const [adHintCount, setAdHintCount] = useState(0);
   const adTargetWord = useRef<PlacedWord | null>(null);
+  const [reactionTrigger, setReactionTrigger] = useState<{ correct: boolean; key: number } | null>(null);
 
   useEffect(() => {
     if (initialGrid.length > 0) {
@@ -112,6 +114,7 @@ const Game: React.FC = () => {
         });
       }
       toast.success('Doğru! +10 puan 🎉', { duration: 1500 });
+      setReactionTrigger({ correct: true, key: Date.now() });
       if (completedWords.size + 1 === placedWords.length) {
         const duration = Math.floor((Date.now() - startTime) / 1000);
         saveGameSession({
@@ -133,6 +136,7 @@ const Game: React.FC = () => {
         });
       }
       toast.error('Yanlış, tekrar dene!', { duration: 1500 });
+      setReactionTrigger({ correct: false, key: Date.now() });
     }
   }, [completedWords, placedWords, score, startTime, categoryId, category.name, gridSize, adHintCount, puzzleSeed]);
 
@@ -270,6 +274,7 @@ const Game: React.FC = () => {
         open={adDialogOpen} onClose={() => setAdDialogOpen(false)}
         onConfirm={handleAdConfirm} wordClue={adTargetWord.current?.clue || ''}
       />
+      <ReactionOverlay trigger={reactionTrigger} />
     </div>
   );
 };
