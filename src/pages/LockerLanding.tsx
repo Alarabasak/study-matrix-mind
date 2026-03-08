@@ -161,31 +161,31 @@ const LockerLanding: React.FC = () => {
             transition={{ duration: 0.6 }}
             style={{ perspective: '1200px' }}
           >
-            {/* Hallway background */}
+            {/* Football field background */}
             <div
               className="absolute inset-0"
               style={{
-                background: 'linear-gradient(180deg, #2a2520 0%, #1e1a16 40%, #14110e 100%)',
+                backgroundImage: 'url(/images/football-field-bg.jpg)',
+                backgroundSize: 'cover',
+                backgroundPosition: 'center',
               }}
             />
-            {/* Floor */}
+            {/* Subtle overlay for contrast */}
             <div
-              className="absolute bottom-0 left-0 right-0 h-1/3"
+              className="absolute inset-0"
               style={{
-                background: 'linear-gradient(180deg, #3a352e 0%, #252018 100%)',
-                transform: 'perspective(600px) rotateX(10deg)',
-                transformOrigin: 'top center',
+                background: 'linear-gradient(180deg, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.3) 100%)',
               }}
             />
 
-            {/* Fluorescent light flicker */}
+            {/* Sun lens flare */}
             <motion.div
-              className="absolute top-0 left-0 right-0 h-40 pointer-events-none"
+              className="absolute top-0 left-0 w-60 h-60 pointer-events-none"
               style={{
-                background: 'radial-gradient(ellipse at 50% 0%, rgba(255,250,230,0.08) 0%, transparent 70%)',
+                background: 'radial-gradient(ellipse at 30% 20%, rgba(255,250,200,0.3) 0%, transparent 70%)',
               }}
-              animate={{ opacity: [0.6, 1, 0.8, 1, 0.7] }}
-              transition={{ duration: 3, repeat: Infinity, ease: 'linear' }}
+              animate={{ opacity: [0.7, 1, 0.8] }}
+              transition={{ duration: 4, repeat: Infinity, ease: 'linear' }}
             />
 
             {/* Locker Grid */}
@@ -299,8 +299,8 @@ const LockerLanding: React.FC = () => {
                   className="text-2xl sm:text-3xl font-bold tracking-wider uppercase"
                   style={{
                     fontFamily: 'var(--font-heading)',
-                    color: '#c0b090',
-                    textShadow: '0 2px 10px rgba(0,0,0,0.5)',
+                    color: '#fff',
+                    textShadow: '0 2px 10px rgba(0,0,0,0.7), 0 0 20px rgba(0,0,0,0.4)',
                   }}
                 >
                   Dolabını Seç
