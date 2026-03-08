@@ -111,6 +111,17 @@ const WordManager: React.FC = () => {
     }
   };
 
+  const handleDeleteAll = async () => {
+    try {
+      const count = await removeAllWordsInCategory(selectedCategory);
+      toast.success(`${count} kelime silindi`);
+      setDeleteAllOpen(false);
+      loadData();
+    } catch (err: any) {
+      toast.error('Hata: ' + err.message);
+    }
+  };
+
   const wordsByTopic = useMemo(() => {
     const map: Record<string, WordItem[]> = {};
     for (const w of filteredWords) {
