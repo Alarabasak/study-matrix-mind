@@ -175,6 +175,7 @@ const WordManager: React.FC = () => {
             <Input placeholder="Kelime, ipucu veya konu ara..." value={searchQuery} onChange={e => setSearchQuery(e.target.value)} className="pl-9" />
           </div>
           <Button variant="outline" onClick={() => setCsvDialogOpen(true)} className="gap-1.5 font-display"><Upload className="h-4 w-4" /> CSV</Button>
+          <Button variant="destructive" onClick={() => setDeleteAllOpen(true)} className="gap-1.5 font-display" disabled={words.length === 0}><Trash2 className="h-4 w-4" /> Tümünü Sil</Button>
           <Button onClick={openAddDialog} className="gap-1.5 font-display"><Plus className="h-4 w-4" /> Ekle</Button>
         </div>
 
