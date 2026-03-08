@@ -169,7 +169,7 @@ const LockerLanding: React.FC = () => {
             <motion.div
               className="absolute inset-0"
               animate={sceneControls}
-              style={{ transformOrigin: '82% 65%' }}
+              style={{ transformOrigin: '68% 60%' }}
             >
               <div
                 className="absolute inset-0"
