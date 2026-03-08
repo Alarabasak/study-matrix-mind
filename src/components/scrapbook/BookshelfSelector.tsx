@@ -108,18 +108,36 @@ const getTextureStyle = (texture?: string): React.CSSProperties => {
 };
 
 const BookshelfSelector: React.FC<BookshelfSelectorProps> = ({ items, selectedId, onSelect }) => {
+  const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
+
+  /* Calculate horizontal offset for each book based on which book is hovered */
+  const getSpreadX = (i: number): number => {
+    if (hoveredIndex === null) return 0;
+    const diff = i - hoveredIndex;
+    if (diff === 0) return 0;
+    // Books near the hovered one spread apart more
+    const spread = 40; // px spread for immediate neighbors
+    const sign = diff > 0 ? 1 : -1;
+    const absDiff = Math.abs(diff);
+    // Diminishing spread for farther books
+    return sign * Math.max(0, spread - (absDiff - 1) * 8);
+  };
+
   return (
     <div className="relative">
       <div
         className="relative flex items-end justify-center gap-[3px] sm:gap-1 px-2 pb-3 pt-4 overflow-x-auto"
         style={{ perspective: '900px' }}
+        onMouseLeave={() => setHoveredIndex(null)}
       >
         {items.map((item, i) => {
           const style = BOOK_STYLES[i % BOOK_STYLES.length];
           const height = BOOK_HEIGHTS[i % BOOK_HEIGHTS.length];
           const lean = BOOK_LEANS[i % BOOK_LEANS.length];
           const isSelected = selectedId === item.id;
+          const isHovered = hoveredIndex === i;
           const textureStyle = getTextureStyle(style.spineTexture);
+          const spreadX = getSpreadX(i);
 
           return (
             <motion.div
@@ -130,26 +148,22 @@ const BookshelfSelector: React.FC<BookshelfSelectorProps> = ({ items, selectedId
                 height,
                 transformStyle: 'preserve-3d',
                 transformOrigin: 'center bottom',
+                zIndex: isHovered ? 20 : isSelected ? 15 : 1,
               }}
               onClick={() => onSelect(item.id)}
-              initial={{ opacity: 0, y: 40, rotateZ: 0 }}
+              onMouseEnter={() => setHoveredIndex(i)}
+              initial={{ opacity: 0, y: 40, rotateZ: 0, x: 0 }}
               animate={{
                 opacity: 1,
-                y: isSelected ? -18 : 0,
-                rotateY: isSelected ? -45 : 0,
-                rotateZ: isSelected ? 0 : lean,
+                y: isHovered ? -14 : isSelected ? -18 : 0,
+                rotateY: isHovered ? -50 : isSelected ? -45 : 0,
+                rotateZ: (isHovered || isSelected) ? 0 : lean,
+                x: spreadX,
               }}
               transition={{
-                delay: 0.05 + i * 0.04,
                 type: 'spring',
-                stiffness: 200,
-                damping: 18,
-              }}
-              whileHover={{
-                y: -12,
-                rotateY: -45,
-                rotateZ: 0,
-                transition: { duration: 0.35, ease: 'easeOut' },
+                stiffness: 220,
+                damping: 20,
               }}
               whileTap={{ scale: 0.97 }}
             >
