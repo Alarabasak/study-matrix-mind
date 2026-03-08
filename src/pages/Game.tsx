@@ -136,6 +136,7 @@ const Game: React.FC = () => {
         });
       }
       toast.error('Yanlış, tekrar dene!', { duration: 1500 });
+      setReactionTrigger({ correct: false, key: Date.now() });
     }
   }, [completedWords, placedWords, score, startTime, categoryId, category.name, gridSize, adHintCount, puzzleSeed]);
 
