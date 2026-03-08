@@ -124,87 +124,110 @@ const Index: React.FC = () => {
         </div>
       </header>
 
-      {/* ═══ TYT FOLDERS ═══ */}
+      {/* ═══ GRADE SELECTOR ═══ */}
       <section className="max-w-2xl mx-auto w-full px-4 mb-6 z-10">
         <div className="flex items-center gap-2.5 mb-4">
           <WashiTape variant="pink" width={36} rotation={-1} className="relative" />
-          <h2 className="handwriting text-2xl sm:text-3xl font-bold">🎯 TYT Dersleri</h2>
+          <h2 className="handwriting text-2xl sm:text-3xl font-bold">📋 Sınav Türü</h2>
         </div>
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-5">
-          {tyt.map((cat, i) => (
+        <div className="grid grid-cols-2 gap-5">
+          {(['TYT', 'AYT'] as const).map((grade, i) => (
             <motion.div
-              key={cat.id + i}
-              initial={{ opacity: 0, y: 30, rotate: i % 2 === 0 ? -3 : 3 }}
-              animate={{ opacity: 1, y: 0, rotate: 0 }}
-              transition={{ delay: 0.08 + i * 0.05, type: 'spring', stiffness: 180, damping: 16 }}
+              key={grade}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.1 + i * 0.08, type: 'spring', stiffness: 180, damping: 16 }}
             >
-              <SubjectFolder
-                index={i}
-                icon={cat.icon}
-                title={cat.name.replace('TYT ', '')}
-                subtitle={cat.description}
-                meta={`${wordCounts[cat.id] || 0} kelime · ${topicCounts[cat.id] || 0} konu`}
-                selected={selectedCategory === cat.id}
-                onClick={() => { setSelectedCategory(cat.id); setSelectedDifficulty('all'); }}
-              />
+              <StickyNote
+                color={grade === 'TYT' ? 'pink' : 'blue'}
+                rotation={grade === 'TYT' ? -1 : 1}
+                onClick={() => {
+                  setSelectedGrade(grade);
+                  setSelectedCategory(null);
+                  setSelectedDifficulty('all');
+                }}
+                className={cn(
+                  'rounded-lg transition-all cursor-pointer',
+                  selectedGrade === grade && 'ring-2 ring-primary ring-offset-2 ring-offset-background'
+                )}
+              >
+                <div className="text-center py-2">
+                  <div className="text-3xl mb-1">{grade === 'TYT' ? '🎯' : '🚀'}</div>
+                  <div className="handwriting text-2xl font-bold text-foreground">{grade}</div>
+                  <div className="text-[11px] text-muted-foreground" style={{ fontFamily: 'var(--font-body)' }}>
+                    {grade === 'TYT' ? 'Temel Yeterlilik Testi' : 'Alan Yeterlilik Testi'}
+                  </div>
+                </div>
+              </StickyNote>
             </motion.div>
           ))}
         </div>
       </section>
 
-      {/* ═══ AYT FOLDERS ═══ */}
-      {ayt.length > 0 && (
-        <section className="max-w-2xl mx-auto w-full px-4 mb-6 z-10">
-          <div className="flex items-center gap-2.5 mb-4">
-            <WashiTape variant="blue" width={36} rotation={1} className="relative" />
-            <h2 className="handwriting text-2xl sm:text-3xl font-bold">🚀 AYT Dersleri</h2>
-          </div>
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-5">
-            {ayt.map((cat, i) => (
-              <motion.div
-                key={cat.id}
-                initial={{ opacity: 0, y: 30, rotate: i % 2 === 0 ? 2 : -2 }}
-                animate={{ opacity: 1, y: 0, rotate: 0 }}
-                transition={{ delay: 0.15 + i * 0.05, type: 'spring', stiffness: 180, damping: 16 }}
-              >
-                <SubjectFolder
-                  index={i + tyt.length}
-                  icon={cat.icon}
-                  title={cat.name.replace('AYT ', '')}
-                  subtitle={cat.description}
-                  selected={selectedCategory === cat.id}
-                  onClick={() => { setSelectedCategory(cat.id); setSelectedDifficulty('all'); }}
-                />
-              </motion.div>
-            ))}
-          </div>
-        </section>
-      )}
+      {/* ═══ SUBJECT FOLDERS ═══ */}
+      <AnimatePresence>
+        {selectedGrade && (
+          <motion.section
+            className="max-w-2xl mx-auto w-full px-4 mb-6 z-10"
+            initial={{ opacity: 0, height: 0, y: 20 }}
+            animate={{ opacity: 1, height: 'auto', y: 0 }}
+            exit={{ opacity: 0, height: 0, y: -10 }}
+            transition={{ duration: 0.4, type: 'spring', stiffness: 180, damping: 20 }}
+          >
+            <div className="flex items-center gap-2.5 mb-4">
+              <WashiTape variant={selectedGrade === 'TYT' ? 'pink' : 'blue'} width={36} rotation={1} className="relative" />
+              <h2 className="handwriting text-2xl sm:text-3xl font-bold">
+                {selectedGrade === 'TYT' ? '🎯' : '🚀'} {selectedGrade} Dersleri
+              </h2>
+            </div>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-5">
+              {filteredCategories.map((cat, i) => (
+                <motion.div
+                  key={cat.id}
+                  initial={{ opacity: 0, y: 30, rotate: i % 2 === 0 ? -3 : 3 }}
+                  animate={{ opacity: 1, y: 0, rotate: 0 }}
+                  transition={{ delay: 0.08 + i * 0.05, type: 'spring', stiffness: 180, damping: 16 }}
+                >
+                  <SubjectFolder
+                    index={i}
+                    icon={cat.icon}
+                    title={cat.name.replace(`${selectedGrade} `, '')}
+                    subtitle={cat.description}
+                    meta={`${wordCounts[cat.id] || 0} kelime · ${topicCounts[cat.id] || 0} konu`}
+                    selected={selectedCategory === cat.id}
+                    onClick={() => { setSelectedCategory(cat.id); setSelectedDifficulty('all'); }}
+                  />
+                </motion.div>
+              ))}
+            </div>
 
-      {/* ═══ SHUFFLE (Sticky note card) ═══ */}
-      <section className="max-w-2xl mx-auto w-full px-4 mb-6 z-10">
-        <StickyNote
-          color="yellow"
-          rotation={-0.5}
-          onClick={() => { setSelectedCategory('shuffle'); setSelectedDifficulty('all'); }}
-          className={cn(
-            'rounded-lg transition-all',
-            selectedCategory === 'shuffle' && 'ring-2 ring-primary ring-offset-2 ring-offset-background'
-          )}
-        >
-          <div className="flex items-center gap-3">
-            <div className="w-11 h-11 rounded-xl bg-accent/15 flex items-center justify-center">
-              <Shuffle className="h-5 w-5 text-accent" />
+            {/* Shuffle option */}
+            <div className="mt-5">
+              <StickyNote
+                color="yellow"
+                rotation={-0.5}
+                onClick={() => { setSelectedCategory('shuffle'); setSelectedDifficulty('all'); }}
+                className={cn(
+                  'rounded-lg transition-all',
+                  selectedCategory === 'shuffle' && 'ring-2 ring-primary ring-offset-2 ring-offset-background'
+                )}
+              >
+                <div className="flex items-center gap-3">
+                  <div className="w-11 h-11 rounded-xl bg-accent/15 flex items-center justify-center">
+                    <Shuffle className="h-5 w-5 text-accent" />
+                  </div>
+                  <div>
+                    <div className="handwriting text-xl font-bold text-foreground">🔀 Karıştır</div>
+                    <div className="text-[11px] text-muted-foreground" style={{ fontFamily: 'var(--font-body)' }}>
+                      Tüm derslerden karışık · {wordCounts['shuffle'] || 0} kelime · {topicCounts['shuffle'] || 0} konu
+                    </div>
+                  </div>
+                </div>
+              </StickyNote>
             </div>
-            <div>
-              <div className="handwriting text-xl font-bold text-foreground">🔀 Karıştır</div>
-              <div className="text-[11px] text-muted-foreground" style={{ fontFamily: 'var(--font-body)' }}>
-                Tüm derslerden karışık · {wordCounts['shuffle'] || 0} kelime · {topicCounts['shuffle'] || 0} konu
-              </div>
-            </div>
-          </div>
-        </StickyNote>
-      </section>
+          </motion.section>
+        )}
+      </AnimatePresence>
 
       {/* ═══ DIFFICULTY (Notebook page) ═══ */}
       <AnimatePresence>
