@@ -60,7 +60,7 @@ const LockerLanding: React.FC = () => {
     setLoading(true);
     try {
       if (authMode === 'signup') {
-        const { error } = await signUp(email, password);
+        const { error } = await signUp(email, password, displayName);
         if (error) { toast({ title: 'Hata', description: error.message, variant: 'destructive' }); return; }
         toast({ title: '✅ Kayıt başarılı!', description: 'E-posta adresinizi doğrulayın.' });
       } else {
