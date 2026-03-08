@@ -10,11 +10,11 @@ export const categories: Category[] = [
     grade: "TYT",
   },
   {
-    id: "tyt-mat",
+    id: "tyt-geo",
     name: "TYT Geometri",
-    icon: "G",
-    description: "Sayılar, cebir, geometri",
-    color: "hsl(152, 32%, 38%)",
+    icon: "📏",
+    description: "Üçgenler, çokgenler, katı cisimler",
+    color: "hsl(170, 40%, 42%)",
     grade: "TYT",
   },
   {
