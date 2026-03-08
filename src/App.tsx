@@ -13,6 +13,7 @@ import Settings from "./pages/Settings";
 import WordManager from "./pages/WordManager";
 import AdminLogin from "./pages/AdminLogin";
 import NotFound from "./pages/NotFound";
+import Diagnostics from "./pages/Diagnostics";
 
 const queryClient = new QueryClient();
 
