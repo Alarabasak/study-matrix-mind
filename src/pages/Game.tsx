@@ -45,14 +45,20 @@ const Game: React.FC = () => {
   const result = React.useMemo(() => {
     if (words.length === 0) return null;
     try {
-      setGenerationError(null);
       return generateCrossword(words, puzzleSeed);
     } catch (e) {
-      console.error('[CrosswordEngine]', e);
-      setGenerationError(e instanceof Error ? e.message : 'Bulmaca oluşturulamadı');
+      console.error('[CrosswordEngine] Generation failed:', e);
       return null;
     }
   }, [words, puzzleSeed]);
+
+  useEffect(() => {
+    if (words.length > 0 && !result) {
+      setGenerationError('Bulmaca oluşturulamadı');
+    } else {
+      setGenerationError(null);
+    }
+  }, [words, result]);
 
   const placedWords = result?.placedWords || [];
   const gridSize = result?.gridSize || '12x12';
@@ -209,7 +215,7 @@ const Game: React.FC = () => {
     );
   }
 
-  if (generationError || !result) {
+  if (generationError) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center p-4">
         <div className="text-center max-w-md">

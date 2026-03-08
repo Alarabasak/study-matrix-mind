@@ -4,7 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 // Cache for word data fetched from the database
 let wordCache: Record<string, WordItem[]> | null = null;
 let cacheTimestamp = 0;
-const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
+const CACHE_TTL = 5 * 60 * 1000;
 
 export async function fetchWordDatabase(): Promise<Record<string, WordItem[]>> {
   const now = Date.now();
@@ -50,8 +50,13 @@ export async function fetchWordDatabase(): Promise<Record<string, WordItem[]>> {
     db[row.category].push(item);
   }
 
-  wordCache = db;
-  cacheTimestamp = now;
+  // Don't cache empty results
+  const totalWords = Object.values(db).reduce((sum, words) => sum + words.length, 0);
+  if (totalWords > 0) {
+    wordCache = db;
+    cacheTimestamp = now;
+  }
+  console.log(`[WordDB] Fetched ${totalWords} words across ${Object.keys(db).length} categories`);
   return db;
 }
 

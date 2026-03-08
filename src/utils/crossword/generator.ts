@@ -4,14 +4,13 @@
  * Coordinates the full generation pipeline:
  * 1. Prepare answer candidates from word database
  * 2. Choose grid config from seed strategy (with deterministic fallback order)
- * 3. Build slot topology (with retries)
+ * 3. Build slot topology (candidate-aware, with retries)
  * 4. Fast feasibility gate (slot-length vs candidate supply)
  * 5. Assign answers via CSP solver
  * 6. Validate puzzle
  * 7. Compute analytics
  *
  * Philosophy: topology first, answers second.
- * This is NOT a "place words then derive clues" generator.
  */
 
 import { WordItem } from '@/types/crossword';
@@ -37,7 +36,6 @@ function prepareCandidates(words: WordItem[], rng: SeededRandom): AnswerCandidat
   const seen = new Set<string>();
   const candidates: AnswerCandidate[] = [];
 
-  // Shuffle for seed-based diversity
   const shuffled = rng.shuffle(words);
 
   for (const w of shuffled) {
@@ -73,9 +71,7 @@ function buildLengthHistogram(candidates: AnswerCandidate[]): Map<number, number
 
 /**
  * Fast feasibility gate:
- * - Every slot length must have at least 1 candidate.
- * - Because answer reuse is forbidden, slot count per length cannot exceed
- *   candidate count for that length.
+ * Every slot length must have enough unique candidates.
  */
 function isTopologyFeasible(slots: Slot[], candidateLenHist: Map<number, number>): boolean {
   const slotLenHist = new Map<number, number>();
@@ -93,8 +89,7 @@ function isTopologyFeasible(slots: Slot[], candidateLenHist: Map<number, number>
 }
 
 /**
- * Deterministic grid traversal order:
- * start with seed-chosen grid, then rotate through remaining families.
+ * Deterministic grid traversal order.
  */
 function getGridTraversalOrder(seed: number): GridConfig[] {
   const preferred = chooseGridConfig(seed);
@@ -120,10 +115,12 @@ export function generatePuzzle(words: WordItem[], seed: number): PuzzleResult {
   const candidates = prepareCandidates(words, candidateRng);
   const candidateLenHist = buildLengthHistogram(candidates);
 
+  console.log('[CrosswordEngine] Candidate length histogram:', Object.fromEntries(candidateLenHist));
+  console.log('[CrosswordEngine] Total candidates:', candidates.length);
+
   if (candidates.length < 8) {
     throw new Error(
-      `Insufficient word candidates for puzzle generation: ${candidates.length} (need at least 8). ` +
-      `Check that the word database has enough valid entries for the selected category.`
+      `Insufficient word candidates: ${candidates.length} (need at least 8).`
     );
   }
 
@@ -142,15 +139,14 @@ export function generatePuzzle(words: WordItem[], seed: number): PuzzleResult {
     const topoConfig = getTopologyConfig(gridConfig);
 
     for (let attempt = 0; attempt < attemptsPerGrid; attempt++) {
-      // Vary topology seed per attempt for different layouts
       const topoSeed = seed * 7919 + (gridIdx + 1) * 104729 + attempt * 13007;
       const topoRng = new SeededRandom(topoSeed);
 
-      // Phase 1: Build slot topology
-      const topology = buildSlotTopology(gridConfig, topoConfig, topoRng);
+      // Phase 1: Build candidate-aware slot topology
+      const topology = buildSlotTopology(gridConfig, topoConfig, topoRng, candidateLenHist);
       topologyAttempts++;
 
-      if (!topology) continue; // Topology didn't meet quality constraints
+      if (!topology) continue;
 
       // Phase 2: Fast feasibility gate
       if (!isTopologyFeasible(topology.slots, candidateLenHist)) {
@@ -159,7 +155,7 @@ export function generatePuzzle(words: WordItem[], seed: number): PuzzleResult {
       }
       feasibleTopologyAttempts++;
 
-      // Phase 3: Assign answers via CSP solver
+      // Phase 3: CSP solver
       const solverRng = new SeededRandom(seed * 6271 + (gridIdx + 1) * 31 + attempt * 911);
       const solverResult = assignAnswersWithCSP(
         topology.slots,
@@ -176,14 +172,14 @@ export function generatePuzzle(words: WordItem[], seed: number): PuzzleResult {
 
       lastBacktrackCount = solverResult.backtrackCount;
 
-      // Phase 4: Validate assignment
+      // Phase 4: Validate
       const validation = validateAssignment(topology.slots, solverResult.assignments);
       if (!validation.valid) {
-        console.warn('[CrosswordEngine] Puzzle validation failed:', validation.errors);
+        console.warn('[CrosswordEngine] Validation failed:', validation.errors);
         continue;
       }
 
-      // Phase 5: Compute analytics
+      // Phase 5: Analytics
       const genTime = performance.now() - startTime;
       const analytics = computeAnalytics(
         topology.slots,
@@ -195,6 +191,8 @@ export function generatePuzzle(words: WordItem[], seed: number): PuzzleResult {
         topologyAttempts,
         solverAttempts
       );
+
+      console.log(`[CrosswordEngine] Success! ${topology.slots.length} slots, ${solverResult.backtrackCount} backtracks, ${genTime.toFixed(0)}ms`);
 
       return {
         seed,
