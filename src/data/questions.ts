@@ -74,11 +74,11 @@ export const categories: Category[] = [
     grade: "TYT",
   },
   {
-    id: "tyt-fel",
+    id: "tyt-din",
     name: "TYT Din Kültürü",
-    icon: "🤔",
+    icon: "🕌",
     description: "İslam, ahlak",
-    color: "hsl(270, 40%, 50%)",
+    color: "hsl(30, 50%, 45%)",
     grade: "TYT",
   },
 ];
