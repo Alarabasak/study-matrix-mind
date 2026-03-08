@@ -1,16 +1,13 @@
-import React, { useState, useRef } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import React, { useState, useRef, useEffect } from 'react';
+import { motion, AnimatePresence, useAnimation } from 'framer-motion';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from '@/hooks/use-toast';
 
-/* ── Locker config ── */
-const LOCKER_COLORS = [
-  '#d4c5a0', '#c9bb94', '#d0c19e', '#c5b790',
-];
+const LOCKER_COLORS = ['#d4c5a0', '#c9bb94', '#d0c19e', '#c5b790'];
 
 const LockerLanding: React.FC = () => {
   const { signIn, signUp } = useAuth();
-  const [phase, setPhase] = useState<'intro' | 'lockers' | 'zoomed'>('intro');
+  const [phase, setPhase] = useState<'intro' | 'lockers' | 'walking' | 'zoomed'>('intro');
   const [selectedLocker, setSelectedLocker] = useState<number | null>(null);
   const [authMode, setAuthMode] = useState<'signin' | 'signup'>('signup');
   const [email, setEmail] = useState('');
@@ -18,15 +15,45 @@ const LockerLanding: React.FC = () => {
   const [displayName, setDisplayName] = useState('');
   const [loading, setLoading] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
+  const sceneControls = useAnimation();
 
   const handleScreenClick = () => {
     if (phase === 'intro') setPhase('lockers');
   };
 
-  const handleLockerClick = (index: number) => {
-    setSelectedLocker(index);
+  const handleLockerClick = async () => {
+    if (phase !== 'lockers') return;
+    setSelectedLocker(0);
+    setPhase('walking');
+
+    // Human walking keyframes — organic sway + progressive zoom
+    await sceneControls.start({
+      scale: [1, 1.15, 1.3, 1.5, 1.8, 2.2, 2.8, 3.5],
+      x: ['0%', '0.5%', '-0.8%', '-5%', '-10%', '-18%', '-28%', '-35%'],
+      y: ['0%', '-0.3%', '0.5%', '-1%', '-3%', '-6%', '-10%', '-12%'],
+      rotate: [0, 0.3, -0.5, 0.4, -0.3, 0.2, -0.15, 0],
+      transition: {
+        duration: 2.5,
+        ease: 'easeInOut',
+        times: [0, 0.1, 0.2, 0.35, 0.5, 0.65, 0.82, 1],
+      },
+    });
+
     setPhase('zoomed');
   };
+
+  // Start subtle idle sway when in lockers phase
+  useEffect(() => {
+    if (phase === 'lockers') {
+      sceneControls.start({
+        scale: 1,
+        x: '0%',
+        y: '0%',
+        rotate: 0,
+        transition: { duration: 0.5 },
+      });
+    }
+  }, [phase, sceneControls]);
 
   const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -60,14 +87,12 @@ const LockerLanding: React.FC = () => {
             exit={{ opacity: 0, scale: 1.1 }}
             transition={{ duration: 0.8 }}
           >
-            {/* Scanlines overlay */}
             <div
               className="absolute inset-0 pointer-events-none z-10"
               style={{
                 backgroundImage: 'repeating-linear-gradient(transparent, transparent 2px, rgba(0,0,0,0.15) 2px, rgba(0,0,0,0.15) 4px)',
               }}
             />
-            {/* VHS date */}
             <motion.div
               className="absolute top-6 right-6 font-mono text-xs z-20"
               style={{ color: '#ff4040', fontFamily: 'monospace', textShadow: '0 0 8px #ff4040' }}
@@ -76,8 +101,6 @@ const LockerLanding: React.FC = () => {
             >
               ● REC &nbsp; 2005.09.01
             </motion.div>
-
-            {/* Film grain */}
             <div
               className="absolute inset-0 pointer-events-none z-10 mix-blend-overlay"
               style={{
@@ -85,8 +108,6 @@ const LockerLanding: React.FC = () => {
                 opacity: 0.15,
               }}
             />
-
-            {/* Title */}
             <motion.h1
               className="text-7xl sm:text-9xl font-bold z-20 tracking-tight"
               style={{
@@ -103,22 +124,15 @@ const LockerLanding: React.FC = () => {
             >
               CrossPrep
             </motion.h1>
-
             <motion.p
               className="text-lg sm:text-xl mt-4 z-20"
-              style={{
-                color: '#a0a0b0',
-                fontFamily: 'var(--font-heading)',
-                letterSpacing: '0.2em',
-              }}
+              style={{ color: '#a0a0b0', fontFamily: 'var(--font-heading)', letterSpacing: '0.2em' }}
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.8, duration: 0.6 }}
             >
               STUDY EDITION • 2025
             </motion.p>
-
-            {/* Click prompt */}
             <motion.div
               className="absolute bottom-12 z-20"
               initial={{ opacity: 0 }}
@@ -134,118 +148,92 @@ const LockerLanding: React.FC = () => {
                 Ekrana dokun
               </motion.p>
             </motion.div>
-
-            {/* Vignette */}
             <div
               className="absolute inset-0 pointer-events-none z-5"
-              style={{
-                background: 'radial-gradient(ellipse at center, transparent 40%, rgba(0,0,0,0.7) 100%)',
-              }}
+              style={{ background: 'radial-gradient(ellipse at center, transparent 40%, rgba(0,0,0,0.7) 100%)' }}
             />
           </motion.div>
         )}
       </AnimatePresence>
 
-      {/* ═══ PHASE 2: Locker room ═══ */}
+      {/* ═══ PHASE 2+: Locker scene ═══ */}
       <AnimatePresence>
-        {(phase === 'lockers' || phase === 'zoomed') && (
+        {(phase === 'lockers' || phase === 'walking' || phase === 'zoomed') && (
           <motion.div
-            className="absolute inset-0 flex items-center justify-center"
+            className="absolute inset-0"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.6 }}
-            style={{ perspective: '1200px' }}
           >
-            {/* Football field background */}
-            <div
+            {/* Football field background — also zooms with the scene */}
+            <motion.div
               className="absolute inset-0"
-              style={{
-                backgroundImage: 'url(/images/football-field-bg.jpg)',
-                backgroundSize: 'cover',
-                backgroundPosition: 'center',
-              }}
-            />
-            {/* Subtle overlay for contrast */}
-            <div
-              className="absolute inset-0"
-              style={{
-                background: 'linear-gradient(180deg, rgba(0,0,0,0.05) 0%, rgba(0,0,0,0.2) 100%)',
-              }}
-            />
+              animate={sceneControls}
+              style={{ transformOrigin: '82% 65%' }}
+            >
+              <div
+                className="absolute inset-0"
+                style={{
+                  backgroundImage: 'url(/images/football-field-bg.jpg)',
+                  backgroundSize: 'cover',
+                  backgroundPosition: 'center',
+                }}
+              />
+              <div
+                className="absolute inset-0"
+                style={{ background: 'linear-gradient(180deg, rgba(0,0,0,0.05) 0%, rgba(0,0,0,0.15) 100%)' }}
+              />
+            </motion.div>
 
             {/* Sun lens flare */}
             <motion.div
-              className="absolute top-0 left-0 w-60 h-60 pointer-events-none"
-              style={{
-                background: 'radial-gradient(ellipse at 30% 20%, rgba(255,250,200,0.3) 0%, transparent 70%)',
-              }}
+              className="absolute top-0 left-0 w-60 h-60 pointer-events-none z-10"
+              style={{ background: 'radial-gradient(ellipse at 30% 20%, rgba(255,250,200,0.3) 0%, transparent 70%)' }}
               animate={{ opacity: [0.7, 1, 0.8] }}
               transition={{ duration: 4, repeat: Infinity, ease: 'linear' }}
             />
 
-            {/* Main locker unit image */}
+            {/* Locker unit image — zooms with the same origin */}
             <motion.div
-              className="relative z-10"
-              initial={{ opacity: 0, scale: 0.8, y: 40 }}
-              animate={phase === 'zoomed' ? {
-                opacity: 1,
-                scale: 3.5,
-                x: '-35%',
-                y: '-15%',
-              } : {
-                opacity: 1,
-                scale: 1,
-                x: 0,
-                y: 0,
-              }}
-              transition={{ duration: 1.2, ease: [0.25, 0.46, 0.45, 0.94] }}
+              className="absolute inset-0 flex items-center justify-center"
+              animate={sceneControls}
+              style={{ transformOrigin: '82% 65%' }}
             >
               <img
                 src="/images/locker-unit-field.png"
                 alt="School lockers on football field"
-                className="max-h-[70vh] w-auto object-contain"
-                style={{
-                  filter: 'drop-shadow(0 10px 30px rgba(0,0,0,0.4))',
-                }}
+                className="max-h-[75vh] w-auto object-contain cursor-pointer"
+                style={{ filter: 'drop-shadow(0 10px 30px rgba(0,0,0,0.4))' }}
+                onClick={handleLockerClick}
               />
-
-              {/* Clickable closed locker overlay — bottom-right locker */}
-              {phase === 'lockers' && (
-                <motion.div
-                  className="absolute cursor-pointer z-20"
-                  style={{
-                    right: '-2%',
-                    bottom: '5%',
-                    width: '22%',
-                    height: '48%',
-                  }}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleLockerClick(0);
-                  }}
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.97 }}
-                >
-                  {/* Pulsing glow so user can see it */}
-                  <motion.div
-                    className="absolute inset-0 rounded-md"
-                    animate={{
-                      boxShadow: [
-                        '0 0 15px rgba(255,200,100,0.3), inset 0 0 10px rgba(255,200,100,0.1)',
-                        '0 0 30px rgba(255,200,100,0.6), inset 0 0 20px rgba(255,200,100,0.2)',
-                        '0 0 15px rgba(255,200,100,0.3), inset 0 0 10px rgba(255,200,100,0.1)',
-                      ],
-                    }}
-                    transition={{ duration: 2, repeat: Infinity }}
-                    style={{
-                      border: '2px solid rgba(255,200,100,0.5)',
-                    }}
-                  />
-                </motion.div>
-              )}
             </motion.div>
 
-            {/* Title overlay on lockers view */}
+            {/* Walking camera shake overlay — visible during walk */}
+            {phase === 'walking' && (
+              <motion.div
+                className="absolute inset-0 pointer-events-none z-20"
+                animate={{
+                  opacity: [0, 0.08, 0, 0.05, 0, 0.1, 0.05, 0],
+                }}
+                transition={{ duration: 2.5, ease: 'linear' }}
+                style={{ background: 'black' }}
+              />
+            )}
+
+            {/* Footstep bob overlay — subtle vertical black bars like peripheral vision */}
+            {phase === 'walking' && (
+              <motion.div
+                className="absolute inset-0 pointer-events-none z-20"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: [0, 0.3, 0.5, 0.7, 0.85] }}
+                transition={{ duration: 2.5, ease: 'easeIn' }}
+                style={{
+                  background: 'radial-gradient(ellipse at center, transparent 30%, rgba(0,0,0,0.8) 100%)',
+                }}
+              />
+            )}
+
+            {/* Title overlay */}
             {phase === 'lockers' && (
               <motion.div
                 className="absolute top-8 left-0 right-0 text-center z-20"
@@ -269,197 +257,191 @@ const LockerLanding: React.FC = () => {
                 >
                   PICK YOUR LOCKER
                 </p>
-
-                {/* Arrow pointing to the closed locker */}
                 <motion.div
-                  className="absolute bottom-[-80px] right-[10%] sm:right-[20%] text-white text-sm"
+                  className="mt-6 text-white text-sm"
                   style={{ fontFamily: 'var(--font-display)', textShadow: '0 2px 8px rgba(0,0,0,0.6)' }}
                   animate={{ y: [0, 8, 0] }}
                   transition={{ duration: 1.5, repeat: Infinity }}
                 >
-                  👆 Bu dolap senin!
+                  👆 Dolaba dokun
                 </motion.div>
               </motion.div>
             )}
 
-            {/* ═══ PHASE 3: Auth form (zoomed into locker) ═══ */}
+            {/* ═══ Auth form (after walk) ═══ */}
             <AnimatePresence>
               {phase === 'zoomed' && (
                 <motion.div
                   className="absolute inset-0 flex items-center justify-center z-30"
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
-                  transition={{ delay: 1.0, duration: 0.5 }}
+                  transition={{ duration: 0.5 }}
                 >
-                  {/* Backdrop blur */}
+                  {/* Backdrop */}
                   <div
                     className="absolute inset-0"
-                    style={{ background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(4px)' }}
-                    onClick={() => { setPhase('lockers'); setSelectedLocker(null); }}
+                    style={{ background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(6px)' }}
+                    onClick={() => {
+                      setPhase('lockers');
+                      setSelectedLocker(null);
+                      sceneControls.start({
+                        scale: 1, x: '0%', y: '0%', rotate: 0,
+                        transition: { duration: 0.8, ease: [0.25, 0.46, 0.45, 0.94] },
+                      });
+                    }}
                   />
 
                   {/* Locker door form */}
                   <motion.div
                     className="relative w-[280px] sm:w-[320px] overflow-hidden rounded-lg"
-                    initial={{ rotateY: -90, opacity: 0 }}
-                    animate={{ rotateY: 0, opacity: 1 }}
-                    exit={{ rotateY: 90, opacity: 0 }}
-                    transition={{ duration: 0.6, ease: [0.25, 0.46, 0.45, 0.94] }}
-                    style={{ perspective: '1000px', transformStyle: 'preserve-3d' }}
+                    initial={{ scale: 0.8, opacity: 0, y: 30 }}
+                    animate={{ scale: 1, opacity: 1, y: 0 }}
+                    exit={{ scale: 0.8, opacity: 0, y: 30 }}
+                    transition={{ duration: 0.5, ease: [0.25, 0.46, 0.45, 0.94] }}
                     onClick={(e) => e.stopPropagation()}
                   >
-                    {/* Closed locker image as background */}
                     <div className="relative">
                       <img
                         src="/images/locker-closed.png"
                         alt="Closed locker"
-                        className="absolute inset-0 w-full h-full object-cover rounded-lg opacity-30"
+                        className="absolute inset-0 w-full h-full object-cover rounded-lg opacity-25"
                       />
-                    {/* Locker surface */}
-                    <div
-                      className="relative p-6 sm:p-8"
-                      style={{
-                        background: `linear-gradient(180deg, ${LOCKER_COLORS[selectedLocker || 0]}ee 0%, #b8a880ee 100%)`,
-                        boxShadow: 'inset 0 2px 0 rgba(255,255,255,0.2), inset 0 -4px 8px rgba(0,0,0,0.15), 0 20px 60px rgba(0,0,0,0.5)',
-                        border: '2px solid rgba(0,0,0,0.15)',
-                      }}
-                    >
-                      {/* Vents */}
-                      <div className="flex flex-col gap-1 mb-4">
-                        {[0, 1, 2].map(j => (
-                          <div key={j} className="h-[2px] mx-8 rounded-full" style={{ background: 'rgba(0,0,0,0.1)' }} />
-                        ))}
-                      </div>
-
-                      {/* Name plate area */}
                       <div
-                        className="mx-auto mb-5 px-4 py-2 rounded-sm text-center"
+                        className="relative p-6 sm:p-8"
                         style={{
-                          background: 'rgba(255,255,255,0.6)',
-                          boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.1)',
-                          border: '1px solid rgba(0,0,0,0.08)',
+                          background: `linear-gradient(180deg, ${LOCKER_COLORS[selectedLocker || 0]}ee 0%, #b8a880ee 100%)`,
+                          boxShadow: 'inset 0 2px 0 rgba(255,255,255,0.2), inset 0 -4px 8px rgba(0,0,0,0.15), 0 20px 60px rgba(0,0,0,0.5)',
+                          border: '2px solid rgba(0,0,0,0.15)',
                         }}
                       >
-                        <span
-                          className="text-lg font-bold"
-                          style={{
-                            fontFamily: 'var(--font-display)',
-                            color: '#444',
-                          }}
-                        >
-                          {authMode === 'signup'
-                            ? (displayName || 'İsmini Yaz ✍️')
-                            : 'Giriş Yap 🔑'}
-                        </span>
-                      </div>
+                        {/* Vents */}
+                        <div className="flex flex-col gap-1 mb-4">
+                          {[0, 1, 2].map(j => (
+                            <div key={j} className="h-[2px] mx-8 rounded-full" style={{ background: 'rgba(0,0,0,0.1)' }} />
+                          ))}
+                        </div>
 
-                      {/* Mode toggle */}
-                      <div className="flex gap-1 mb-4 p-1 rounded-lg" style={{ background: 'rgba(0,0,0,0.08)' }}>
-                        <button
-                          className="flex-1 py-1.5 rounded-md text-xs font-bold transition-all"
+                        {/* Name plate */}
+                        <div
+                          className="mx-auto mb-5 px-4 py-2 rounded-sm text-center"
                           style={{
-                            fontFamily: 'var(--font-heading)',
-                            background: authMode === 'signup' ? 'rgba(255,255,255,0.7)' : 'transparent',
-                            color: authMode === 'signup' ? '#333' : '#777',
-                            boxShadow: authMode === 'signup' ? '0 1px 4px rgba(0,0,0,0.1)' : 'none',
+                            background: 'rgba(255,255,255,0.6)',
+                            boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.1)',
+                            border: '1px solid rgba(0,0,0,0.08)',
                           }}
-                          onClick={() => setAuthMode('signup')}
                         >
-                          📝 Kayıt Ol
-                        </button>
-                        <button
-                          className="flex-1 py-1.5 rounded-md text-xs font-bold transition-all"
-                          style={{
-                            fontFamily: 'var(--font-heading)',
-                            background: authMode === 'signin' ? 'rgba(255,255,255,0.7)' : 'transparent',
-                            color: authMode === 'signin' ? '#333' : '#777',
-                            boxShadow: authMode === 'signin' ? '0 1px 4px rgba(0,0,0,0.1)' : 'none',
-                          }}
-                          onClick={() => setAuthMode('signin')}
-                        >
-                          🔑 Giriş
-                        </button>
-                      </div>
+                          <span className="text-lg font-bold" style={{ fontFamily: 'var(--font-display)', color: '#444' }}>
+                            {authMode === 'signup' ? (displayName || 'İsmini Yaz ✍️') : 'Giriş Yap 🔑'}
+                          </span>
+                        </div>
 
-                      {/* Form */}
-                      <form onSubmit={handleAuth} className="space-y-3">
-                        {authMode === 'signup' && (
+                        {/* Mode toggle */}
+                        <div className="flex gap-1 mb-4 p-1 rounded-lg" style={{ background: 'rgba(0,0,0,0.08)' }}>
+                          <button
+                            className="flex-1 py-1.5 rounded-md text-xs font-bold transition-all"
+                            style={{
+                              fontFamily: 'var(--font-heading)',
+                              background: authMode === 'signup' ? 'rgba(255,255,255,0.7)' : 'transparent',
+                              color: authMode === 'signup' ? '#333' : '#777',
+                              boxShadow: authMode === 'signup' ? '0 1px 4px rgba(0,0,0,0.1)' : 'none',
+                            }}
+                            onClick={() => setAuthMode('signup')}
+                          >
+                            📝 Kayıt Ol
+                          </button>
+                          <button
+                            className="flex-1 py-1.5 rounded-md text-xs font-bold transition-all"
+                            style={{
+                              fontFamily: 'var(--font-heading)',
+                              background: authMode === 'signin' ? 'rgba(255,255,255,0.7)' : 'transparent',
+                              color: authMode === 'signin' ? '#333' : '#777',
+                              boxShadow: authMode === 'signin' ? '0 1px 4px rgba(0,0,0,0.1)' : 'none',
+                            }}
+                            onClick={() => setAuthMode('signin')}
+                          >
+                            🔑 Giriş
+                          </button>
+                        </div>
+
+                        {/* Form */}
+                        <form onSubmit={handleAuth} className="space-y-3">
+                          {authMode === 'signup' && (
+                            <input
+                              type="text"
+                              placeholder="İsmin (dolap etiketi)"
+                              value={displayName}
+                              onChange={e => setDisplayName(e.target.value)}
+                              className="w-full px-3 py-2.5 rounded-md text-sm outline-none"
+                              style={{
+                                background: 'rgba(255,255,255,0.75)',
+                                border: '1px solid rgba(0,0,0,0.1)',
+                                fontFamily: 'var(--font-display)',
+                                fontSize: '16px',
+                                color: '#333',
+                              }}
+                            />
+                          )}
                           <input
-                            type="text"
-                            placeholder="İsmin (dolap etiketi)"
-                            value={displayName}
-                            onChange={e => setDisplayName(e.target.value)}
+                            type="email"
+                            placeholder="E-posta"
+                            value={email}
+                            onChange={e => setEmail(e.target.value)}
+                            required
                             className="w-full px-3 py-2.5 rounded-md text-sm outline-none"
                             style={{
                               background: 'rgba(255,255,255,0.75)',
                               border: '1px solid rgba(0,0,0,0.1)',
-                              fontFamily: 'var(--font-display)',
-                              fontSize: '16px',
+                              fontFamily: 'var(--font-body)',
                               color: '#333',
                             }}
                           />
-                        )}
-                        <input
-                          type="email"
-                          placeholder="E-posta"
-                          value={email}
-                          onChange={e => setEmail(e.target.value)}
-                          required
-                          className="w-full px-3 py-2.5 rounded-md text-sm outline-none"
-                          style={{
-                            background: 'rgba(255,255,255,0.75)',
-                            border: '1px solid rgba(0,0,0,0.1)',
-                            fontFamily: 'var(--font-body)',
-                            color: '#333',
-                          }}
-                        />
-                        <input
-                          type="password"
-                          placeholder="Şifre"
-                          value={password}
-                          onChange={e => setPassword(e.target.value)}
-                          required
-                          minLength={6}
-                          className="w-full px-3 py-2.5 rounded-md text-sm outline-none"
-                          style={{
-                            background: 'rgba(255,255,255,0.75)',
-                            border: '1px solid rgba(0,0,0,0.1)',
-                            fontFamily: 'var(--font-body)',
-                            color: '#333',
-                          }}
-                        />
-                        <motion.button
-                          type="submit"
-                          disabled={loading}
-                          className="w-full py-3 rounded-lg text-sm font-bold tracking-wider uppercase disabled:opacity-50"
-                          style={{
-                            fontFamily: 'var(--font-heading)',
-                            background: 'linear-gradient(135deg, #ff9ed8, #c084fc)',
-                            color: '#fff',
-                            boxShadow: '0 4px 16px rgba(192,132,252,0.3)',
-                            border: 'none',
-                          }}
-                          whileHover={{ scale: 1.02 }}
-                          whileTap={{ scale: 0.97 }}
-                        >
-                          {loading ? '...' : authMode === 'signup' ? '✨ Dolabımı Al' : '🚪 Giriş Yap'}
-                        </motion.button>
-                      </form>
+                          <input
+                            type="password"
+                            placeholder="Şifre"
+                            value={password}
+                            onChange={e => setPassword(e.target.value)}
+                            required
+                            minLength={6}
+                            className="w-full px-3 py-2.5 rounded-md text-sm outline-none"
+                            style={{
+                              background: 'rgba(255,255,255,0.75)',
+                              border: '1px solid rgba(0,0,0,0.1)',
+                              fontFamily: 'var(--font-body)',
+                              color: '#333',
+                            }}
+                          />
+                          <motion.button
+                            type="submit"
+                            disabled={loading}
+                            className="w-full py-3 rounded-lg text-sm font-bold tracking-wider uppercase disabled:opacity-50"
+                            style={{
+                              fontFamily: 'var(--font-heading)',
+                              background: 'linear-gradient(135deg, #ff9ed8, #c084fc)',
+                              color: '#fff',
+                              boxShadow: '0 4px 16px rgba(192,132,252,0.3)',
+                              border: 'none',
+                            }}
+                            whileHover={{ scale: 1.02 }}
+                            whileTap={{ scale: 0.97 }}
+                          >
+                            {loading ? '...' : authMode === 'signup' ? '✨ Dolabımı Al' : '🚪 Giriş Yap'}
+                          </motion.button>
+                        </form>
 
-                      {/* Bottom vents */}
-                      <div className="flex flex-col gap-1 mt-5">
-                        {[0, 1, 2].map(j => (
-                          <div key={j} className="h-[2px] mx-8 rounded-full" style={{ background: 'rgba(0,0,0,0.08)' }} />
-                        ))}
+                        {/* Bottom vents */}
+                        <div className="flex flex-col gap-1 mt-5">
+                          {[0, 1, 2].map(j => (
+                            <div key={j} className="h-[2px] mx-8 rounded-full" style={{ background: 'rgba(0,0,0,0.08)' }} />
+                          ))}
+                        </div>
                       </div>
-                    </div>
                     </div>
                   </motion.div>
                 </motion.div>
               )}
             </AnimatePresence>
 
-            {/* Back button when zoomed */}
+            {/* Back button */}
             {phase === 'zoomed' && (
               <motion.button
                 className="absolute top-6 left-6 z-40 px-3 py-1.5 rounded-lg text-xs font-bold"
@@ -469,10 +451,17 @@ const LockerLanding: React.FC = () => {
                   fontFamily: 'var(--font-heading)',
                   border: '1px solid rgba(255,255,255,0.1)',
                 }}
-                onClick={() => { setPhase('lockers'); setSelectedLocker(null); }}
+                onClick={() => {
+                  setPhase('lockers');
+                  setSelectedLocker(null);
+                  sceneControls.start({
+                    scale: 1, x: '0%', y: '0%', rotate: 0,
+                    transition: { duration: 0.8, ease: [0.25, 0.46, 0.45, 0.94] },
+                  });
+                }}
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                transition={{ delay: 0.8 }}
+                transition={{ delay: 0.3 }}
                 whileHover={{ background: 'rgba(255,255,255,0.2)' }}
               >
                 ← Geri
