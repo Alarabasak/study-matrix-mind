@@ -156,7 +156,7 @@ const BookshelfSelector: React.FC<BookshelfSelectorProps> = ({ items, selectedId
               animate={{
                 opacity: 1,
                 y: isHovered ? -14 : isSelected ? -18 : 0,
-                rotateY: isHovered ? -50 : isSelected ? -45 : 0,
+                rotateY: isHovered ? -90 : isSelected ? -90 : 0,
                 rotateZ: (isHovered || isSelected) ? 0 : lean,
                 x: spreadX,
               }}
