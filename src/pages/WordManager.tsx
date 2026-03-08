@@ -245,7 +245,7 @@ const WordManager: React.FC = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-      <CsvImportDialog open={csvDialogOpen} onOpenChange={setCsvDialogOpen} onImportComplete={loadData} />
+      <ImportDialog open={csvDialogOpen} onOpenChange={setCsvDialogOpen} onImportComplete={loadData} />
 
       <Dialog open={deleteAllOpen} onOpenChange={setDeleteAllOpen}>
         <DialogContent>
