@@ -246,6 +246,23 @@ const WordManager: React.FC = () => {
         </DialogContent>
       </Dialog>
       <CsvImportDialog open={csvDialogOpen} onOpenChange={setCsvDialogOpen} onImportComplete={loadData} />
+
+      <Dialog open={deleteAllOpen} onOpenChange={setDeleteAllOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="font-display flex items-center gap-2 text-destructive">
+              <AlertTriangle className="h-5 w-5" /> Tüm Kelimeleri Sil
+            </DialogTitle>
+          </DialogHeader>
+          <p className="text-sm text-muted-foreground">
+            <strong>{category.icon} {category.name}</strong> dersindeki <strong>{words.length}</strong> kelime kalıcı olarak silinecek. Bu işlem geri alınamaz.
+          </p>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setDeleteAllOpen(false)}>İptal</Button>
+            <Button variant="destructive" onClick={handleDeleteAll}>Evet, Tümünü Sil</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
