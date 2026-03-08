@@ -117,6 +117,7 @@ const BookshelfSelector: React.FC<BookshelfSelectorProps> = ({ items, selectedId
         {items.map((item, i) => {
           const style = BOOK_STYLES[i % BOOK_STYLES.length];
           const height = BOOK_HEIGHTS[i % BOOK_HEIGHTS.length];
+          const lean = BOOK_LEANS[i % BOOK_LEANS.length];
           const isSelected = selectedId === item.id;
           const textureStyle = getTextureStyle(style.spineTexture);
 
@@ -128,14 +129,15 @@ const BookshelfSelector: React.FC<BookshelfSelectorProps> = ({ items, selectedId
                 width: style.thickness,
                 height,
                 transformStyle: 'preserve-3d',
-                transformOrigin: 'left center',
+                transformOrigin: 'center bottom',
               }}
               onClick={() => onSelect(item.id)}
-              initial={{ opacity: 0, y: 40 }}
+              initial={{ opacity: 0, y: 40, rotateZ: 0 }}
               animate={{
                 opacity: 1,
                 y: isSelected ? -18 : 0,
                 rotateY: isSelected ? -45 : 0,
+                rotateZ: isSelected ? 0 : lean,
               }}
               transition={{
                 delay: 0.05 + i * 0.04,
@@ -146,6 +148,7 @@ const BookshelfSelector: React.FC<BookshelfSelectorProps> = ({ items, selectedId
               whileHover={{
                 y: -12,
                 rotateY: -45,
+                rotateZ: 0,
                 transition: { duration: 0.35, ease: 'easeOut' },
               }}
               whileTap={{ scale: 0.97 }}
