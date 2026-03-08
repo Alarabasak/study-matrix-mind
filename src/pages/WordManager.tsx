@@ -1,7 +1,7 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { categories } from '@/data/questions';
-import { fetchWordDatabase, addWord, removeWord, updateWord, getTopicsForCategory } from '@/utils/wordDatabase';
+import { fetchWordDatabase, addWord, removeWord, updateWord, getTopicsForCategory, removeAllWordsInCategory } from '@/utils/wordDatabase';
 import { WordItem } from '@/types/crossword';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';

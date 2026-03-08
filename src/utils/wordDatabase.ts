@@ -170,6 +170,17 @@ export async function removeWord(categoryId: string, wordText: string): Promise<
   invalidateCache();
 }
 
+export async function removeAllWordsInCategory(categoryId: string): Promise<number> {
+  const { data, error } = await supabase
+    .from('words')
+    .delete()
+    .eq('category', categoryId)
+    .select('id');
+  if (error) throw error;
+  invalidateCache();
+  return data?.length || 0;
+}
+
 export async function updateWord(categoryId: string, oldWordText: string, updated: WordItem): Promise<void> {
   const { error } = await supabase
     .from('words')
