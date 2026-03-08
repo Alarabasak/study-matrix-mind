@@ -300,40 +300,49 @@ const LockerLanding: React.FC = () => {
                     transition={{ duration: 0.5, ease: [0.25, 0.46, 0.45, 0.94] }}
                     onClick={(e) => e.stopPropagation()}
                   >
-                    {/* Frame 1 — Outer: Harlequin diamond pattern (alternating crimson & pink) */}
+                    {/* Frame 1 — Outer: Harlequin diamond pattern */}
                     <div
-                      className="p-4 relative overflow-hidden"
+                      className="p-[18px] relative overflow-hidden"
                       style={{
-                        boxShadow: '0 20px 60px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.3)',
+                        background: '#f4a6c0',
+                        boxShadow: '0 20px 60px rgba(0,0,0,0.5)',
                       }}
                     >
-                      {/* SVG diamond pattern background */}
-                      <svg className="absolute inset-0 w-full h-full" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
-                        <defs>
-                          <pattern id="harlequin" x="0" y="0" width="30" height="30" patternUnits="userSpaceOnUse">
-                            <rect width="30" height="30" fill="#f4a6c0" />
-                            <polygon points="15,0 30,15 15,30 0,15" fill="#c41e3a" />
-                          </pattern>
-                        </defs>
-                        <rect width="100%" height="100%" fill="url(#harlequin)" />
-                      </svg>
-                      <div className="relative z-10">
-                      {/* Frame 2 — Middle: Cream with gold 6-pointed stars */}
+                      {/* Diamond pattern via CSS — uniform on all sides */}
                       <div
-                        className="p-3 relative overflow-hidden"
+                        className="absolute inset-0"
+                        style={{
+                          backgroundImage: `
+                            linear-gradient(45deg, #c41e3a 25%, transparent 25%),
+                            linear-gradient(-45deg, #c41e3a 25%, transparent 25%),
+                            linear-gradient(45deg, transparent 75%, #c41e3a 75%),
+                            linear-gradient(-45deg, transparent 75%, #c41e3a 75%)
+                          `,
+                          backgroundSize: '28px 28px',
+                          backgroundPosition: '0 0, 0 14px, 14px -14px, -14px 0px',
+                        }}
+                      />
+                      <div className="relative z-10">
+                      {/* Frame 2 — Middle: Cream with gold stars */}
+                      <div
+                        className="p-[14px] relative overflow-hidden"
                         style={{
                           background: '#f5edd6',
-                          boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.1)',
+                          boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.08)',
                         }}
                       >
-                        {/* Gold star pattern using SVG */}
+                        {/* 5-pointed star pattern via SVG */}
                         <svg className="absolute inset-0 w-full h-full pointer-events-none" xmlns="http://www.w3.org/2000/svg">
                           <defs>
-                            <pattern id="stars" x="0" y="0" width="36" height="36" patternUnits="userSpaceOnUse">
-                              <text x="18" y="22" textAnchor="middle" fontSize="16" fill="#9b7520" opacity="0.6">✦</text>
+                            <pattern id="starPattern" x="0" y="0" width="32" height="32" patternUnits="userSpaceOnUse">
+                              <path
+                                d="M16 4 l3.5 7.5 8 1 -6 5.5 1.5 8 -7-4 -7 4 1.5-8 -6-5.5 8-1z"
+                                fill="#8b6520"
+                                opacity="0.45"
+                              />
                             </pattern>
                           </defs>
-                          <rect width="100%" height="100%" fill="url(#stars)" />
+                          <rect width="100%" height="100%" fill="url(#starPattern)" />
                         </svg>
 
                         {/* Frame 3 — Inner: Solid pink */}
