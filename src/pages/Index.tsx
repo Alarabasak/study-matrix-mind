@@ -48,8 +48,9 @@ const Index: React.FC = () => {
     navigate(`/game?category=${selectedCategory}&seed=${Date.now()}&difficulty=${selectedDifficulty}`);
   };
 
-  const tyt = categories.filter(c => c.grade === 'TYT');
-  const ayt = categories.filter(c => c.grade === 'AYT');
+  const filteredCategories = selectedGrade
+    ? categories.filter(c => c.grade === selectedGrade)
+    : [];
   const topicCount = selectedCategory ? (topicCounts[selectedCategory] || 0) : 0;
 
   const availableDiffs = difficultyOptions.filter(d => {
