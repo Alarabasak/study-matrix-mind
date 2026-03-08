@@ -4,7 +4,7 @@ export const categories: Category[] = [
   {
     id: "tyt-mat",
     name: "TYT Matematik",
-    icon: "📐",
+    icon: "∑",
     description: "Sayılar, cebir",
     color: "hsl(152, 32%, 38%)",
     grade: "TYT",
@@ -12,7 +12,7 @@ export const categories: Category[] = [
   {
     id: "tyt-geo",
     name: "TYT Geometri",
-    icon: "📏",
+    icon: "△",
     description: "Üçgenler, çokgenler, katı cisimler",
     color: "hsl(170, 40%, 42%)",
     grade: "TYT",
@@ -28,7 +28,7 @@ export const categories: Category[] = [
   {
     id: "tyt-kim",
     name: "TYT Kimya",
-    icon: "🧪",
+    icon: "⚗",
     description: "Elementler, bağlar, tepkimeler",
     color: "hsl(280, 50%, 55%)",
     grade: "TYT",
@@ -36,7 +36,7 @@ export const categories: Category[] = [
   {
     id: "tyt-bio",
     name: "TYT Biyoloji",
-    icon: "🧬",
+    icon: "❀",
     description: "Hücre, genetik, ekoloji",
     color: "hsl(120, 40%, 45%)",
     grade: "TYT",
@@ -44,7 +44,7 @@ export const categories: Category[] = [
   {
     id: "tyt-tur",
     name: "TYT Türkçe",
-    icon: "📝",
+    icon: "¶",
     description: "Dil bilgisi, edebiyat",
     color: "hsl(35, 60%, 50%)",
     grade: "TYT",
@@ -52,7 +52,7 @@ export const categories: Category[] = [
   {
     id: "tyt-tar",
     name: "TYT Tarih",
-    icon: "📜",
+    icon: "⏳",
     description: "Uygarlıklar, savaşlar, inkılaplar",
     color: "hsl(350, 50%, 55%)",
     grade: "TYT",
@@ -60,7 +60,7 @@ export const categories: Category[] = [
   {
     id: "tyt-cog",
     name: "TYT Coğrafya",
-    icon: "🌍",
+    icon: "◉",
     description: "İklim, nüfus, haritalar",
     color: "hsl(200, 50%, 45%)",
     grade: "TYT",
@@ -68,7 +68,7 @@ export const categories: Category[] = [
   {
     id: "tyt-fel",
     name: "TYT Felsefe",
-    icon: "🤔",
+    icon: "φ",
     description: "Düşünce, ahlak, mantık",
     color: "hsl(270, 40%, 50%)",
     grade: "TYT",
@@ -76,7 +76,7 @@ export const categories: Category[] = [
   {
     id: "tyt-din",
     name: "TYT Din Kültürü",
-    icon: "🕌",
+    icon: "☾",
     description: "İslam, ahlak",
     color: "hsl(30, 50%, 45%)",
     grade: "TYT",
@@ -84,9 +84,9 @@ export const categories: Category[] = [
 ];
 
 export const difficultyOptions: DifficultyOption[] = [
-  { id: "easy", name: "Kolay", icon: "🟢", description: "Tek konu", topicCount: "1 konu" },
-  { id: "medium", name: "Orta", icon: "🟡", description: "Birkaç konu", topicCount: "2-4 konu" },
-  { id: "hard", name: "Zor", icon: "🟠", description: "Çok konu", topicCount: "5-9 konu" },
-  { id: "super-hard", name: "Süper Zor", icon: "🔴", description: "Tüm konular", topicCount: "10+ konu" },
-  { id: "all", name: "Hepsi", icon: "🌀", description: "Filtre yok", topicCount: "Tümü" },
+  { id: "easy", name: "Kolay", icon: "●", description: "Tek konu", topicCount: "1 konu" },
+  { id: "medium", name: "Orta", icon: "●", description: "Birkaç konu", topicCount: "2-4 konu" },
+  { id: "hard", name: "Zor", icon: "●", description: "Çok konu", topicCount: "5-9 konu" },
+  { id: "super-hard", name: "Süper Zor", icon: "●", description: "Tüm konular", topicCount: "10+ konu" },
+  { id: "all", name: "Hepsi", icon: "◎", description: "Filtre yok", topicCount: "Tümü" },
 ];
