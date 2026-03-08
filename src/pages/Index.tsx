@@ -108,16 +108,6 @@ const Index: React.FC = () => {
           Cross<span className="text-primary">Prep</span>
         </motion.h1>
 
-        <motion.p
-          className="text-muted-foreground max-w-sm mx-auto text-sm mt-1"
-          style={{ fontFamily: 'var(--font-body)' }}
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.3 }}
-        >
-          Oyun oynarken öğren! ✏️ TYT & AYT konularını çengel bulmacalarla pekiştir.
-        </motion.p>
-
         <div className="flex justify-center gap-3 mt-4 flex-wrap">
           <StickerBadge color="pink" rotation={-3}>🎒 Okula Dönüş</StickerBadge>
           <StickerBadge color="blue" rotation={2}>📚 Çalış & Oyna</StickerBadge>
