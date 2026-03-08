@@ -300,46 +300,41 @@ const LockerLanding: React.FC = () => {
                     transition={{ duration: 0.5, ease: [0.25, 0.46, 0.45, 0.94] }}
                     onClick={(e) => e.stopPropagation()}
                   >
-                    {/* Frame 1 — Outer: Harlequin pink/red diamond pattern */}
+                    {/* Frame 1 — Outer: Harlequin diamond pattern (alternating crimson & pink) */}
                     <div
-                      className="p-3 rounded-sm"
+                      className="p-4 relative overflow-hidden"
                       style={{
-                        background: `
-                          linear-gradient(135deg, #c41e3a 25%, transparent 25%) -20px 0,
-                          linear-gradient(225deg, #c41e3a 25%, transparent 25%) -20px 0,
-                          linear-gradient(315deg, #c41e3a 25%, transparent 25%),
-                          linear-gradient(45deg, #c41e3a 25%, transparent 25%)
-                        `,
-                        backgroundSize: '40px 40px',
-                        backgroundColor: '#f4a6c0',
                         boxShadow: '0 20px 60px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.3)',
                       }}
                     >
-                      {/* Frame 2 — Middle: Cream with gold stars */}
+                      {/* SVG diamond pattern background */}
+                      <svg className="absolute inset-0 w-full h-full" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+                        <defs>
+                          <pattern id="harlequin" x="0" y="0" width="30" height="30" patternUnits="userSpaceOnUse">
+                            <rect width="30" height="30" fill="#f4a6c0" />
+                            <polygon points="15,0 30,15 15,30 0,15" fill="#c41e3a" />
+                          </pattern>
+                        </defs>
+                        <rect width="100%" height="100%" fill="url(#harlequin)" />
+                      </svg>
+                      <div className="relative z-10">
+                      {/* Frame 2 — Middle: Cream with gold 6-pointed stars */}
                       <div
                         className="p-3 relative overflow-hidden"
                         style={{
                           background: '#f5edd6',
-                          boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.1)',
+                          boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.1)',
                         }}
                       >
-                        {/* Star pattern overlay */}
-                        <div className="absolute inset-0 pointer-events-none" style={{ opacity: 0.5 }}>
-                          {Array.from({ length: 24 }).map((_, i) => (
-                            <span
-                              key={i}
-                              className="absolute text-xs"
-                              style={{
-                                color: '#8b6914',
-                                left: `${(i % 6) * 18 + 5}%`,
-                                top: `${Math.floor(i / 6) * 25 + 5}%`,
-                                fontSize: '14px',
-                              }}
-                            >
-                              ★
-                            </span>
-                          ))}
-                        </div>
+                        {/* Gold star pattern using SVG */}
+                        <svg className="absolute inset-0 w-full h-full pointer-events-none" xmlns="http://www.w3.org/2000/svg">
+                          <defs>
+                            <pattern id="stars" x="0" y="0" width="36" height="36" patternUnits="userSpaceOnUse">
+                              <text x="18" y="22" textAnchor="middle" fontSize="16" fill="#9b7520" opacity="0.6">✦</text>
+                            </pattern>
+                          </defs>
+                          <rect width="100%" height="100%" fill="url(#stars)" />
+                        </svg>
 
                         {/* Frame 3 — Inner: Solid pink */}
                         <div
