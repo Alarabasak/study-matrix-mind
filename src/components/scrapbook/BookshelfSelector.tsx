@@ -70,6 +70,9 @@ const BOOK_STYLES: Array<{
 
 const BOOK_HEIGHTS = [190, 205, 175, 210, 195, 180, 200, 215, 172, 198];
 
+/* Natural lean angles — like books resting against each other on a shelf */
+const BOOK_LEANS = [0, -2, -1, 3, 0, -3, 2, -1, 1, -2];
+
 interface BookItem {
   id: string;
   icon: string;
