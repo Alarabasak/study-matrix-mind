@@ -14,6 +14,7 @@ import WordManager from "./pages/WordManager";
 import AdminLogin from "./pages/AdminLogin";
 import NotFound from "./pages/NotFound";
 import Diagnostics from "./pages/Diagnostics";
+import Scene3DBackground from "./components/3d/Scene3DBackground";
 
 const queryClient = new QueryClient();
 
@@ -48,6 +49,7 @@ const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <AuthProvider>
+        <Scene3DBackground />
         <Toaster />
         <Sonner />
         <BrowserRouter>
