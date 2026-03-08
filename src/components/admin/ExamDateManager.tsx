@@ -15,7 +15,15 @@ const ExamDateManager: React.FC = () => {
   const [examDates, setExamDates] = useState<ExamDate[]>([]);
   const [tytDate, setTytDate] = useState('');
   const [aytDate, setAytDate] = useState('');
-  const [loading, setLoading] = useState(false);
+  const [savingTyt, setSavingTyt] = useState(false);
+  const [savingAyt, setSavingAyt] = useState(false);
+
+  const toLocalDatetime = (isoStr: string) => {
+    const d = new Date(isoStr);
+    const offset = d.getTimezoneOffset();
+    const local = new Date(d.getTime() - offset * 60000);
+    return local.toISOString().slice(0, 16);
+  };
 
   const load = async () => {
     const { data } = await supabase.from('exam_dates').select('*');
@@ -23,8 +31,8 @@ const ExamDateManager: React.FC = () => {
       setExamDates(data);
       const tyt = data.find((d) => d.exam_type === 'TYT');
       const ayt = data.find((d) => d.exam_type === 'AYT');
-      if (tyt) setTytDate(tyt.exam_date.slice(0, 16)); // datetime-local format
-      if (ayt) setAytDate(ayt.exam_date.slice(0, 16));
+      if (tyt) setTytDate(toLocalDatetime(tyt.exam_date));
+      if (ayt) setAytDate(toLocalDatetime(ayt.exam_date));
     }
   };
 
@@ -32,7 +40,9 @@ const ExamDateManager: React.FC = () => {
 
   const save = async (examType: 'TYT' | 'AYT', dateStr: string) => {
     if (!dateStr) return;
-    setLoading(true);
+    const setSaving = examType === 'TYT' ? setSavingTyt : setSavingAyt;
+    setSaving(true);
+    
     const existing = examDates.find((d) => d.exam_type === examType);
     const isoDate = new Date(dateStr).toISOString();
 
@@ -48,7 +58,7 @@ const ExamDateManager: React.FC = () => {
         .insert({ exam_type: examType, exam_date: isoDate }));
     }
 
-    setLoading(false);
+    setSaving(false);
     if (error) {
       toast.error(`Hata: ${error.message}`);
     } else {
@@ -75,8 +85,8 @@ const ExamDateManager: React.FC = () => {
             onChange={(e) => setTytDate(e.target.value)}
             className="flex-1"
           />
-          <Button size="sm" disabled={loading || !tytDate} onClick={() => save('TYT', tytDate)}>
-            Kaydet
+          <Button size="sm" disabled={savingTyt || !tytDate} onClick={() => save('TYT', tytDate)}>
+            {savingTyt ? 'Kaydediliyor...' : 'Kaydet'}
           </Button>
         </div>
         <div className="flex items-center gap-3">
@@ -87,8 +97,8 @@ const ExamDateManager: React.FC = () => {
             onChange={(e) => setAytDate(e.target.value)}
             className="flex-1"
           />
-          <Button size="sm" disabled={loading || !aytDate} onClick={() => save('AYT', aytDate)}>
-            Kaydet
+          <Button size="sm" disabled={savingAyt || !aytDate} onClick={() => save('AYT', aytDate)}>
+            {savingAyt ? 'Kaydediliyor...' : 'Kaydet'}
           </Button>
         </div>
       </div>
