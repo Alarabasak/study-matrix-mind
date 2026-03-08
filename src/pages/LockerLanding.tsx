@@ -283,7 +283,7 @@ const LockerLanding: React.FC = () => {
 
                   {/* Locker door form */}
                   <motion.div
-                    className="relative w-[320px] sm:w-[360px] overflow-hidden rounded-lg"
+                    className="relative w-[280px] sm:w-[320px] overflow-hidden rounded-lg"
                     initial={{ rotateY: -90, opacity: 0 }}
                     animate={{ rotateY: 0, opacity: 1 }}
                     exit={{ rotateY: 90, opacity: 0 }}
@@ -291,11 +291,18 @@ const LockerLanding: React.FC = () => {
                     style={{ perspective: '1000px', transformStyle: 'preserve-3d' }}
                     onClick={(e) => e.stopPropagation()}
                   >
+                    {/* Closed locker image as background */}
+                    <div className="relative">
+                      <img
+                        src="/images/locker-closed.png"
+                        alt="Closed locker"
+                        className="absolute inset-0 w-full h-full object-cover rounded-lg opacity-30"
+                      />
                     {/* Locker surface */}
                     <div
-                      className="p-6 sm:p-8"
+                      className="relative p-6 sm:p-8"
                       style={{
-                        background: `linear-gradient(180deg, ${LOCKER_COLORS[selectedLocker || 0]} 0%, #b8a880 100%)`,
+                        background: `linear-gradient(180deg, ${LOCKER_COLORS[selectedLocker || 0]}ee 0%, #b8a880ee 100%)`,
                         boxShadow: 'inset 0 2px 0 rgba(255,255,255,0.2), inset 0 -4px 8px rgba(0,0,0,0.15), 0 20px 60px rgba(0,0,0,0.5)',
                         border: '2px solid rgba(0,0,0,0.15)',
                       }}
