@@ -187,45 +187,56 @@ const LockerLanding: React.FC = () => {
             <motion.div
               className="relative z-10"
               initial={{ opacity: 0, scale: 0.8, y: 40 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              transition={{ duration: 0.8, ease: [0.25, 0.46, 0.45, 0.94] }}
+              animate={phase === 'zoomed' ? {
+                opacity: 1,
+                scale: 3.5,
+                x: '-35%',
+                y: '-15%',
+              } : {
+                opacity: 1,
+                scale: 1,
+                x: 0,
+                y: 0,
+              }}
+              transition={{ duration: 1.2, ease: [0.25, 0.46, 0.45, 0.94] }}
             >
               <img
                 src="/images/locker-unit-field.png"
                 alt="School lockers on football field"
-                className="max-h-[70vh] w-auto object-contain drop-shadow-2xl"
+                className="max-h-[70vh] w-auto object-contain"
                 style={{
                   filter: 'drop-shadow(0 10px 30px rgba(0,0,0,0.4))',
                 }}
               />
 
               {/* Clickable closed locker overlay — positioned over bottom-right locker */}
-              <motion.div
-                className="absolute cursor-pointer z-20"
-                style={{
-                  right: '0%',
-                  bottom: '8%',
-                  width: '18%',
-                  height: '44%',
-                }}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  if (phase === 'lockers') handleLockerClick(0);
-                }}
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.97 }}
-              >
-                {/* Glow effect on hover */}
+              {phase === 'lockers' && (
                 <motion.div
-                  className="absolute inset-0 rounded-sm pointer-events-none"
-                  initial={{ opacity: 0 }}
-                  whileHover={{ opacity: 1 }}
+                  className="absolute cursor-pointer z-20"
                   style={{
-                    boxShadow: '0 0 25px rgba(255,200,100,0.6), inset 0 0 15px rgba(255,200,100,0.2)',
-                    border: '2px solid rgba(255,200,100,0.4)',
+                    right: '0%',
+                    bottom: '8%',
+                    width: '18%',
+                    height: '44%',
                   }}
-                />
-              </motion.div>
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleLockerClick(0);
+                  }}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.97 }}
+                >
+                  <motion.div
+                    className="absolute inset-0 rounded-sm pointer-events-none"
+                    initial={{ opacity: 0 }}
+                    whileHover={{ opacity: 1 }}
+                    style={{
+                      boxShadow: '0 0 25px rgba(255,200,100,0.6), inset 0 0 15px rgba(255,200,100,0.2)',
+                      border: '2px solid rgba(255,200,100,0.4)',
+                    }}
+                  />
+                </motion.div>
+              )}
             </motion.div>
 
             {/* Title overlay on lockers view */}
