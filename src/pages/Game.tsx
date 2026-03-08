@@ -44,11 +44,14 @@ const Game: React.FC = () => {
 
   const result = React.useMemo(() => {
     if (words.length === 0) return null;
+    console.log(`[Game] Generating puzzle with ${words.length} words, seed=${puzzleSeed}`);
     try {
       setGenerationError(null);
-      return generateCrossword(words, puzzleSeed);
+      const r = generateCrossword(words, puzzleSeed);
+      console.log(`[Game] Puzzle generated successfully: ${r.placedWords.length} words placed`);
+      return r;
     } catch (e) {
-      console.error('[CrosswordEngine]', e);
+      console.error('[CrosswordEngine] Generation failed:', e);
       setGenerationError(e instanceof Error ? e.message : 'Bulmaca oluşturulamadı');
       return null;
     }

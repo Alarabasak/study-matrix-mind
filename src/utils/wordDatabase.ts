@@ -50,8 +50,13 @@ export async function fetchWordDatabase(): Promise<Record<string, WordItem[]>> {
     db[row.category].push(item);
   }
 
-  wordCache = db;
-  cacheTimestamp = now;
+  // Don't cache empty results
+  const totalWords = Object.values(db).reduce((sum, words) => sum + words.length, 0);
+  if (totalWords > 0) {
+    wordCache = db;
+    cacheTimestamp = now;
+  }
+  console.log(`[WordDB] Fetched ${totalWords} words across ${Object.keys(db).length} categories`);
   return db;
 }
 
