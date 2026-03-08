@@ -73,6 +73,7 @@ const Game: React.FC = () => {
   const [adDialogOpen, setAdDialogOpen] = useState(false);
   const [adHintCount, setAdHintCount] = useState(0);
   const adTargetWord = useRef<PlacedWord | null>(null);
+  const [reactionTrigger, setReactionTrigger] = useState<{ correct: boolean; key: number } | null>(null);
 
   useEffect(() => {
     if (initialGrid.length > 0) {
