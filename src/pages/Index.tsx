@@ -19,6 +19,7 @@ const DESK_DOODLES = ['📚', '✏️', '📎', '🎒', '📝', '🌸', '⭐', '
 
 const Index: React.FC = () => {
   const navigate = useNavigate();
+  const [selectedGrade, setSelectedGrade] = useState<'TYT' | 'AYT' | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [selectedDifficulty, setSelectedDifficulty] = useState<DifficultyLevel>('all');
   const [profileOpen, setProfileOpen] = useState(false);
