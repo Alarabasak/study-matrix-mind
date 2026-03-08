@@ -283,7 +283,7 @@ const LockerLanding: React.FC = () => {
                   className="absolute inset-0 flex items-center justify-center z-30"
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
-                  transition={{ delay: 0.6, duration: 0.5 }}
+                  transition={{ delay: 1.0, duration: 0.5 }}
                 >
                   {/* Backdrop blur */}
                   <div
