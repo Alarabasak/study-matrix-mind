@@ -106,8 +106,8 @@ export function buildSlotTopology(
   const totalCandidates = candidateLenHist
     ? [...candidateLenHist.values()].reduce((s, c) => s + c, 0)
     : 50;
-  // Target: use about 6-10% of candidates as slots
-  const targetSlots = Math.max(8, Math.min(14, Math.floor(totalCandidates * 0.08)));
+  // Target: 8-10 slots for ~137 candidates. Less is more for solver success.
+  const targetSlots = Math.max(7, Math.min(10, Math.floor(totalCandidates * 0.065)));
 
   // ─── PHASE 1: Place horizontal slots on selected rows ───
   // Use every 3rd row to leave room for vertical slots
