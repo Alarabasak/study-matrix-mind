@@ -209,15 +209,15 @@ const LockerLanding: React.FC = () => {
                 }}
               />
 
-              {/* Clickable closed locker overlay — positioned over bottom-right locker */}
+              {/* Clickable closed locker overlay — bottom-right locker */}
               {phase === 'lockers' && (
                 <motion.div
                   className="absolute cursor-pointer z-20"
                   style={{
-                    right: '0%',
-                    bottom: '8%',
-                    width: '18%',
-                    height: '44%',
+                    right: '-2%',
+                    bottom: '5%',
+                    width: '22%',
+                    height: '48%',
                   }}
                   onClick={(e) => {
                     e.stopPropagation();
@@ -226,13 +226,19 @@ const LockerLanding: React.FC = () => {
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.97 }}
                 >
+                  {/* Pulsing glow so user can see it */}
                   <motion.div
-                    className="absolute inset-0 rounded-sm pointer-events-none"
-                    initial={{ opacity: 0 }}
-                    whileHover={{ opacity: 1 }}
+                    className="absolute inset-0 rounded-md"
+                    animate={{
+                      boxShadow: [
+                        '0 0 15px rgba(255,200,100,0.3), inset 0 0 10px rgba(255,200,100,0.1)',
+                        '0 0 30px rgba(255,200,100,0.6), inset 0 0 20px rgba(255,200,100,0.2)',
+                        '0 0 15px rgba(255,200,100,0.3), inset 0 0 10px rgba(255,200,100,0.1)',
+                      ],
+                    }}
+                    transition={{ duration: 2, repeat: Infinity }}
                     style={{
-                      boxShadow: '0 0 25px rgba(255,200,100,0.6), inset 0 0 15px rgba(255,200,100,0.2)',
-                      border: '2px solid rgba(255,200,100,0.4)',
+                      border: '2px solid rgba(255,200,100,0.5)',
                     }}
                   />
                 </motion.div>
