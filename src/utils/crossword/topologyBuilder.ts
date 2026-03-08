@@ -228,7 +228,7 @@ export function buildSlotTopology(
   // ─── PHASE 3: Derive formal slots from grid ───
   const slots = deriveSlots(grid, rows, cols, topoConfig.minSlotLen);
 
-  if (slots.length < 6) return null;
+  if (slots.length < 4) return null;
   if (slots.length > topoConfig.targetSlotCountMax * 2) return null;
 
   // Feasibility check against candidate pool
