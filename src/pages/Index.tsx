@@ -301,8 +301,8 @@ const Index: React.FC = () => {
               style={{
                 background: 'linear-gradient(135deg, hsl(46 72% 80% / 0.25), hsl(46 72% 80% / 0.1))',
                 border: `2px solid ${selectedCategory === 'shuffle' ? '#c41e3a' : 'hsl(38 22% 82%)'}`,
-                ringColor: '#c41e3a',
-              }}
+                '--tw-ring-color': '#c41e3a',
+              } as React.CSSProperties}
               onClick={() => { setSelectedCategory('shuffle'); setSelectedDifficulty('all'); }}
               whileHover={{ scale: 1.01 }}
               whileTap={{ scale: 0.98 }}
