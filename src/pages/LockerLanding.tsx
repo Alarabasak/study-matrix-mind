@@ -3,15 +3,10 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from '@/hooks/use-toast';
 
-/* ── Locker grid config ── */
-const LOCKER_ROWS = 2;
-const LOCKER_COLS = 4;
+/* ── Locker config ── */
 const LOCKER_COLORS = [
   '#d4c5a0', '#c9bb94', '#d0c19e', '#c5b790',
-  '#cfc09c', '#d2c3a2', '#c8ba92', '#cdbe98',
 ];
-
-const LOCKER_ITEMS = ['🎒', '⚽', '🦋', '📚', '🧪', '🎨', '🏀', '📐'];
 
 const LockerLanding: React.FC = () => {
   const { signIn, signUp } = useAuth();
