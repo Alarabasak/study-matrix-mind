@@ -7,30 +7,38 @@ import { cn } from '@/lib/utils';
 import { DifficultyLevel } from '@/types/crossword';
 import { fetchWordDatabase } from '@/utils/wordDatabase';
 import BookshelfSelector from '@/components/scrapbook/BookshelfSelector';
-import NotebookPage from '@/components/scrapbook/NotebookPage';
 import ProfileModal from '@/components/ProfileModal';
 import ExamCountdown from '@/components/ExamCountdown';
 import { motion, AnimatePresence } from 'framer-motion';
 
-/* Vintage duotone doodle animals — red/pink SVG style like the reference */
-const VINTAGE_DOODLES = [
-  { emoji: '🦌', style: { top: '5%', left: '3%', fontSize: '2.5rem', transform: 'rotate(-12deg)' } },
-  { emoji: '🐎', style: { top: '8%', right: '5%', fontSize: '2rem', transform: 'rotate(8deg)' } },
-  { emoji: '🐦', style: { top: '25%', right: '2%', fontSize: '1.8rem', transform: 'rotate(-5deg) scaleX(-1)' } },
-  { emoji: '🐇', style: { bottom: '15%', left: '2%', fontSize: '2rem', transform: 'rotate(6deg)' } },
-  { emoji: '🐔', style: { bottom: '8%', right: '4%', fontSize: '1.8rem', transform: 'rotate(-10deg)' } },
-  { emoji: '🐟', style: { top: '45%', left: '1%', fontSize: '1.6rem', transform: 'rotate(15deg)' } },
-  { emoji: '✏️', style: { top: '60%', right: '1%', fontSize: '1.5rem', transform: 'rotate(-25deg)' } },
-  { emoji: '📎', style: { bottom: '35%', left: '4%', fontSize: '1.4rem', transform: 'rotate(20deg)' } },
+// Sticker imports
+import stickerSwan from '@/assets/stickers/swan.png';
+import stickerOtter from '@/assets/stickers/otter.png';
+import stickerHeadphones from '@/assets/stickers/headphones.png';
+import stickerBooks from '@/assets/stickers/books.png';
+import stickerCandle from '@/assets/stickers/candle.png';
+import stickerCamera from '@/assets/stickers/camera.png';
+import stickerPalette from '@/assets/stickers/palette.png';
+import stickerCar from '@/assets/stickers/car.png';
+import stickerPajamas from '@/assets/stickers/pajamas.png';
+import stickerComputer from '@/assets/stickers/computer.png';
+
+/* Decorative stickers scattered around the page */
+const DECO_STICKERS = [
+  { src: stickerSwan, style: { top: '5%', left: '2%', width: '70px', transform: 'rotate(-8deg)' } },
+  { src: stickerHeadphones, style: { top: '6%', right: '3%', width: '60px', transform: 'rotate(10deg)' } },
+  { src: stickerOtter, style: { top: '30%', right: '1%', width: '55px', transform: 'rotate(-5deg)' } },
+  { src: stickerBooks, style: { bottom: '18%', left: '1%', width: '75px', transform: 'rotate(4deg)' } },
+  { src: stickerCandle, style: { bottom: '8%', right: '3%', width: '45px', transform: 'rotate(-6deg)' } },
+  { src: stickerCamera, style: { top: '50%', left: '1%', width: '50px', transform: 'rotate(12deg)' } },
+  { src: stickerPalette, style: { top: '65%', right: '1%', width: '60px', transform: 'rotate(-15deg)' } },
+  { src: stickerCar, style: { bottom: '35%', left: '3%', width: '65px', transform: 'rotate(3deg)' } },
 ];
 
-/* Chaotic desk items — scattered behind content */
+/* Background desk items — very faint */
 const DESK_CLUTTER = [
-  { text: '📚', style: { bottom: '5%', left: '8%', fontSize: '3rem', transform: 'rotate(-8deg)', opacity: 0.12 } },
-  { text: '🎒', style: { top: '12%', left: '8%', fontSize: '2.5rem', transform: 'rotate(5deg)', opacity: 0.08 } },
-  { text: '📏', style: { bottom: '20%', right: '6%', fontSize: '2rem', transform: 'rotate(35deg)', opacity: 0.1 } },
-  { text: '🖇️', style: { top: '40%', right: '8%', fontSize: '1.8rem', transform: 'rotate(-15deg)', opacity: 0.09 } },
-  { text: '☕', style: { top: '70%', left: '6%', fontSize: '2.2rem', transform: 'rotate(3deg)', opacity: 0.1 } },
+  { src: stickerPajamas, style: { bottom: '5%', left: '8%', width: '80px', transform: 'rotate(-8deg)', opacity: 0.07 } },
+  { src: stickerComputer, style: { top: '12%', left: '10%', width: '90px', transform: 'rotate(5deg)', opacity: 0.06 } },
 ];
 
 const Index: React.FC = () => {
@@ -88,36 +96,34 @@ const Index: React.FC = () => {
         `,
       }}
     >
-      {/* ── Vintage duotone doodles (red/pink filter) ── */}
+      {/* ── Decorative stickers ── */}
       <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
-        {VINTAGE_DOODLES.map((d, i) => (
-          <motion.span
-            key={`doodle-${i}`}
+        {DECO_STICKERS.map((s, i) => (
+          <motion.img
+            key={`sticker-${i}`}
+            src={s.src}
             className="absolute select-none"
-            style={{
-              ...d.style,
-              filter: 'sepia(1) saturate(3) hue-rotate(-30deg) brightness(0.9)',
-              opacity: 0.12,
-            }}
+            style={{ ...s.style, opacity: 0.15 }}
+            alt=""
+            draggable={false}
             animate={{ y: [0, -4, 0], rotate: [0, i % 2 === 0 ? 3 : -3, 0] }}
             transition={{ duration: 6 + i * 0.8, repeat: Infinity, ease: 'easeInOut' }}
-          >
-            {d.emoji}
-          </motion.span>
+          />
         ))}
 
         {/* Desk clutter background */}
         {DESK_CLUTTER.map((item, i) => (
-          <span
+          <img
             key={`clutter-${i}`}
+            src={item.src}
             className="absolute select-none"
             style={item.style}
-          >
-            {item.text}
-          </span>
+            alt=""
+            draggable={false}
+          />
         ))}
 
-        {/* Wavy water line decoration (bottom, like the reference) */}
+        {/* Wavy water line decoration */}
         <svg className="absolute bottom-0 left-0 w-full h-16 opacity-[0.06]" viewBox="0 0 400 40" preserveAspectRatio="none">
           <path d="M0 20 Q25 5 50 20 T100 20 T150 20 T200 20 T250 20 T300 20 T350 20 T400 20" fill="none" stroke="#c41e3a" strokeWidth="3" />
           <path d="M0 28 Q25 13 50 28 T100 28 T150 28 T200 28 T250 28 T300 28 T350 28 T400 28" fill="none" stroke="#c41e3a" strokeWidth="2.5" />
@@ -127,15 +133,11 @@ const Index: React.FC = () => {
 
       {/* ═══ HEADER ═══ */}
       <header className="relative text-center pt-8 pb-4 px-4 z-10">
-        {/* Profile button — vintage badge style */}
+        {/* Profile button */}
         <motion.button
-          className="absolute top-4 right-4 w-10 h-10 rounded-full flex items-center justify-center"
+          className="absolute top-4 right-4 w-10 h-10 rounded-full flex items-center justify-center overflow-hidden"
           style={{
             background: 'linear-gradient(135deg, #f4a6c0, #c41e3a)',
-            color: '#fff',
-            fontFamily: 'var(--font-display)',
-            fontSize: '1rem',
-            fontWeight: 'bold',
             boxShadow: '0 3px 10px rgba(196,30,58,0.25)',
             border: '2px solid rgba(255,255,255,0.4)',
           }}
@@ -144,10 +146,10 @@ const Index: React.FC = () => {
           whileHover={{ scale: 1.1 }}
           title="Profilim"
         >
-          📓
+          <img src={stickerSwan} alt="Profil" className="w-6 h-6 object-contain" />
         </motion.button>
 
-        {/* Blue cursive subtitle — like the reference handwriting */}
+        {/* Blue cursive subtitle */}
         <motion.p
           className="text-sm tracking-wider mb-1"
           style={{
@@ -178,28 +180,12 @@ const Index: React.FC = () => {
           CrossPrep
         </motion.h1>
 
-        {/* Blue cursive tagline */}
-        <motion.p
-          className="text-base mt-1"
-          style={{
-            fontFamily: 'var(--font-display)',
-            color: '#2b4a8c',
-            fontStyle: 'italic',
-          }}
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.4 }}
-        >
-          animals are made with the same basic stroke
-        </motion.p>
-
         <ExamCountdown />
       </header>
 
       {/* ═══ GRADE SELECTOR ═══ */}
       <section className="max-w-2xl mx-auto w-full px-4 mb-6 z-10">
         <div className="flex items-center gap-2 mb-4">
-          {/* Red duotone star accent */}
           <span className="text-lg" style={{ color: '#c41e3a' }}>★</span>
           <h2
             className="text-2xl sm:text-3xl font-bold"
@@ -241,7 +227,11 @@ const Index: React.FC = () => {
                 </svg>
 
                 <div className="text-center py-1 relative z-10">
-                  <div className="text-3xl mb-1">{grade === 'TYT' ? '🎯' : '🚀'}</div>
+                  <img
+                    src={grade === 'TYT' ? stickerOtter : stickerSwan}
+                    alt={grade}
+                    className="w-10 h-10 mx-auto mb-1 object-contain"
+                  />
                   <div
                     className="text-2xl font-bold"
                     style={{ fontFamily: 'var(--font-display)', color: '#c41e3a' }}
@@ -277,7 +267,7 @@ const Index: React.FC = () => {
                 className="text-2xl sm:text-3xl font-bold"
                 style={{ fontFamily: 'var(--font-display)', color: '#2b4a8c' }}
               >
-                {selectedGrade === 'TYT' ? '🎯' : '🚀'} {selectedGrade} Dersleri
+                {selectedGrade} Dersleri
               </h2>
             </div>
             <BookshelfSelector
@@ -292,7 +282,7 @@ const Index: React.FC = () => {
               onSelect={(id) => { setSelectedCategory(id); setSelectedDifficulty('all'); }}
             />
 
-            {/* Shuffle option — vintage card style */}
+            {/* Shuffle option */}
             <motion.div
               className={cn(
                 'mt-5 rounded-lg p-4 cursor-pointer transition-all relative overflow-hidden',
@@ -316,7 +306,7 @@ const Index: React.FC = () => {
                 </div>
                 <div>
                   <div className="text-xl font-bold" style={{ fontFamily: 'var(--font-display)', color: '#c41e3a' }}>
-                    🔀 Karıştır
+                    Karıştır
                   </div>
                   <div className="text-[11px]" style={{ fontFamily: 'var(--font-display)', color: '#2b4a8c' }}>
                     Tüm derslerden karışık · {wordCounts['shuffle'] || 0} kelime · {topicCounts['shuffle'] || 0} konu
@@ -408,7 +398,7 @@ const Index: React.FC = () => {
             disabled={!selectedCategory}
             onClick={handleStart}
           >
-            {selectedCategory ? '🎮 Bulmacayı Başlat' : 'Bir ders seçin ✏️'}
+            {selectedCategory ? 'Bulmacayı Başlat' : 'Bir ders seçin'}
           </Button>
         </motion.div>
 
