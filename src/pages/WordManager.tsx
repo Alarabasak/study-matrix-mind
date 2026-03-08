@@ -7,7 +7,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ArrowLeft, Plus, Trash2, Edit2, Search, LogOut, Upload, AlertTriangle } from 'lucide-react';
-import CsvImportDialog from '@/components/admin/CsvImportDialog';
+import ImportDialog from '@/components/admin/ImportDialog';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import {
