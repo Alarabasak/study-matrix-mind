@@ -4,7 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 // Cache for word data fetched from the database
 let wordCache: Record<string, WordItem[]> | null = null;
 let cacheTimestamp = 0;
-const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
+const CACHE_TTL = 5 * 60 * 1000;
 
 export async function fetchWordDatabase(): Promise<Record<string, WordItem[]>> {
   const now = Date.now();
