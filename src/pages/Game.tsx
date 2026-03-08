@@ -10,6 +10,7 @@ import GameHeader from '@/components/game/GameHeader';
 import ClueList from '@/components/game/ClueList';
 import AdHintDialog from '@/components/game/AdHintDialog';
 import TurkishKeyboard from '@/components/game/TurkishKeyboard';
+import ReactionOverlay from '@/components/game/ReactionOverlay';
 import { toast } from 'sonner';
 
 const Game: React.FC = () => {
