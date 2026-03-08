@@ -75,7 +75,7 @@ const Diagnostics: React.FC = () => {
   const seedCount = 100;
 
   useEffect(() => {
-    getWordsForDifficulty('all', 'all').then(w => {
+    getWordsForDifficulty('shuffle', 'all', Date.now()).then(w => {
       setWords(w);
       setLoading(false);
     });
