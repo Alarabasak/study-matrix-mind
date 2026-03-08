@@ -161,20 +161,20 @@ const LockerLanding: React.FC = () => {
             transition={{ duration: 0.6 }}
             style={{ perspective: '1200px' }}
           >
-            {/* Hallway background */}
+            {/* Football field background */}
             <div
               className="absolute inset-0"
               style={{
-                background: 'linear-gradient(180deg, #2a2520 0%, #1e1a16 40%, #14110e 100%)',
+                backgroundImage: 'url(/images/football-field-bg.jpg)',
+                backgroundSize: 'cover',
+                backgroundPosition: 'center',
               }}
             />
-            {/* Floor */}
+            {/* Subtle overlay for contrast */}
             <div
-              className="absolute bottom-0 left-0 right-0 h-1/3"
+              className="absolute inset-0"
               style={{
-                background: 'linear-gradient(180deg, #3a352e 0%, #252018 100%)',
-                transform: 'perspective(600px) rotateX(10deg)',
-                transformOrigin: 'top center',
+                background: 'linear-gradient(180deg, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.3) 100%)',
               }}
             />
 
