@@ -14,6 +14,27 @@ export type Database = {
   }
   public: {
     Tables: {
+      exam_dates: {
+        Row: {
+          exam_date: string
+          exam_type: string
+          id: string
+          updated_at: string
+        }
+        Insert: {
+          exam_date: string
+          exam_type: string
+          id?: string
+          updated_at?: string
+        }
+        Update: {
+          exam_date?: string
+          exam_type?: string
+          id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           id: string
