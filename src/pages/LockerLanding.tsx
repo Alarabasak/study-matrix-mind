@@ -299,8 +299,8 @@ const LockerLanding: React.FC = () => {
                   className="text-2xl sm:text-3xl font-bold tracking-wider uppercase"
                   style={{
                     fontFamily: 'var(--font-heading)',
-                    color: '#c0b090',
-                    textShadow: '0 2px 10px rgba(0,0,0,0.5)',
+                    color: '#fff',
+                    textShadow: '0 2px 10px rgba(0,0,0,0.7), 0 0 20px rgba(0,0,0,0.4)',
                   }}
                 >
                   Dolabını Seç
