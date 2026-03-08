@@ -6,7 +6,7 @@ import { Shuffle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { DifficultyLevel } from '@/types/crossword';
 import { fetchWordDatabase } from '@/utils/wordDatabase';
-import SubjectFolder from '@/components/scrapbook/SubjectFolder';
+import BookshelfSelector from '@/components/scrapbook/BookshelfSelector';
 import WashiTape from '@/components/scrapbook/WashiTape';
 import StickyNote from '@/components/scrapbook/StickyNote';
 import NotebookPage from '@/components/scrapbook/NotebookPage';
