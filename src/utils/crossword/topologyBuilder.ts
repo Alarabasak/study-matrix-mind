@@ -150,7 +150,7 @@ export function buildSlotTopology(
     }
   }
 
-  if (totalPlaced < 4) return null; // Need minimum slots
+  if (totalPlaced < 3) return null; // Need minimum slots
 
   // ─── PHASE 2: Add vertical slots at columns that cross horizontal slots ───
   // This ensures intersections
