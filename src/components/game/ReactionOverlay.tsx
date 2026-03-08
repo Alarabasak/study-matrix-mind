@@ -46,7 +46,7 @@ const ReactionOverlay: React.FC<ReactionOverlayProps> = ({ trigger }) => {
           transition={{ type: 'spring', damping: 14, stiffness: 180 }}
           className="fixed z-50 pointer-events-none"
           style={{
-            bottom: '15%',
+            top: '35%',
             [reaction.side]: '2%',
           }}
         >
