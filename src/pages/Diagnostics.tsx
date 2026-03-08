@@ -166,7 +166,7 @@ const Diagnostics: React.FC = () => {
 
           // Try solver (with reduced backtracks for speed)
           const solverRng = new SeededRandom(seed * 6271 + 31);
-          const quickConfig = { maxBacktracks: 5000 };
+          const quickConfig = { maxBacktracks: 20000 };
           const solverResult = assignAnswersWithCSP(topology.slots, candidates, solverRng, quickConfig);
 
           // Aggregate slot lengths
