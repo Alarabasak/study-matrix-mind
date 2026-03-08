@@ -126,7 +126,7 @@ const BookshelfSelector: React.FC<BookshelfSelectorProps> = ({ items, selectedId
   return (
     <div className="relative">
       <div
-        className="relative flex items-end justify-center gap-[3px] sm:gap-1 px-2 pb-3 pt-4 overflow-x-auto"
+        className="relative flex items-end justify-center gap-2 sm:gap-3 px-4 pb-3 pt-4 overflow-x-auto"
         style={{ perspective: '900px' }}
         onMouseLeave={() => setHoveredIndex(null)}
       >
