@@ -436,6 +436,7 @@ const LockerLanding: React.FC = () => {
                         ))}
                       </div>
                     </div>
+                    </div>
                   </motion.div>
                 </motion.div>
               )}
