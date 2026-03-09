@@ -1,6 +1,5 @@
 import React, { useState, useCallback, useRef, useEffect, useMemo } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { DifficultyLevel } from '@/types/crossword';
 import { PuzzleDefinition } from '@/types/puzzle';
 import {
   CellCoord,
@@ -25,7 +24,7 @@ import {
   buildCompletionMetrics,
   CompletionMetrics,
 } from '@/utils/gameplayValidation';
-import { loadPuzzleForGameplay } from '@/utils/puzzleLoader';
+import { loadPuzzleByPackLevel, loadPuzzleByCategory, loadPuzzleById } from '@/utils/puzzleLoader';
 import { categories } from '@/data/questions';
 import { addAdHint, saveGameSession, addUnknownWord } from '@/utils/gameStats';
 import ArrowCrosswordGrid from '@/components/game/ArrowCrosswordGrid';
@@ -39,32 +38,44 @@ import { toast } from 'sonner';
 const Game: React.FC = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
+
+  // ─── Route params: pack/level based OR category-based fallback ─────────────
+  const packId = searchParams.get('pack');
+  const levelId = searchParams.get('level') || '0';
+  const puzzleId = searchParams.get('puzzleId');
   const categoryId = searchParams.get('category') || 'tyt-mat';
-  const seedParam = parseInt(searchParams.get('seed') || `${Date.now()}`, 10);
-  const difficulty = (searchParams.get('difficulty') || 'all') as DifficultyLevel;
 
   const category = categoryId === 'shuffle'
     ? { id: 'shuffle', name: 'Karıştır', icon: '🔀', description: 'Tüm dersler', color: 'hsl(0,0%,50%)', grade: 'TYT' as const }
     : (categories.find(c => c.id === categoryId) || categories[0]);
 
   // ─── Puzzle loading state ───────────────────────────────────────────────────
-  const [puzzleSeed, setPuzzleSeed] = useState(seedParam);
   const [loading, setLoading] = useState(true);
   const [puzzle, setPuzzle] = useState<PuzzleDefinition | null>(null);
   const [loadError, setLoadError] = useState<string | null>(null);
+  const [loadKey, setLoadKey] = useState(0); // increment to reload
 
-  // Load puzzle from repository
+  // Load puzzle from static content repository
   useEffect(() => {
     let cancelled = false;
     setLoading(true);
     setLoadError(null);
 
-    loadPuzzleForGameplay(categoryId, puzzleSeed, difficulty).then(result => {
+    const load = async (): Promise<PuzzleDefinition | null> => {
+      // Priority 1: direct puzzle ID
+      if (puzzleId) return loadPuzzleById(puzzleId);
+      // Priority 2: pack + level
+      if (packId) return loadPuzzleByPackLevel(packId, levelId);
+      // Priority 3: category-based random
+      return loadPuzzleByCategory(categoryId);
+    };
+
+    load().then(result => {
       if (cancelled) return;
       if (result) {
         setPuzzle(result);
       } else {
-        setLoadError('Bulmaca yüklenemedi');
+        setLoadError('Bu kategori için hazır bulmaca bulunamadı');
       }
       setLoading(false);
     }).catch(err => {
@@ -75,7 +86,7 @@ const Game: React.FC = () => {
     });
 
     return () => { cancelled = true; };
-  }, [categoryId, puzzleSeed, difficulty]);
+  }, [packId, levelId, puzzleId, categoryId, loadKey]);
 
   // ─── Pre-computed lookups (derived from puzzle, no generator deps) ──────────
   const cellRelations = useMemo<CellRelationMap>(
@@ -200,7 +211,7 @@ const Game: React.FC = () => {
                 score: score + 10, wordsFound: next.size,
                 totalWords: puzzle.clues.length,
                 duration: metrics.elapsedSeconds, timestamp: Date.now(),
-                adHintsUsed, seed: puzzleSeed,
+                adHintsUsed, seed: 0,
               });
 
               const statusEmoji = metrics.completionStatus === 'perfect' ? '🌟' : '🎊';
@@ -231,7 +242,7 @@ const Game: React.FC = () => {
         }
       }
     }
-  }, [puzzle, cellRelations, completedClueIds, startTime, categoryId, category.name, score, adHintsUsed, wrongChecks, puzzleSeed]);
+  }, [puzzle, cellRelations, completedClueIds, startTime, categoryId, category.name, score, adHintsUsed, wrongChecks]);
 
   // ─── Letter input ───────────────────────────────────────────────────────────
   const handleLetterInput = useCallback((letter: string) => {
@@ -335,11 +346,11 @@ const Game: React.FC = () => {
         gridSize: `${puzzle.gridWidth}x${puzzle.gridHeight}`,
         score, wordsFound: completedClueIds.size, totalWords: puzzle.clues.length,
         duration: metrics.elapsedSeconds, timestamp: Date.now(),
-        adHintsUsed, seed: puzzleSeed,
+        adHintsUsed, seed: 0,
       });
     }
-    setPuzzleSeed(Date.now());
-  }, [puzzle, completedClueIds, startTime, categoryId, category.name, score, adHintsUsed, wrongChecks, puzzleSeed]);
+    setLoadKey(prev => prev + 1);
+  }, [puzzle, completedClueIds, startTime, categoryId, category.name, score, adHintsUsed, wrongChecks]);
 
   // ─── Keyboard bridge ───────────────────────────────────────────────────────
   const handleKeyboardKey = (letter: string) => {

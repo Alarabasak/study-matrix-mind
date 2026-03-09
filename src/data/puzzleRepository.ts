@@ -5,9 +5,8 @@
  * No generator, solver, topology, or word database dependencies.
  * 
  * Implementations:
- * - StaticPuzzleRepository: loads from bundled JSON / static data
- * - GeneratedPuzzleRepository: generates puzzles at load-time, caches as PuzzleDefinition
- *   (generation is a build/load concern, NOT a gameplay concern)
+ * - StaticPuzzleRepository: loads from bundled JSON / static data (runtime default)
+ * - GeneratedPuzzleRepository: (experimental) generates puzzles at load-time
  */
 
 import { PuzzleDefinition, validatePuzzleDefinition } from '@/types/puzzle';
