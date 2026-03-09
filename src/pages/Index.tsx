@@ -379,7 +379,7 @@ const Index: React.FC = () => {
       {/* Footer space */}
       <div className="h-8 z-10" />
 
-      <ProfileModal open={profileOpen} onOpenChange={setProfileOpen} />
+      <ProfileModal open={profileOpen} onClose={() => setProfileOpen(false)} />
     </div>
   );
 };
