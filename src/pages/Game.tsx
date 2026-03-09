@@ -219,6 +219,20 @@ const Game: React.FC = () => {
                 adHintsUsed, seed: 0,
               });
 
+              // Save progress
+              if (packId) {
+                completeLevel(packId, levelId, puzzle.id, {
+                  score: score + 10,
+                  hintsUsed: adHintsUsed,
+                  elapsedSeconds: metrics.elapsedSeconds,
+                }, {
+                  category: categoryId,
+                  categoryName: category.name,
+                  categoryIcon: category.icon,
+                  topic: puzzle.topic || '',
+                });
+              }
+
               const statusEmoji = metrics.completionStatus === 'perfect' ? '🌟' : '🎊';
               toast(`${statusEmoji} Bulmaca Tamamlandı!`, {
                 description: `Puan: ${score + 10} | Kelime: ${puzzle.clues.length}` +
