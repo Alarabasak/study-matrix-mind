@@ -27,6 +27,11 @@ import {
 import { loadPuzzleByPackLevel, loadPuzzleByCategory, loadPuzzleById } from '@/utils/puzzleLoader';
 import { categories } from '@/data/questions';
 import { addAdHint, saveGameSession, addUnknownWord } from '@/utils/gameStats';
+import {
+  completeLevel,
+  saveInProgressLevel,
+  getLevelProgress,
+} from '@/utils/progressStore';
 import ArrowCrosswordGrid from '@/components/game/ArrowCrosswordGrid';
 import ArrowClueList from '@/components/game/ArrowClueList';
 import GameHeader from '@/components/game/GameHeader';
@@ -115,13 +120,25 @@ const Game: React.FC = () => {
   const [reactionTrigger, setReactionTrigger] = useState<{ correct: boolean; key: number } | null>(null);
   const [completionMetrics, setCompletionMetrics] = useState<CompletionMetrics | null>(null);
 
-  // Reset state when puzzle changes
+  // Reset state when puzzle changes; restore saved progress if available
   useEffect(() => {
     if (puzzle) {
-      setUserEntries(new Map());
+      // Check for saved in-progress state
+      if (packId) {
+        const saved = getLevelProgress(packId, levelId);
+        if (saved && saved.savedEntries && !saved.completed) {
+          setUserEntries(new Map(Object.entries(saved.savedEntries)));
+          setCompletedClueIds(new Set(saved.completedClueIds || []));
+        } else {
+          setUserEntries(new Map());
+          setCompletedClueIds(new Set());
+        }
+      } else {
+        setUserEntries(new Map());
+        setCompletedClueIds(new Set());
+      }
       setActiveCell(null);
       setActiveClueId(null);
-      setCompletedClueIds(new Set());
       setRevealedCells(new Set());
       setIncorrectCellKeys(new Set());
       setScore(0);
@@ -130,7 +147,7 @@ const Game: React.FC = () => {
       setWrongChecks(0);
       setCompletionMetrics(null);
     }
-  }, [puzzle]);
+  }, [puzzle, packId, levelId]);
 
   const highlightedCells = useMemo(
     () => puzzle ? getHighlightedCellKeys(puzzle, activeClueId) : new Set<string>(),
@@ -214,6 +231,20 @@ const Game: React.FC = () => {
                 adHintsUsed, seed: 0,
               });
 
+              // Save progress
+              if (packId) {
+                completeLevel(packId, levelId, puzzle.id, {
+                  score: score + 10,
+                  hintsUsed: adHintsUsed,
+                  elapsedSeconds: metrics.elapsedSeconds,
+                }, {
+                  category: categoryId,
+                  categoryName: category.name,
+                  categoryIcon: category.icon,
+                  topic: puzzle.topic || '',
+                });
+              }
+
               const statusEmoji = metrics.completionStatus === 'perfect' ? '🌟' : '🎊';
               toast(`${statusEmoji} Bulmaca Tamamlandı!`, {
                 description: `Puan: ${score + 10} | Kelime: ${puzzle.clues.length}` +
@@ -265,9 +296,16 @@ const Game: React.FC = () => {
 
     checkAndCompleteClues(newEntries, { x: activeCell.x, y: activeCell.y, letter: upperLetter });
 
+    // Auto-save progress
+    if (packId && puzzle) {
+      saveInProgressLevel(packId, levelId, puzzle.id, newEntries, completedClueIds, {
+        category: categoryId, categoryName: category.name, categoryIcon: category.icon, topic: puzzle.topic || '',
+      });
+    }
+
     const next = getNextCell(puzzle, activeClueId, activeCell, revealedCells, completedClueIds);
     if (next) setActiveCell(next);
-  }, [puzzle, activeCell, activeClueId, userEntries, revealedCells, completedClueIds, checkAndCompleteClues]);
+  }, [puzzle, activeCell, activeClueId, userEntries, revealedCells, completedClueIds, checkAndCompleteClues, packId, levelId, categoryId, category]);
 
   // ─── Backspace ──────────────────────────────────────────────────────────────
   const handleBackspace = useCallback(() => {

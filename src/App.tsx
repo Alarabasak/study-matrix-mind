@@ -8,6 +8,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import Index from "./pages/Index";
 import Game from "./pages/Game";
+import PackDetail from "./pages/PackDetail";
 import Dashboard from "./pages/Dashboard";
 import UnknownWords from "./pages/UnknownWords";
 import Settings from "./pages/Settings";
@@ -34,6 +35,7 @@ const AnimatedRoutes = () => {
       <motion.div key={location.pathname} variants={pageFlip} initial="initial" animate="animate" exit="exit" style={{ perspective: 1200, minHeight: '100vh' }}>
         <Routes location={location}>
           <Route path="/" element={<Index />} />
+          <Route path="/pack" element={<PackDetail />} />
           <Route path="/game" element={<Game />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/unknown-words" element={<UnknownWords />} />
