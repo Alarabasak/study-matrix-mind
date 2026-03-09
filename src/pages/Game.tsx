@@ -24,7 +24,7 @@ import {
   buildCompletionMetrics,
   CompletionMetrics,
 } from '@/utils/gameplayValidation';
-import { loadPuzzleForGameplay } from '@/utils/puzzleLoader';
+import { loadPuzzleByPackLevel, loadPuzzleByCategory, loadPuzzleById } from '@/utils/puzzleLoader';
 import { categories } from '@/data/questions';
 import { addAdHint, saveGameSession, addUnknownWord } from '@/utils/gameStats';
 import ArrowCrosswordGrid from '@/components/game/ArrowCrosswordGrid';
