@@ -1,6 +1,5 @@
 import React, { useState, useCallback, useRef, useEffect, useMemo } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { DifficultyLevel } from '@/types/crossword';
 import { PuzzleDefinition } from '@/types/puzzle';
 import {
   CellCoord,
