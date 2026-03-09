@@ -27,6 +27,11 @@ import {
 import { loadPuzzleByPackLevel, loadPuzzleByCategory, loadPuzzleById } from '@/utils/puzzleLoader';
 import { categories } from '@/data/questions';
 import { addAdHint, saveGameSession, addUnknownWord } from '@/utils/gameStats';
+import {
+  completeLevel,
+  saveInProgressLevel,
+  getLevelProgress,
+} from '@/utils/progressStore';
 import ArrowCrosswordGrid from '@/components/game/ArrowCrosswordGrid';
 import ArrowClueList from '@/components/game/ArrowClueList';
 import GameHeader from '@/components/game/GameHeader';
