@@ -35,6 +35,7 @@ const AnimatedRoutes = () => {
       <motion.div key={location.pathname} variants={pageFlip} initial="initial" animate="animate" exit="exit" style={{ perspective: 1200, minHeight: '100vh' }}>
         <Routes location={location}>
           <Route path="/" element={<Index />} />
+          <Route path="/pack" element={<PackDetail />} />
           <Route path="/game" element={<Game />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/unknown-words" element={<UnknownWords />} />
