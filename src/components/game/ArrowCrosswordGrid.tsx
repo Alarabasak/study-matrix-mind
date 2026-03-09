@@ -39,6 +39,7 @@ const ArrowCrosswordGrid: React.FC<ArrowCrosswordGridProps> = ({
   completedClueIds,
   revealedCells,
   cellRelations,
+  incorrectCellKeys = new Set(),
   onCellClick,
   onClueClick,
   onLetterInput,
