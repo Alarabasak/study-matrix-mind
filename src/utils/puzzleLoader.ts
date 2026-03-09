@@ -1,36 +1,25 @@
 /**
- * Puzzle Loader — Generation-time adapter.
+ * Puzzle Loader — Content-driven puzzle loading.
  * 
- * This is the ONLY place where the generator pipeline is called.
- * It produces a PuzzleDefinition from WordItems.
- * Runtime gameplay never touches generator internals.
+ * This is the single entry point for loading puzzles into the game.
+ * It delegates to the PuzzleRepository interface.
+ * Runtime gameplay NEVER touches generator internals through this file.
  */
 
-import { WordItem } from '@/types/crossword';
-import { PuzzleDefinition, validatePuzzleDefinition } from '@/types/puzzle';
-import { generatePuzzleDefinition } from '@/utils/crossword';
+import { PuzzleDefinition } from '@/types/puzzle';
+import { DifficultyLevel } from '@/types/crossword';
+import { loadPuzzle as loadFromGeneratedRepo } from '@/data/generatedPuzzleRepository';
 
 /**
- * Generate a PuzzleDefinition from word items.
- * This wraps the generator pipeline and returns the canonical format.
+ * Load a puzzle for gameplay.
+ * 
+ * Currently backed by GeneratedPuzzleRepository (generates + caches).
+ * Will be replaced by static/API content in the future.
  */
-export function loadGeneratedPuzzle(
-  words: WordItem[],
-  seed: number,
+export async function loadPuzzleForGameplay(
   category: string,
-  categoryName: string,
-  topic: string = 'general'
-): PuzzleDefinition {
-  const puzzle = generatePuzzleDefinition(words, seed, {
-    category,
-    topic,
-    title: `${categoryName} Bulmaca`,
-  });
-
-  const validation = validatePuzzleDefinition(puzzle);
-  if (!validation.valid) {
-    console.warn('[PuzzleLoader] Validation warnings:', validation.errors);
-  }
-
-  return puzzle;
+  seed: number,
+  difficulty: DifficultyLevel = 'all'
+): Promise<PuzzleDefinition | null> {
+  return loadFromGeneratedRepo(category, seed, difficulty);
 }
