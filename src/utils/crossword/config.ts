@@ -7,14 +7,22 @@
 
 import { GridConfig, TopologyConfig, SolverConfig } from './types';
 
-/** MVP grid families. Grid size is NOT tied to difficulty. */
+/** Supported grid families. Only 12x12, 16x12, 12x16 are valid. */
 export const GRID_FAMILIES: GridConfig[] = [
-  { rows: 10, cols: 10, label: '10x10' },
-  { rows: 12, cols: 10, label: '10x12' },
-  { rows: 10, cols: 12, label: '12x10' },
+  { rows: 12, cols: 12, label: '12x12' },
+  { rows: 12, cols: 16, label: '16x12' },
+  { rows: 16, cols: 12, label: '12x16' },
 ];
 
-/** Deterministic grid selection from seed. Strategy is decoupled for future policy changes. */
+/**
+ * Validate that a grid size is supported.
+ * Returns the matching GridConfig or null.
+ */
+export function validateGridConfig(cols: number, rows: number): GridConfig | null {
+  return GRID_FAMILIES.find(g => g.rows === rows && g.cols === cols) || null;
+}
+
+/** Deterministic grid selection from seed. */
 export function chooseGridConfig(seed: number): GridConfig {
   return GRID_FAMILIES[((seed % GRID_FAMILIES.length) + GRID_FAMILIES.length) % GRID_FAMILIES.length];
 }
@@ -25,9 +33,8 @@ export function getTopologyConfig(grid: GridConfig): TopologyConfig {
   return {
     minSlotLen: 3,
     softMaxSlotLen: Math.min(9, Math.max(grid.rows, grid.cols) - 1),
-    // Keep slot counts controlled to avoid combinatorial explosion in CSP.
-    targetSlotCountMin: Math.max(10, Math.floor(area * 0.10)),
-    targetSlotCountMax: Math.max(16, Math.floor(area * 0.22)),
+    targetSlotCountMin: Math.max(10, Math.floor(area * 0.08)),
+    targetSlotCountMax: Math.max(20, Math.floor(area * 0.20)),
   };
 }
 
