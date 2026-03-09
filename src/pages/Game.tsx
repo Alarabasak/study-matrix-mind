@@ -284,9 +284,16 @@ const Game: React.FC = () => {
 
     checkAndCompleteClues(newEntries, { x: activeCell.x, y: activeCell.y, letter: upperLetter });
 
+    // Auto-save progress
+    if (packId && puzzle) {
+      saveInProgressLevel(packId, levelId, puzzle.id, newEntries, completedClueIds, {
+        category: categoryId, categoryName: category.name, categoryIcon: category.icon, topic: puzzle.topic || '',
+      });
+    }
+
     const next = getNextCell(puzzle, activeClueId, activeCell, revealedCells, completedClueIds);
     if (next) setActiveCell(next);
-  }, [puzzle, activeCell, activeClueId, userEntries, revealedCells, completedClueIds, checkAndCompleteClues]);
+  }, [puzzle, activeCell, activeClueId, userEntries, revealedCells, completedClueIds, checkAndCompleteClues, packId, levelId, categoryId, category]);
 
   // ─── Backspace ──────────────────────────────────────────────────────────────
   const handleBackspace = useCallback(() => {
