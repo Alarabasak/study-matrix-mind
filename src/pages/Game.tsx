@@ -1,13 +1,34 @@
-import React, { useState, useCallback, useRef, useEffect } from 'react';
+import React, { useState, useCallback, useRef, useEffect, useMemo } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { LetterCell, PlacedWord, DifficultyLevel, WordItem } from '@/types/crossword';
-import { generateCrossword } from '@/utils/crosswordGenerator';
+import { DifficultyLevel, WordItem } from '@/types/crossword';
+import { PuzzleDefinition } from '@/types/puzzle';
+import {
+  GameplayState,
+  CellCoord,
+  CellRelationMap,
+  SolutionMap,
+  coordKey,
+  buildCellRelationMap,
+  buildSolutionMap,
+  createInitialGameplayState,
+} from '@/types/gameplayState';
+import {
+  selectClueForCell,
+  getHighlightedCellKeys,
+  getNextCell,
+  getPrevCell,
+  checkClueAnswer,
+  isPuzzleComplete,
+  findHintCell,
+  getClueById,
+} from '@/utils/gameplayUtils';
+import { loadGeneratedPuzzle } from '@/utils/puzzleLoader';
 import { categories } from '@/data/questions';
 import { getWordsForDifficulty } from '@/utils/wordDatabase';
 import { addAdHint, saveGameSession, addUnknownWord } from '@/utils/gameStats';
-import CrosswordGrid from '@/components/game/CrosswordGrid';
+import ArrowCrosswordGrid from '@/components/game/ArrowCrosswordGrid';
+import ArrowClueList from '@/components/game/ArrowClueList';
 import GameHeader from '@/components/game/GameHeader';
-import ClueList from '@/components/game/ClueList';
 import AdHintDialog from '@/components/game/AdHintDialog';
 import TurkishKeyboard from '@/components/game/TurkishKeyboard';
 import ReactionOverlay from '@/components/game/ReactionOverlay';
@@ -27,8 +48,9 @@ const Game: React.FC = () => {
   const [puzzleSeed, setPuzzleSeed] = useState(seedParam);
   const [loading, setLoading] = useState(true);
   const [words, setWords] = useState<WordItem[]>([]);
+  const [generationError, setGenerationError] = useState<string | null>(null);
 
-  // Fetch words async
+  // ─── Load words ─────────────────────────────────────────────────────────────
   useEffect(() => {
     let cancelled = false;
     setLoading(true);
@@ -41,173 +63,272 @@ const Game: React.FC = () => {
     return () => { cancelled = true; };
   }, [categoryId, difficulty, puzzleSeed]);
 
-  const [generationError, setGenerationError] = useState<string | null>(null);
-
-  const result = React.useMemo(() => {
+  // ─── Generate PuzzleDefinition ──────────────────────────────────────────────
+  const puzzle = useMemo<PuzzleDefinition | null>(() => {
     if (words.length === 0) return null;
     try {
-      return generateCrossword(words, puzzleSeed);
+      return loadGeneratedPuzzle(words, puzzleSeed, categoryId, category.name);
     } catch (e) {
-      console.error('[CrosswordEngine] Generation failed:', e);
+      console.error('[Game] Generation failed:', e);
       return null;
     }
-  }, [words, puzzleSeed]);
+  }, [words, puzzleSeed, categoryId, category.name]);
 
   useEffect(() => {
-    if (words.length > 0 && !result) {
-      setGenerationError('Bulmaca oluşturulamadı');
-    } else {
-      setGenerationError(null);
-    }
-  }, [words, result]);
+    setGenerationError(words.length > 0 && !puzzle ? 'Bulmaca oluşturulamadı' : null);
+  }, [words, puzzle]);
 
-  const placedWords = result?.placedWords || [];
-  const gridSize = result?.gridSize || '12x12';
-  const initialGrid = result?.grid || [];
+  // ─── Pre-computed lookups ───────────────────────────────────────────────────
+  const cellRelations = useMemo<CellRelationMap>(
+    () => puzzle ? buildCellRelationMap(puzzle) : new Map(),
+    [puzzle]
+  );
+  const solutionMap = useMemo<SolutionMap>(
+    () => puzzle ? buildSolutionMap(puzzle) : new Map(),
+    [puzzle]
+  );
 
-  const [grid, setGrid] = useState(initialGrid);
+  // ─── Gameplay state ─────────────────────────────────────────────────────────
+  const [userEntries, setUserEntries] = useState<Map<string, string>>(new Map());
+  const [activeCell, setActiveCell] = useState<CellCoord | null>(null);
+  const [activeClueId, setActiveClueId] = useState<string | null>(null);
+  const [activeDirection, setActiveDirection] = useState<'right' | 'down'>('right');
+  const [completedClueIds, setCompletedClueIds] = useState<Set<string>>(new Set());
+  const [revealedCells, setRevealedCells] = useState<Set<string>>(new Set());
   const [score, setScore] = useState(0);
-  const [completedWords, setCompletedWords] = useState<Set<number>>(new Set());
   const [startTime] = useState(Date.now());
-  const [activeWordIndex, setActiveWordIndex] = useState<number | null>(null);
+  const [adHintsUsed, setAdHintsUsed] = useState(0);
   const [adDialogOpen, setAdDialogOpen] = useState(false);
-  const [adHintCount, setAdHintCount] = useState(0);
-  const adTargetWord = useRef<PlacedWord | null>(null);
+  const adTargetClue = useRef<{ clueId: string; cellIndex: number } | null>(null);
   const [reactionTrigger, setReactionTrigger] = useState<{ correct: boolean; key: number } | null>(null);
 
+  // Reset state when puzzle changes
   useEffect(() => {
-    if (initialGrid.length > 0) {
-      setGrid(initialGrid);
+    if (puzzle) {
+      setUserEntries(new Map());
+      setActiveCell(null);
+      setActiveClueId(null);
+      setCompletedClueIds(new Set());
+      setRevealedCells(new Set());
       setScore(0);
-      setCompletedWords(new Set());
-      setAdHintCount(0);
+      setAdHintsUsed(0);
     }
-  }, [initialGrid]);
+  }, [puzzle]);
 
-  const handleCellChange = useCallback((row: number, col: number, letter: string) => {
-    setGrid(prev => {
-      const newGrid = prev.map(r => r.map(c => ({ ...c })));
-      const cell = newGrid[row][col];
-      if (cell.type === 'letter') {
-        (cell as LetterCell).userLetter = letter;
-      }
-      return newGrid;
-    });
-  }, []);
+  const highlightedCells = useMemo(
+    () => puzzle ? getHighlightedCellKeys(puzzle, activeClueId) : new Set<string>(),
+    [puzzle, activeClueId]
+  );
 
-  const handleWordComplete = useCallback((wordIndex: number, correct: boolean) => {
-    if (completedWords.has(wordIndex)) return;
-    if (correct) {
-      setCompletedWords(prev => new Set([...prev, wordIndex]));
-      setScore(prev => prev + 10);
-      const word = placedWords.find(w => w.index === wordIndex);
-      if (word) {
-        setGrid(prev => {
-          const newGrid = prev.map(r => r.map(c => ({ ...c })));
-          const dr = word.direction === 'down' ? 1 : 0;
-          const dc = word.direction === 'right' ? 1 : 0;
-          for (let i = 0; i < word.word.length; i++) {
-            const cell = newGrid[word.startRow + dr * i][word.startCol + dc * i];
-            if (cell.type === 'letter') (cell as LetterCell).isRevealed = true;
-          }
-          return newGrid;
-        });
-      }
-      toast.success('Doğru! +10 puan 🎉', { duration: 1500 });
-      setReactionTrigger({ correct: true, key: Date.now() });
-      if (completedWords.size + 1 === placedWords.length) {
-        const duration = Math.floor((Date.now() - startTime) / 1000);
-        saveGameSession({
-          id: `${Date.now()}`, category: categoryId, categoryName: category.name,
-          gridSize, score: score + 10, wordsFound: completedWords.size + 1,
-          totalWords: placedWords.length, duration, timestamp: Date.now(),
-          adHintsUsed: adHintCount, seed: puzzleSeed,
-        });
-        toast('🎊 Bulmaca Tamamlandı!', {
-          description: `Puan: ${score + 10} | Kelime: ${placedWords.length}`, duration: 5000,
-        });
-      }
-    } else {
-      const word = placedWords.find(w => w.index === wordIndex);
-      if (word) {
-        addUnknownWord({
-          word: word.word, clue: word.clue, category: categoryId,
-          categoryName: category.name, timestamp: Date.now(), learned: false,
-        });
-      }
-      toast.error('Yanlış, tekrar dene!', { duration: 1500 });
-      setReactionTrigger({ correct: false, key: Date.now() });
+  // ─── Cell click handler ─────────────────────────────────────────────────────
+  const handleCellClick = useCallback((x: number, y: number) => {
+    if (!puzzle) return;
+    const result = selectClueForCell(cellRelations, x, y, activeClueId, activeCell);
+    if (result) {
+      setActiveCell({ x, y });
+      setActiveClueId(result.clueId);
+      setActiveDirection(result.direction);
     }
-  }, [completedWords, placedWords, score, startTime, categoryId, category.name, gridSize, adHintCount, puzzleSeed]);
+  }, [puzzle, cellRelations, activeClueId, activeCell]);
 
-  const handleAdHintRequest = useCallback(() => {
-    for (const word of placedWords) {
-      if (completedWords.has(word.index)) continue;
-      const dr = word.direction === 'down' ? 1 : 0;
-      const dc = word.direction === 'right' ? 1 : 0;
-      for (let i = 0; i < word.word.length; i++) {
-        const r = word.startRow + dr * i;
-        const c = word.startCol + dc * i;
-        const cell = grid[r][c] as LetterCell;
-        if (!cell.userLetter) {
-          adTargetWord.current = word;
-          setAdDialogOpen(true);
-          return;
+  // ─── Clue click handler ─────────────────────────────────────────────────────
+  const handleClueClick = useCallback((clueId: string) => {
+    if (!puzzle) return;
+    const clue = getClueById(puzzle, clueId);
+    if (clue && clue.cells.length > 0) {
+      setActiveClueId(clueId);
+      setActiveDirection(clue.direction);
+      // Find first empty cell in this clue
+      const firstEmpty = clue.cells.find(c => !userEntries.get(coordKey(c.x, c.y)));
+      setActiveCell(firstEmpty || clue.cells[0]);
+    }
+  }, [puzzle, userEntries]);
+
+  // ─── Check clue completion ──────────────────────────────────────────────────
+  const checkAndCompleteClues = useCallback((
+    entries: Map<string, string>,
+    pendingEntry?: { x: number; y: number; letter: string }
+  ) => {
+    if (!puzzle) return;
+
+    // Check all clues that involve the pending entry cell
+    const key = pendingEntry ? coordKey(pendingEntry.x, pendingEntry.y) : null;
+    const relations = key ? cellRelations.get(key) || [] : [];
+
+    for (const rel of relations) {
+      if (completedClueIds.has(rel.clueId)) continue;
+      const clue = getClueById(puzzle, rel.clueId);
+      if (!clue) continue;
+
+      const { allFilled, allCorrect } = checkClueAnswer(clue, entries, pendingEntry);
+      if (allFilled) {
+        if (allCorrect) {
+          setCompletedClueIds(prev => {
+            const next = new Set(prev);
+            next.add(rel.clueId);
+
+            // Mark cells as revealed
+            setRevealedCells(prevR => {
+              const nextR = new Set(prevR);
+              for (const c of clue.cells) nextR.add(coordKey(c.x, c.y));
+              return nextR;
+            });
+
+            setScore(s => s + 10);
+            toast.success('Doğru! +10 puan 🎉', { duration: 1500 });
+            setReactionTrigger({ correct: true, key: Date.now() });
+
+            // Check puzzle completion
+            if (isPuzzleComplete(puzzle, next)) {
+              const duration = Math.floor((Date.now() - startTime) / 1000);
+              saveGameSession({
+                id: `${Date.now()}`, category: categoryId, categoryName: category.name,
+                gridSize: `${puzzle.gridWidth}x${puzzle.gridHeight}`,
+                score: score + 10, wordsFound: next.size,
+                totalWords: puzzle.clues.length, duration, timestamp: Date.now(),
+                adHintsUsed, seed: puzzleSeed,
+              });
+              toast('🎊 Bulmaca Tamamlandı!', {
+                description: `Puan: ${score + 10} | Kelime: ${puzzle.clues.length}`,
+                duration: 5000,
+              });
+            }
+            return next;
+          });
+        } else {
+          // Wrong answer for this clue
+          addUnknownWord({
+            word: clue.answer, clue: clue.text, category: categoryId,
+            categoryName: category.name, timestamp: Date.now(), learned: false,
+          });
+          toast.error('Yanlış, tekrar dene!', { duration: 1500 });
+          setReactionTrigger({ correct: false, key: Date.now() });
         }
       }
     }
-    toast('Tüm harfler dolu!', { duration: 1500 });
-  }, [grid, placedWords, completedWords]);
+  }, [puzzle, cellRelations, completedClueIds, startTime, categoryId, category.name, score, adHintsUsed, puzzleSeed]);
 
-  const handleAdConfirm = useCallback(() => {
-    const word = adTargetWord.current;
-    if (!word) return;
-    const dr = word.direction === 'down' ? 1 : 0;
-    const dc = word.direction === 'right' ? 1 : 0;
-    for (let i = 0; i < word.word.length; i++) {
-      const r = word.startRow + dr * i;
-      const c = word.startCol + dc * i;
-      const cell = grid[r][c] as LetterCell;
-      if (!cell.userLetter) {
-        setGrid(prev => {
-          const ng = prev.map(r => r.map(c => ({ ...c })));
-          const cl = ng[r][c] as LetterCell;
-          cl.userLetter = word.word[i];
-          cl.isRevealed = true;
-          return ng;
-        });
-        setScore(prev => Math.max(0, prev - 3));
-        setAdHintCount(prev => prev + 1);
-        addAdHint({
-          word: word.word, clue: word.clue, category: categoryId,
-          categoryName: category.name, timestamp: Date.now(),
-        });
-        toast('💡 Harf açıldı! (-3 puan)', { duration: 1500 });
-        return;
+  // ─── Letter input handler ───────────────────────────────────────────────────
+  const handleLetterInput = useCallback((letter: string) => {
+    if (!puzzle || !activeCell) return;
+
+    const key = coordKey(activeCell.x, activeCell.y);
+
+    // Don't write to revealed cells
+    if (revealedCells.has(key)) {
+      const next = getNextCell(puzzle, activeClueId, activeCell, revealedCells, completedClueIds);
+      if (next) setActiveCell(next);
+      return;
+    }
+
+    const upperLetter = letter.toUpperCase();
+    const newEntries = new Map(userEntries);
+    newEntries.set(key, upperLetter);
+    setUserEntries(newEntries);
+
+    // Check clue completion
+    checkAndCompleteClues(newEntries, { x: activeCell.x, y: activeCell.y, letter: upperLetter });
+
+    // Move to next cell
+    const next = getNextCell(puzzle, activeClueId, activeCell, revealedCells, completedClueIds);
+    if (next) setActiveCell(next);
+  }, [puzzle, activeCell, activeClueId, userEntries, revealedCells, completedClueIds, checkAndCompleteClues]);
+
+  // ─── Backspace handler ──────────────────────────────────────────────────────
+  const handleBackspace = useCallback(() => {
+    if (!puzzle || !activeCell) return;
+
+    const key = coordKey(activeCell.x, activeCell.y);
+
+    if (revealedCells.has(key)) {
+      const prev = getPrevCell(puzzle, activeClueId, activeCell, revealedCells);
+      if (prev) setActiveCell(prev);
+      return;
+    }
+
+    const currentLetter = userEntries.get(key);
+    if (currentLetter) {
+      const newEntries = new Map(userEntries);
+      newEntries.delete(key);
+      setUserEntries(newEntries);
+    } else {
+      const prev = getPrevCell(puzzle, activeClueId, activeCell, revealedCells);
+      if (prev) {
+        setActiveCell(prev);
+        const prevKey = coordKey(prev.x, prev.y);
+        const newEntries = new Map(userEntries);
+        newEntries.delete(prevKey);
+        setUserEntries(newEntries);
       }
     }
-  }, [grid, categoryId, category.name]);
+  }, [puzzle, activeCell, activeClueId, userEntries, revealedCells]);
 
+  // ─── Hint handler ───────────────────────────────────────────────────────────
+  const handleAdHintRequest = useCallback(() => {
+    if (!puzzle) return;
+    const hint = findHintCell(puzzle, userEntries, completedClueIds, revealedCells);
+    if (hint) {
+      adTargetClue.current = { clueId: hint.clue.id, cellIndex: hint.cellIndex };
+      setAdDialogOpen(true);
+    } else {
+      toast('Tüm harfler dolu!', { duration: 1500 });
+    }
+  }, [puzzle, userEntries, completedClueIds, revealedCells]);
+
+  const handleAdConfirm = useCallback(() => {
+    if (!puzzle || !adTargetClue.current) return;
+    const clue = getClueById(puzzle, adTargetClue.current.clueId);
+    if (!clue) return;
+
+    const cell = clue.cells[adTargetClue.current.cellIndex];
+    const letter = clue.answer[adTargetClue.current.cellIndex];
+    const key = coordKey(cell.x, cell.y);
+
+    const newEntries = new Map(userEntries);
+    newEntries.set(key, letter);
+    setUserEntries(newEntries);
+
+    setRevealedCells(prev => {
+      const next = new Set(prev);
+      next.add(key);
+      return next;
+    });
+
+    setScore(prev => Math.max(0, prev - 3));
+    setAdHintsUsed(prev => prev + 1);
+    addAdHint({
+      word: clue.answer, clue: clue.text, category: categoryId,
+      categoryName: category.name, timestamp: Date.now(),
+    });
+    toast('💡 Harf açıldı! (-3 puan)', { duration: 1500 });
+
+    // Check completion after hint
+    checkAndCompleteClues(newEntries, { x: cell.x, y: cell.y, letter });
+  }, [puzzle, userEntries, categoryId, category.name, checkAndCompleteClues]);
+
+  // ─── New puzzle handler ─────────────────────────────────────────────────────
   const handleNewPuzzle = useCallback(() => {
-    if (completedWords.size > 0) {
+    if (puzzle && completedClueIds.size > 0) {
       const duration = Math.floor((Date.now() - startTime) / 1000);
       saveGameSession({
         id: `${Date.now()}`, category: categoryId, categoryName: category.name,
-        gridSize, score, wordsFound: completedWords.size, totalWords: placedWords.length,
-        duration, timestamp: Date.now(), adHintsUsed: adHintCount, seed: puzzleSeed,
+        gridSize: `${puzzle.gridWidth}x${puzzle.gridHeight}`,
+        score, wordsFound: completedClueIds.size, totalWords: puzzle.clues.length,
+        duration, timestamp: Date.now(), adHintsUsed, seed: puzzleSeed,
       });
     }
     setPuzzleSeed(Date.now());
-  }, [completedWords, startTime, categoryId, category.name, gridSize, score, placedWords.length, adHintCount, puzzleSeed]);
+  }, [puzzle, completedClueIds, startTime, categoryId, category.name, score, adHintsUsed, puzzleSeed]);
 
+  // ─── Keyboard bridge ───────────────────────────────────────────────────────
   const handleKeyboardKey = (letter: string) => {
     window.dispatchEvent(new CustomEvent('crossword-key', { detail: { type: 'letter', value: letter } }));
   };
-
   const handleKeyboardBackspace = () => {
     window.dispatchEvent(new CustomEvent('crossword-key', { detail: { type: 'backspace' } }));
   };
 
+  // ─── Render states ──────────────────────────────────────────────────────────
   if (loading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
@@ -219,7 +340,7 @@ const Game: React.FC = () => {
     );
   }
 
-  if (generationError) {
+  if (generationError || !puzzle) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center p-4">
         <div className="text-center max-w-md">
@@ -252,18 +373,30 @@ const Game: React.FC = () => {
       <div className="game-container flex-1">
         <GameHeader
           category={category.name} categoryIcon={category.icon} score={score}
-          wordsFound={completedWords.size} totalWords={placedWords.length}
+          wordsFound={completedClueIds.size} totalWords={puzzle.clues.length}
           onBack={() => navigate('/')} onHint={handleAdHintRequest}
           onNewPuzzle={handleNewPuzzle} startTime={startTime}
         />
         <div className="flex flex-col items-center gap-3 pb-2">
-          <CrosswordGrid
-            grid={grid} placedWords={placedWords}
-            onCellChange={handleCellChange} onWordComplete={handleWordComplete}
+          <ArrowCrosswordGrid
+            puzzle={puzzle}
+            userEntries={userEntries}
+            activeCell={activeCell}
+            activeClueId={activeClueId}
+            highlightedCells={highlightedCells}
+            completedClueIds={completedClueIds}
+            revealedCells={revealedCells}
+            cellRelations={cellRelations}
+            onCellClick={handleCellClick}
+            onClueClick={handleClueClick}
+            onLetterInput={handleLetterInput}
+            onBackspace={handleBackspace}
           />
-          <ClueList
-            placedWords={placedWords} completedWords={completedWords}
-            activeWordIndex={activeWordIndex} onClueClick={(idx) => setActiveWordIndex(idx)}
+          <ArrowClueList
+            clues={puzzle.clues}
+            completedClueIds={completedClueIds}
+            activeClueId={activeClueId}
+            onClueClick={handleClueClick}
           />
         </div>
       </div>
@@ -272,7 +405,12 @@ const Game: React.FC = () => {
       </div>
       <AdHintDialog
         open={adDialogOpen} onClose={() => setAdDialogOpen(false)}
-        onConfirm={handleAdConfirm} wordClue={adTargetWord.current?.clue || ''}
+        onConfirm={handleAdConfirm}
+        wordClue={
+          adTargetClue.current && puzzle
+            ? (getClueById(puzzle, adTargetClue.current.clueId)?.text || '')
+            : ''
+        }
       />
       <ReactionOverlay trigger={reactionTrigger} />
     </div>
