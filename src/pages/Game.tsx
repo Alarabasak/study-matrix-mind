@@ -242,7 +242,7 @@ const Game: React.FC = () => {
         }
       }
     }
-  }, [puzzle, cellRelations, completedClueIds, startTime, categoryId, category.name, score, adHintsUsed, wrongChecks, puzzleSeed]);
+  }, [puzzle, cellRelations, completedClueIds, startTime, categoryId, category.name, score, adHintsUsed, wrongChecks]);
 
   // ─── Letter input ───────────────────────────────────────────────────────────
   const handleLetterInput = useCallback((letter: string) => {
