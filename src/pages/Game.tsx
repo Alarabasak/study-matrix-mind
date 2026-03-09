@@ -346,11 +346,11 @@ const Game: React.FC = () => {
         gridSize: `${puzzle.gridWidth}x${puzzle.gridHeight}`,
         score, wordsFound: completedClueIds.size, totalWords: puzzle.clues.length,
         duration: metrics.elapsedSeconds, timestamp: Date.now(),
-        adHintsUsed, seed: puzzleSeed,
+        adHintsUsed, seed: 0,
       });
     }
-    setPuzzleSeed(Date.now());
-  }, [puzzle, completedClueIds, startTime, categoryId, category.name, score, adHintsUsed, wrongChecks, puzzleSeed]);
+    setLoadKey(prev => prev + 1);
+  }, [puzzle, completedClueIds, startTime, categoryId, category.name, score, adHintsUsed, wrongChecks]);
 
   // ─── Keyboard bridge ───────────────────────────────────────────────────────
   const handleKeyboardKey = (letter: string) => {
