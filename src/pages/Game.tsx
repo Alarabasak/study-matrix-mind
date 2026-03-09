@@ -211,7 +211,7 @@ const Game: React.FC = () => {
                 score: score + 10, wordsFound: next.size,
                 totalWords: puzzle.clues.length,
                 duration: metrics.elapsedSeconds, timestamp: Date.now(),
-                adHintsUsed, seed: puzzleSeed,
+                adHintsUsed, seed: 0,
               });
 
               const statusEmoji = metrics.completionStatus === 'perfect' ? '🌟' : '🎊';
