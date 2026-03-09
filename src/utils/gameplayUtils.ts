@@ -146,66 +146,6 @@ export function getPrevCell(
   return null;
 }
 
-// ─── Answer checking ────────────────────────────────────────────────────────────
-
-/**
- * Check if a clue's answer is completely and correctly filled.
- */
-export function checkClueAnswer(
-  clue: ClueDefinition,
-  userEntries: Map<string, string>,
-  /** Optional override for a cell being typed right now */
-  pendingEntry?: { x: number; y: number; letter: string }
-): { allFilled: boolean; allCorrect: boolean } {
-  let allFilled = true;
-  let allCorrect = true;
-
-  for (let i = 0; i < clue.cells.length; i++) {
-    const key = coordKey(clue.cells[i].x, clue.cells[i].y);
-    let letter: string;
-
-    if (pendingEntry && pendingEntry.x === clue.cells[i].x && pendingEntry.y === clue.cells[i].y) {
-      letter = pendingEntry.letter;
-    } else {
-      letter = userEntries.get(key) || '';
-    }
-
-    if (!letter) allFilled = false;
-    if (letter !== clue.answer[i]) allCorrect = false;
-  }
-
-  return { allFilled, allCorrect };
-}
-
-/**
- * Check if the entire puzzle is completed.
- */
-export function isPuzzleComplete(
-  puzzle: PuzzleDefinition,
-  completedClueIds: Set<string>
-): boolean {
-  return puzzle.clues.every(c => completedClueIds.has(c.id));
-}
-
-// ─── Hint support ───────────────────────────────────────────────────────────────
-
-/**
- * Find the next empty cell in an incomplete clue for hint reveal.
- */
-export function findHintCell(
-  puzzle: PuzzleDefinition,
-  userEntries: Map<string, string>,
-  completedClueIds: Set<string>,
-  revealedCells: Set<string>
-): { clue: ClueDefinition; cellIndex: number } | null {
-  for (const clue of puzzle.clues) {
-    if (completedClueIds.has(clue.id)) continue;
-    for (let i = 0; i < clue.cells.length; i++) {
-      const key = coordKey(clue.cells[i].x, clue.cells[i].y);
-      if (!userEntries.get(key) && !revealedCells.has(key)) {
-        return { clue, cellIndex: i };
-      }
-    }
-  }
-  return null;
-}
+// Answer checking, puzzle completion, and hint functions
+// have been moved to src/utils/gameplayValidation.ts
+// Use: checkClue, isPuzzleFullyComplete, findNextHintTarget from there.
