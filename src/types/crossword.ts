@@ -1,5 +1,6 @@
 export type Direction = 'right' | 'down';
 
+/** @deprecated Use PuzzleDefinition gridWidth/gridHeight instead */
 export type GridSize = '12x12' | '16x12' | '12x16';
 
 export interface WordItem {
