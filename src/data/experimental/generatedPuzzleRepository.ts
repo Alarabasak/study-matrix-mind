@@ -18,8 +18,8 @@ import {
   PuzzlePack,
   PuzzleLevelInfo,
   validateAndReturn,
-} from './puzzleRepository';
-import { categories } from './questions';
+} from '../puzzleRepository';
+import { categories } from '../questions';
 import { getWordsForDifficulty } from '@/utils/wordDatabase';
 import { generatePuzzleDefinition } from '@/utils/crossword';
 
