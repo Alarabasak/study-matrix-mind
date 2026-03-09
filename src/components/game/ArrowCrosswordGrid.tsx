@@ -21,6 +21,7 @@ interface ArrowCrosswordGridProps {
   completedClueIds: Set<string>;
   revealedCells: Set<string>;
   cellRelations: CellRelationMap;
+  incorrectCellKeys?: Set<string>;
   onCellClick: (x: number, y: number) => void;
   onClueClick: (clueId: string) => void;
   onLetterInput: (letter: string) => void;

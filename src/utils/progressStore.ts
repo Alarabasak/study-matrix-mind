@@ -242,6 +242,17 @@ export function getContinueTarget(): { packId: string; levelId: string } | null 
   return null;
 }
 
+/** Clear in-progress state for a specific level (keep completion history) */
+export function clearLevelInProgress(packId: string, levelId: string): void {
+  const data = readProgress();
+  const key = levelKey(packId, levelId);
+  const existing = data.levels[key];
+  if (existing && !existing.completed) {
+    delete data.levels[key];
+    writeProgress(data);
+  }
+}
+
 /** Clear all progress (for testing/reset) */
 export function clearProgress(): void {
   localStorage.removeItem(STORAGE_KEY);
