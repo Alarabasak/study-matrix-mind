@@ -120,13 +120,25 @@ const Game: React.FC = () => {
   const [reactionTrigger, setReactionTrigger] = useState<{ correct: boolean; key: number } | null>(null);
   const [completionMetrics, setCompletionMetrics] = useState<CompletionMetrics | null>(null);
 
-  // Reset state when puzzle changes
+  // Reset state when puzzle changes; restore saved progress if available
   useEffect(() => {
     if (puzzle) {
-      setUserEntries(new Map());
+      // Check for saved in-progress state
+      if (packId) {
+        const saved = getLevelProgress(packId, levelId);
+        if (saved && saved.savedEntries && !saved.completed) {
+          setUserEntries(new Map(Object.entries(saved.savedEntries)));
+          setCompletedClueIds(new Set(saved.completedClueIds || []));
+        } else {
+          setUserEntries(new Map());
+          setCompletedClueIds(new Set());
+        }
+      } else {
+        setUserEntries(new Map());
+        setCompletedClueIds(new Set());
+      }
       setActiveCell(null);
       setActiveClueId(null);
-      setCompletedClueIds(new Set());
       setRevealedCells(new Set());
       setIncorrectCellKeys(new Set());
       setScore(0);
@@ -135,7 +147,7 @@ const Game: React.FC = () => {
       setWrongChecks(0);
       setCompletionMetrics(null);
     }
-  }, [puzzle]);
+  }, [puzzle, packId, levelId]);
 
   const highlightedCells = useMemo(
     () => puzzle ? getHighlightedCellKeys(puzzle, activeClueId) : new Set<string>(),
