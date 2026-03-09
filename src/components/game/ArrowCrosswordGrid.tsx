@@ -105,6 +105,9 @@ const ArrowCrosswordGrid: React.FC<ArrowCrosswordGridProps> = ({
     const isRevealed = revealedCells.has(key);
     const userLetter = userEntries.get(key) || '';
 
+    // Incorrect cell marking (temporary)
+    if (incorrectCellKeys.has(key)) return 'cell-wrong';
+
     // Check if this cell belongs to any completed clue
     const relations = cellRelations.get(key) || [];
     const isInCompletedClue = relations.some(r => completedClueIds.has(r.clueId));
