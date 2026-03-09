@@ -21,6 +21,7 @@ interface ArrowCrosswordGridProps {
   completedClueIds: Set<string>;
   revealedCells: Set<string>;
   cellRelations: CellRelationMap;
+  incorrectCellKeys?: Set<string>;
   onCellClick: (x: number, y: number) => void;
   onClueClick: (clueId: string) => void;
   onLetterInput: (letter: string) => void;
@@ -38,6 +39,7 @@ const ArrowCrosswordGrid: React.FC<ArrowCrosswordGridProps> = ({
   completedClueIds,
   revealedCells,
   cellRelations,
+  incorrectCellKeys = new Set(),
   onCellClick,
   onClueClick,
   onLetterInput,
@@ -102,6 +104,9 @@ const ArrowCrosswordGrid: React.FC<ArrowCrosswordGridProps> = ({
     const key = coordKey(x, y);
     const isRevealed = revealedCells.has(key);
     const userLetter = userEntries.get(key) || '';
+
+    // Incorrect cell marking (temporary)
+    if (incorrectCellKeys.has(key)) return 'cell-wrong';
 
     // Check if this cell belongs to any completed clue
     const relations = cellRelations.get(key) || [];
