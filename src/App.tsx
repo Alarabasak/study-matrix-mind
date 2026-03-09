@@ -8,6 +8,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import Index from "./pages/Index";
 import Game from "./pages/Game";
+import PackDetail from "./pages/PackDetail";
 import Dashboard from "./pages/Dashboard";
 import UnknownWords from "./pages/UnknownWords";
 import Settings from "./pages/Settings";
