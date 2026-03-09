@@ -1,0 +1,130 @@
+{
+  "id": "puzzle_example_12x12",
+  "title": "TYT Matematik - Temel Kavramlar",
+  "category": "tyt-mat",
+  "topic": "temel-kavramlar",
+  "difficulty": 3,
+  "estimatedMinutes": 5,
+  "gridWidth": 12,
+  "gridHeight": 12,
+  "cells": [
+    [
+      {"type":"clue","arrows":[{"direction":"right","clueId":"clue_0"}]},
+      {"type":"letter"},{"type":"letter"},{"type":"letter"},{"type":"letter"},{"type":"letter"},
+      {"type":"clue","arrows":[{"direction":"right","clueId":"clue_1"}]},
+      {"type":"letter"},{"type":"letter"},{"type":"letter"},{"type":"letter"},{"type":"letter"}
+    ],
+    [
+      {"type":"letter"},{"type":"letter"},{"type":"letter"},{"type":"letter"},{"type":"letter"},{"type":"letter"},
+      {"type":"letter"},{"type":"letter"},{"type":"letter"},{"type":"letter"},{"type":"letter"},{"type":"letter"}
+    ],
+    [
+      {"type":"clue","arrows":[{"direction":"down","clueId":"clue_2"}]},
+      {"type":"letter"},{"type":"letter"},{"type":"letter"},{"type":"letter"},{"type":"letter"},
+      {"type":"clue","arrows":[{"direction":"down","clueId":"clue_3"}]},
+      {"type":"letter"},{"type":"letter"},{"type":"letter"},{"type":"letter"},{"type":"letter"}
+    ],
+    [
+      {"type":"letter"},{"type":"letter"},{"type":"letter"},{"type":"letter"},{"type":"letter"},{"type":"letter"},
+      {"type":"letter"},{"type":"letter"},{"type":"letter"},{"type":"letter"},{"type":"letter"},{"type":"letter"}
+    ],
+    [
+      {"type":"letter"},{"type":"letter"},{"type":"letter"},{"type":"letter"},{"type":"letter"},{"type":"letter"},
+      {"type":"letter"},{"type":"letter"},{"type":"letter"},{"type":"letter"},{"type":"letter"},{"type":"letter"}
+    ],
+    [
+      {"type":"letter"},{"type":"letter"},{"type":"letter"},{"type":"letter"},{"type":"letter"},{"type":"letter"},
+      {"type":"letter"},{"type":"letter"},{"type":"letter"},{"type":"letter"},{"type":"letter"},{"type":"letter"}
+    ],
+    [
+      {"type":"clue","arrows":[{"direction":"right","clueId":"clue_4"}]},
+      {"type":"letter"},{"type":"letter"},{"type":"letter"},{"type":"letter"},{"type":"letter"},
+      {"type":"clue","arrows":[{"direction":"right","clueId":"clue_5"}]},
+      {"type":"letter"},{"type":"letter"},{"type":"letter"},{"type":"letter"},{"type":"letter"}
+    ],
+    [
+      {"type":"letter"},{"type":"letter"},{"type":"letter"},{"type":"letter"},{"type":"letter"},{"type":"letter"},
+      {"type":"letter"},{"type":"letter"},{"type":"letter"},{"type":"letter"},{"type":"letter"},{"type":"letter"}
+    ],
+    [
+      {"type":"letter"},{"type":"letter"},{"type":"letter"},{"type":"letter"},{"type":"letter"},{"type":"letter"},
+      {"type":"letter"},{"type":"letter"},{"type":"letter"},{"type":"letter"},{"type":"letter"},{"type":"letter"}
+    ],
+    [
+      {"type":"letter"},{"type":"letter"},{"type":"letter"},{"type":"letter"},{"type":"letter"},{"type":"letter"},
+      {"type":"letter"},{"type":"letter"},{"type":"letter"},{"type":"letter"},{"type":"letter"},{"type":"letter"}
+    ],
+    [
+      {"type":"letter"},{"type":"letter"},{"type":"letter"},{"type":"letter"},{"type":"letter"},{"type":"letter"},
+      {"type":"letter"},{"type":"letter"},{"type":"letter"},{"type":"letter"},{"type":"letter"},{"type":"letter"}
+    ],
+    [
+      {"type":"letter"},{"type":"letter"},{"type":"letter"},{"type":"letter"},{"type":"letter"},{"type":"letter"},
+      {"type":"letter"},{"type":"letter"},{"type":"letter"},{"type":"letter"},{"type":"letter"},{"type":"letter"}
+    ]
+  ],
+  "clues": [
+    {
+      "id": "clue_0",
+      "text": "Bir sayının kendisiyle çarpımı",
+      "startCell": {"x": 0, "y": 0},
+      "direction": "right",
+      "answer": "KARESI",
+      "cells": [{"x":1,"y":0},{"x":2,"y":0},{"x":3,"y":0},{"x":4,"y":0},{"x":5,"y":0}]
+    },
+    {
+      "id": "clue_1",
+      "text": "Bölme işleminin sonucu",
+      "startCell": {"x": 6, "y": 0},
+      "direction": "right",
+      "answer": "BOLUM",
+      "cells": [{"x":7,"y":0},{"x":8,"y":0},{"x":9,"y":0},{"x":10,"y":0},{"x":11,"y":0}]
+    },
+    {
+      "id": "clue_2",
+      "text": "İki sayının toplamı sıfır ise biri diğerinin ...",
+      "startCell": {"x": 0, "y": 2},
+      "direction": "down",
+      "answer": "TERSI",
+      "cells": [{"x":0,"y":3},{"x":0,"y":4},{"x":0,"y":5},{"x":0,"y":6},{"x":0,"y":7}]
+    },
+    {
+      "id": "clue_3",
+      "text": "Çarpma işleminin tekrarlanan toplama ile ilişkisi",
+      "startCell": {"x": 6, "y": 2},
+      "direction": "down",
+      "answer": "CARPIM",
+      "cells": [{"x":6,"y":3},{"x":6,"y":4},{"x":6,"y":5},{"x":6,"y":6},{"x":6,"y":7}]
+    },
+    {
+      "id": "clue_4",
+      "text": "Bir kümenin eleman sayısı",
+      "startCell": {"x": 0, "y": 6},
+      "direction": "right",
+      "answer": "SAYI",
+      "cells": [{"x":1,"y":6},{"x":2,"y":6},{"x":3,"y":6},{"x":4,"y":6}]
+    },
+    {
+      "id": "clue_5",
+      "text": "Eşit parçalara bölme",
+      "startCell": {"x": 6, "y": 6},
+      "direction": "right",
+      "answer": "BOLME",
+      "cells": [{"x":7,"y":6},{"x":8,"y":6},{"x":9,"y":6},{"x":10,"y":6}]
+    }
+  ],
+  "solution": [
+    {"x":1,"y":0,"letter":"K"},{"x":2,"y":0,"letter":"A"},{"x":3,"y":0,"letter":"R"},{"x":4,"y":0,"letter":"E"},{"x":5,"y":0,"letter":"S"},
+    {"x":7,"y":0,"letter":"B"},{"x":8,"y":0,"letter":"O"},{"x":9,"y":0,"letter":"L"},{"x":10,"y":0,"letter":"U"},{"x":11,"y":0,"letter":"M"},
+    {"x":0,"y":3,"letter":"T"},{"x":0,"y":4,"letter":"E"},{"x":0,"y":5,"letter":"R"},{"x":0,"y":6,"letter":"S"},{"x":0,"y":7,"letter":"I"},
+    {"x":6,"y":3,"letter":"C"},{"x":6,"y":4,"letter":"A"},{"x":6,"y":5,"letter":"R"},{"x":6,"y":6,"letter":"P"},{"x":6,"y":7,"letter":"I"},
+    {"x":1,"y":6,"letter":"A"},{"x":2,"y":6,"letter":"Y"},{"x":3,"y":6,"letter":"I"},{"x":4,"y":6,"letter":"S"},
+    {"x":7,"y":6,"letter":"B"},{"x":8,"y":6,"letter":"O"},{"x":9,"y":6,"letter":"L"},{"x":10,"y":6,"letter":"M"}
+  ],
+  "metadata": {
+    "author": "system",
+    "generatorVersion": "2.0",
+    "createdAt": "2026-03-09T00:00:00.000Z",
+    "seed": 42
+  }
+}

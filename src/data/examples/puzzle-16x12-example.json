@@ -1,0 +1,129 @@
+{
+  "id": "puzzle_example_16x12",
+  "title": "AYT Fizik - Kuvvet ve Hareket",
+  "category": "ayt-fiz",
+  "topic": "kuvvet-hareket",
+  "difficulty": 4,
+  "estimatedMinutes": 8,
+  "gridWidth": 16,
+  "gridHeight": 12,
+  "cells": [
+    [
+      {"type":"clue","arrows":[{"direction":"right","clueId":"clue_0"},{"direction":"down","clueId":"clue_4"}]},
+      {"type":"letter"},{"type":"letter"},{"type":"letter"},{"type":"letter"},{"type":"letter"},{"type":"letter"},
+      {"type":"clue","arrows":[{"direction":"right","clueId":"clue_1"}]},
+      {"type":"letter"},{"type":"letter"},{"type":"letter"},{"type":"letter"},{"type":"letter"},{"type":"letter"},{"type":"letter"},{"type":"letter"}
+    ],
+    [
+      {"type":"letter"},{"type":"letter"},{"type":"letter"},{"type":"letter"},{"type":"letter"},{"type":"letter"},{"type":"letter"},
+      {"type":"letter"},{"type":"letter"},{"type":"letter"},{"type":"letter"},{"type":"letter"},{"type":"letter"},{"type":"letter"},{"type":"letter"},{"type":"letter"}
+    ],
+    [
+      {"type":"letter"},{"type":"letter"},{"type":"letter"},{"type":"letter"},{"type":"letter"},{"type":"letter"},{"type":"letter"},
+      {"type":"clue","arrows":[{"direction":"down","clueId":"clue_5"}]},
+      {"type":"letter"},{"type":"letter"},{"type":"letter"},{"type":"letter"},{"type":"letter"},{"type":"letter"},{"type":"letter"},{"type":"letter"}
+    ],
+    [
+      {"type":"letter"},{"type":"letter"},{"type":"letter"},{"type":"letter"},{"type":"letter"},{"type":"letter"},{"type":"letter"},
+      {"type":"letter"},{"type":"letter"},{"type":"letter"},{"type":"letter"},{"type":"letter"},{"type":"letter"},{"type":"letter"},{"type":"letter"},{"type":"letter"}
+    ],
+    [
+      {"type":"clue","arrows":[{"direction":"right","clueId":"clue_2"}]},
+      {"type":"letter"},{"type":"letter"},{"type":"letter"},{"type":"letter"},{"type":"letter"},
+      {"type":"clue","arrows":[{"direction":"right","clueId":"clue_3"}]},
+      {"type":"letter"},{"type":"letter"},{"type":"letter"},{"type":"letter"},{"type":"letter"},{"type":"letter"},{"type":"letter"},{"type":"letter"},{"type":"letter"}
+    ],
+    [
+      {"type":"letter"},{"type":"letter"},{"type":"letter"},{"type":"letter"},{"type":"letter"},{"type":"letter"},
+      {"type":"letter"},{"type":"letter"},{"type":"letter"},{"type":"letter"},{"type":"letter"},{"type":"letter"},{"type":"letter"},{"type":"letter"},{"type":"letter"},{"type":"letter"}
+    ],
+    [
+      {"type":"letter"},{"type":"letter"},{"type":"letter"},{"type":"letter"},{"type":"letter"},{"type":"letter"},
+      {"type":"letter"},{"type":"letter"},{"type":"letter"},{"type":"letter"},{"type":"letter"},{"type":"letter"},{"type":"letter"},{"type":"letter"},{"type":"letter"},{"type":"letter"}
+    ],
+    [
+      {"type":"letter"},{"type":"letter"},{"type":"letter"},{"type":"letter"},{"type":"letter"},{"type":"letter"},
+      {"type":"letter"},{"type":"letter"},{"type":"letter"},{"type":"letter"},{"type":"letter"},{"type":"letter"},{"type":"letter"},{"type":"letter"},{"type":"letter"},{"type":"letter"}
+    ],
+    [
+      {"type":"letter"},{"type":"letter"},{"type":"letter"},{"type":"letter"},{"type":"letter"},{"type":"letter"},
+      {"type":"letter"},{"type":"letter"},{"type":"letter"},{"type":"letter"},{"type":"letter"},{"type":"letter"},{"type":"letter"},{"type":"letter"},{"type":"letter"},{"type":"letter"}
+    ],
+    [
+      {"type":"letter"},{"type":"letter"},{"type":"letter"},{"type":"letter"},{"type":"letter"},{"type":"letter"},
+      {"type":"letter"},{"type":"letter"},{"type":"letter"},{"type":"letter"},{"type":"letter"},{"type":"letter"},{"type":"letter"},{"type":"letter"},{"type":"letter"},{"type":"letter"}
+    ],
+    [
+      {"type":"letter"},{"type":"letter"},{"type":"letter"},{"type":"letter"},{"type":"letter"},{"type":"letter"},
+      {"type":"letter"},{"type":"letter"},{"type":"letter"},{"type":"letter"},{"type":"letter"},{"type":"letter"},{"type":"letter"},{"type":"letter"},{"type":"letter"},{"type":"letter"}
+    ],
+    [
+      {"type":"letter"},{"type":"letter"},{"type":"letter"},{"type":"letter"},{"type":"letter"},{"type":"letter"},
+      {"type":"letter"},{"type":"letter"},{"type":"letter"},{"type":"letter"},{"type":"letter"},{"type":"letter"},{"type":"letter"},{"type":"letter"},{"type":"letter"},{"type":"letter"}
+    ]
+  ],
+  "clues": [
+    {
+      "id": "clue_0",
+      "text": "Bir cismin konumunun zamanla değişmesi",
+      "startCell": {"x": 0, "y": 0},
+      "direction": "right",
+      "answer": "HAREKET",
+      "cells": [{"x":1,"y":0},{"x":2,"y":0},{"x":3,"y":0},{"x":4,"y":0},{"x":5,"y":0},{"x":6,"y":0}]
+    },
+    {
+      "id": "clue_1",
+      "text": "Birim zamandaki yer değiştirme",
+      "startCell": {"x": 7, "y": 0},
+      "direction": "right",
+      "answer": "HIZLANMA",
+      "cells": [{"x":8,"y":0},{"x":9,"y":0},{"x":10,"y":0},{"x":11,"y":0},{"x":12,"y":0},{"x":13,"y":0},{"x":14,"y":0},{"x":15,"y":0}]
+    },
+    {
+      "id": "clue_2",
+      "text": "Kütleyle ivmenin çarpımı",
+      "startCell": {"x": 0, "y": 4},
+      "direction": "right",
+      "answer": "KUVVET",
+      "cells": [{"x":1,"y":4},{"x":2,"y":4},{"x":3,"y":4},{"x":4,"y":4},{"x":5,"y":4}]
+    },
+    {
+      "id": "clue_3",
+      "text": "Kuvvetin uygulandığı süre ile çarpımı",
+      "startCell": {"x": 6, "y": 4},
+      "direction": "right",
+      "answer": "IMPULS",
+      "cells": [{"x":7,"y":4},{"x":8,"y":4},{"x":9,"y":4},{"x":10,"y":4},{"x":11,"y":4},{"x":12,"y":4}]
+    },
+    {
+      "id": "clue_4",
+      "text": "Madde miktarının ölçüsü",
+      "startCell": {"x": 0, "y": 0},
+      "direction": "down",
+      "answer": "KUTLE",
+      "cells": [{"x":0,"y":1},{"x":0,"y":2},{"x":0,"y":3},{"x":0,"y":4},{"x":0,"y":5}]
+    },
+    {
+      "id": "clue_5",
+      "text": "Birim zamandaki hız değişimi",
+      "startCell": {"x": 7, "y": 2},
+      "direction": "down",
+      "answer": "IVME",
+      "cells": [{"x":7,"y":3},{"x":7,"y":4},{"x":7,"y":5},{"x":7,"y":6}]
+    }
+  ],
+  "solution": [
+    {"x":1,"y":0,"letter":"H"},{"x":2,"y":0,"letter":"A"},{"x":3,"y":0,"letter":"R"},{"x":4,"y":0,"letter":"E"},{"x":5,"y":0,"letter":"K"},{"x":6,"y":0,"letter":"E"},
+    {"x":8,"y":0,"letter":"H"},{"x":9,"y":0,"letter":"I"},{"x":10,"y":0,"letter":"Z"},{"x":11,"y":0,"letter":"L"},{"x":12,"y":0,"letter":"A"},{"x":13,"y":0,"letter":"N"},{"x":14,"y":0,"letter":"M"},{"x":15,"y":0,"letter":"A"},
+    {"x":1,"y":4,"letter":"K"},{"x":2,"y":4,"letter":"U"},{"x":3,"y":4,"letter":"V"},{"x":4,"y":4,"letter":"V"},{"x":5,"y":4,"letter":"E"},
+    {"x":7,"y":4,"letter":"I"},{"x":8,"y":4,"letter":"M"},{"x":9,"y":4,"letter":"P"},{"x":10,"y":4,"letter":"U"},{"x":11,"y":4,"letter":"L"},{"x":12,"y":4,"letter":"S"},
+    {"x":0,"y":1,"letter":"K"},{"x":0,"y":2,"letter":"U"},{"x":0,"y":3,"letter":"T"},{"x":0,"y":4,"letter":"L"},{"x":0,"y":5,"letter":"E"},
+    {"x":7,"y":3,"letter":"I"},{"x":7,"y":4,"letter":"V"},{"x":7,"y":5,"letter":"M"},{"x":7,"y":6,"letter":"E"}
+  ],
+  "metadata": {
+    "author": "system",
+    "generatorVersion": "2.0",
+    "createdAt": "2026-03-09T00:00:00.000Z",
+    "seed": 99
+  }
+}

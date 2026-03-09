@@ -4,14 +4,15 @@
  * Re-exports all public types and functions.
  */
 
-export { generatePuzzle } from './generator';
+export { generatePuzzle, generatePuzzleDefinition } from './generator';
 export { normalizeAnswer } from './normalizer';
 export { SeededRandom } from './seededRandom';
 export { buildSlotTopology } from './topologyBuilder';
 export { assignAnswersWithCSP, checkUniqueness } from './solver';
 export { validateTopology, validateAssignment } from './validator';
 export { computeAnalytics } from './analytics';
-export { chooseGridConfig, getTopologyConfig, getSolverConfig, GRID_FAMILIES } from './config';
+export { chooseGridConfig, validateGridConfig, getTopologyConfig, getSolverConfig, GRID_FAMILIES } from './config';
+export { puzzleResultToDefinition } from './puzzleConverter';
 
 export type {
   ClueDirection,
