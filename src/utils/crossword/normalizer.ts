@@ -13,6 +13,6 @@
 export function normalizeAnswer(text: string): string {
   return text
     .toUpperCase()
-    .replace(/[\s\-''.,:;!?()\/\\""'']/g, '')
+    .replace(/[\s\-''.,:;!?()/\\""'']/g, '')
     .replace(/[^A-ZÇĞİIÖŞÜ0-9]/g, '');
 }

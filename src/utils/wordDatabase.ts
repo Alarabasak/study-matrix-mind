@@ -1,3 +1,4 @@
+import type { Tables } from '@/integrations/supabase/types';
 import { WordItem } from '@/types/crossword';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -13,7 +14,7 @@ export async function fetchWordDatabase(): Promise<Record<string, WordItem[]>> {
   }
 
   // Fetch all words with pagination (Supabase returns max 1000 per query)
-  const allData: any[] = [];
+  const allData: Pick<Tables<'words'>, 'word' | 'clue' | 'category' | 'topic' | 'difficulty' | 'grade' | 'lang' | 'frequency_score'>[] = [];
   const PAGE_SIZE = 1000;
   let from = 0;
   let hasMore = true;

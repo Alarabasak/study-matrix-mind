@@ -207,12 +207,12 @@ const CrosswordGrid: React.FC<CrosswordGridProps> = ({
 
   // Exposed for on-screen keyboard
   React.useEffect(() => {
-    const handler = (e: CustomEvent) => {
+    const handler = (e: WindowEventMap['crossword-key']) => {
       if (e.detail.type === 'letter') processLetter(e.detail.value);
       if (e.detail.type === 'backspace') processBackspace();
     };
-    window.addEventListener('crossword-key' as any, handler);
-    return () => window.removeEventListener('crossword-key' as any, handler);
+    window.addEventListener('crossword-key', handler);
+    return () => window.removeEventListener('crossword-key', handler);
   }, [processLetter, processBackspace]);
 
   const getCellStatus = (row: number, col: number, cell: LetterCell): string => {

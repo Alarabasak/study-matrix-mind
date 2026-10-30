@@ -71,12 +71,12 @@ const ArrowCrosswordGrid: React.FC<ArrowCrosswordGridProps> = ({
 
   // On-screen keyboard support
   useEffect(() => {
-    const handler = (e: CustomEvent) => {
+    const handler = (e: WindowEventMap['crossword-key']) => {
       if (e.detail.type === 'letter') onLetterInput(e.detail.value);
       if (e.detail.type === 'backspace') onBackspace();
     };
-    window.addEventListener('crossword-key' as any, handler);
-    return () => window.removeEventListener('crossword-key' as any, handler);
+    window.addEventListener('crossword-key', handler);
+    return () => window.removeEventListener('crossword-key', handler);
   }, [onLetterInput, onBackspace]);
 
   // Cell size calculation

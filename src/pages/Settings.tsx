@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, Trash2, Info } from 'lucide-react';
 import { clearAllData } from '@/utils/gameStats';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from "@/contexts/auth-context";
 import ExamDateManager from '@/components/admin/ExamDateManager';
 import { toast } from 'sonner';
 

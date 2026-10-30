@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -11,6 +11,13 @@ interface ExamDate {
   exam_date: string;
 }
 
+const toLocalDatetime = (isoStr: string) => {
+  const d = new Date(isoStr);
+  const offset = d.getTimezoneOffset();
+  const local = new Date(d.getTime() - offset * 60000);
+  return local.toISOString().slice(0, 16);
+};
+
 const ExamDateManager: React.FC = () => {
   const [examDates, setExamDates] = useState<ExamDate[]>([]);
   const [tytDate, setTytDate] = useState('');
@@ -18,14 +25,7 @@ const ExamDateManager: React.FC = () => {
   const [savingTyt, setSavingTyt] = useState(false);
   const [savingAyt, setSavingAyt] = useState(false);
 
-  const toLocalDatetime = (isoStr: string) => {
-    const d = new Date(isoStr);
-    const offset = d.getTimezoneOffset();
-    const local = new Date(d.getTime() - offset * 60000);
-    return local.toISOString().slice(0, 16);
-  };
-
-  const load = async () => {
+  const load = useCallback(async () => {
     const { data } = await supabase.from('exam_dates').select('*');
     if (data) {
       setExamDates(data);
@@ -34,9 +34,9 @@ const ExamDateManager: React.FC = () => {
       if (tyt) setTytDate(toLocalDatetime(tyt.exam_date));
       if (ayt) setAytDate(toLocalDatetime(ayt.exam_date));
     }
-  };
+  }, []);
 
-  useEffect(() => { load(); }, []);
+  useEffect(() => { load(); }, [load]);
 
   const save = async (examType: 'TYT' | 'AYT', dateStr: string) => {
     if (!dateStr) {
