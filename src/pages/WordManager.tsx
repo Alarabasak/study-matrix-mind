@@ -1,9 +1,9 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { categories } from '@/data/questions';
 import { fetchWordDatabase, addWord, removeWord, updateWord, getTopicsForCategory, removeAllWordsInCategory } from '@/utils/wordDatabase';
 import { WordItem } from '@/types/crossword';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from "@/contexts/auth-context";
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ArrowLeft, Plus, Trash2, Edit2, Search, LogOut, Upload, AlertTriangle } from 'lucide-react';
@@ -44,16 +44,16 @@ const WordManager: React.FC = () => {
   }, [isAdmin, isLoading, navigate]);
 
   // Load data
-  const loadData = async () => {
+  const loadData = useCallback(async () => {
     setLoading(true);
     const data = await fetchWordDatabase();
     setDb(data);
     const t = await getTopicsForCategory(selectedCategory);
     setTopics(t);
     setLoading(false);
-  };
+  }, [selectedCategory]);
 
-  useEffect(() => { loadData(); }, [selectedCategory]);
+  useEffect(() => { loadData(); }, [loadData]);
 
   const words = db[selectedCategory] || [];
   const filteredWords = words.filter(w =>
@@ -96,8 +96,8 @@ const WordManager: React.FC = () => {
       }
       setDialogOpen(false);
       loadData();
-    } catch (err: any) {
-      toast.error('Hata: ' + err.message);
+    } catch (err: unknown) {
+      toast.error('Hata: ' + (err instanceof Error ? err.message : typeof err === 'object' && err !== null && 'message' in err ? String(err.message) : 'Bilinmeyen hata'));
     }
   };
 
@@ -106,8 +106,8 @@ const WordManager: React.FC = () => {
       await removeWord(selectedCategory, wordText);
       toast.success('Kelime silindi');
       loadData();
-    } catch (err: any) {
-      toast.error('Hata: ' + err.message);
+    } catch (err: unknown) {
+      toast.error('Hata: ' + (err instanceof Error ? err.message : typeof err === 'object' && err !== null && 'message' in err ? String(err.message) : 'Bilinmeyen hata'));
     }
   };
 
@@ -117,8 +117,8 @@ const WordManager: React.FC = () => {
       toast.success(`${count} kelime silindi`);
       setDeleteAllOpen(false);
       loadData();
-    } catch (err: any) {
-      toast.error('Hata: ' + err.message);
+    } catch (err: unknown) {
+      toast.error('Hata: ' + (err instanceof Error ? err.message : typeof err === 'object' && err !== null && 'message' in err ? String(err.message) : 'Bilinmeyen hata'));
     }
   };
 

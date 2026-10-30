@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence, useAnimation } from 'framer-motion';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from "@/contexts/auth-context";
 import { toast } from '@/hooks/use-toast';
 
 const LOCKER_COLORS = ['#d4c5a0', '#c9bb94', '#d0c19e', '#c5b790'];

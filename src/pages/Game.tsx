@@ -58,9 +58,9 @@ const Game: React.FC = () => {
   const puzzleId = searchParams.get('puzzleId');
   const categoryId = searchParams.get('category') || 'tyt-mat';
 
-  const category = categoryId === 'shuffle'
+  const category = useMemo(() => categoryId === 'shuffle'
     ? { id: 'shuffle', name: 'Karıştır', icon: '🔀', description: 'Tüm dersler', color: 'hsl(0,0%,50%)', grade: 'TYT' as const }
-    : (categories.find(c => c.id === categoryId) || categories[0]);
+    : (categories.find(c => c.id === categoryId) || categories[0]), [categoryId]);
 
   // ─── Puzzle loading ─────────────────────────────────────────────────────────
   const [loading, setLoading] = useState(true);
